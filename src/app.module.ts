@@ -10,6 +10,8 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { validateEnv } from './config/env.validation';
 import { buildDataSourceOptions } from './database/database.config';
 import { GuestsModule } from './guests/guests.module';
+import { ReservationsModule } from './reservations/reservations.module';
+import { RoomsModule } from './rooms/rooms.module';
 
 @Module({
   imports: [
@@ -23,6 +25,8 @@ import { GuestsModule } from './guests/guests.module';
     ThrottlerModule.forRoot([{ name: 'default', ttl: 60_000, limit: () => globalRateLimit() }]),
     AuthModule,
     GuestsModule,
+    RoomsModule,
+    ReservationsModule,
   ],
   providers: [
     // Global guards run in this order for every request:
