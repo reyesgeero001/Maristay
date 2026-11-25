@@ -1,0 +1,38 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# Environment files (keep .env.example tracked)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# OS / editor temporary files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+*~
+
+# Private reference material (laboratory PDFs) — not part of the submitted source
+references/
+
+# Temporary exports that may contain credentials or live tokens
+exports/tmp/
+exports/*.local.json
+*.postman_environment.local.json
+
+# Claude Code local settings
+.claude/settings.local.json
