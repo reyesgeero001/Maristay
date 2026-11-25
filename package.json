@@ -22,7 +22,8 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "docs:build": "node scripts/build-docs.js"
   },
   "jest": {
     "moduleFileExtensions": [
@@ -74,6 +75,8 @@
     "@types/passport-jwt": "^4.0.2",
     "@types/supertest": "^6.0.3",
     "jest": "^29.7.0",
+    "marked": "^15.0.12",
+    "mermaid": "^11.17.2",
     "prettier": "^3.10.1",
     "source-map-support": "^0.5.21",
     "supertest": "^7.3.2",

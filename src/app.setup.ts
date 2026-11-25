@@ -20,8 +20,16 @@ export function configureApp(app: INestApplication): void {
 
   app.setGlobalPrefix(API_PREFIX);
 
-  // Security headers (X-Content-Type-Options, X-Frame-Options, HSTS, ...)
-  app.use(helmet());
+  // Security headers (CSP, X-Content-Type-Options, X-Frame-Options, HSTS, ...).
+  // The local demo runs on plain HTTP, so the CSP "upgrade-insecure-requests"
+  // directive is only sent in production (where HTTPS is required); otherwise
+  // browsers would try to load Swagger UI assets over HTTPS and fail.
+  const isProduction = config.get<string>('NODE_ENV') === 'production';
+  app.use(
+    helmet({
+      contentSecurityPolicy: isProduction ? true : { directives: { upgradeInsecureRequests: null } },
+    }),
+  );
 
   // Restricted CORS: only the configured front-end origin(s) may call the API from a browser.
   const origins = (config.get<string>('CORS_ORIGIN') ?? '')

@@ -36,3 +36,6 @@ exports/*.local.json
 
 # Claude Code local settings
 .claude/settings.local.json
+
+# Generated documentation build output (HTML preview)
+docs/build/
