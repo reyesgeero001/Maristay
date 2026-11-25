@@ -40,8 +40,11 @@ export function buildDataSourceOptions(env: Env = process.env, databaseOverride?
     synchronize: false,
     migrationsRun: false,
     charset: 'utf8mb4_unicode_ci',
-    // Store DATETIME values in UTC; return DATE columns as plain 'YYYY-MM-DD' strings.
-    timezone: 'Z',
+    // DATETIME values are written and read in the server's local time zone, the
+    // same zone MySQL uses for CURRENT_TIMESTAMP defaults (createdAt/updatedAt),
+    // so app-written and DB-generated timestamps agree and phpMyAdmin shows
+    // hotel-local times. DATE columns are returned as plain 'YYYY-MM-DD' strings.
+    timezone: 'local',
     dateStrings: ['DATE'],
     logging: env.DB_LOGGING === 'true' ? ['query', 'error'] : ['error'],
   };

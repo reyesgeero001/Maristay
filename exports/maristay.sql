@@ -19,6 +19,7 @@
 -- =====================================================================
 
 -- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
+-- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
 --
 -- Host: 127.0.0.1    Database: maristay_db
 -- ------------------------------------------------------
@@ -135,8 +136,8 @@ CREATE TABLE `housekeeping` (
 
 LOCK TABLES `housekeeping` WRITE;
 /*!40000 ALTER TABLE `housekeeping` DISABLE KEYS */;
-INSERT INTO `housekeeping` (`hkId`, `roomId`, `staffId`, `status`, `lastUpdate`, `createdAt`) VALUES (1,5,3,'COMPLETED','2026-11-17 15:02:16','2026-11-25 23:02:16.464314');
-INSERT INTO `housekeeping` (`hkId`, `roomId`, `staffId`, `status`, `lastUpdate`, `createdAt`) VALUES (2,4,3,'PENDING','2026-11-25 15:02:16','2026-11-25 23:02:16.473791');
+INSERT INTO `housekeeping` (`hkId`, `roomId`, `staffId`, `status`, `lastUpdate`, `createdAt`) VALUES (1,5,3,'COMPLETED','2026-11-17 23:02:16','2026-11-25 23:02:16.464314');
+INSERT INTO `housekeeping` (`hkId`, `roomId`, `staffId`, `status`, `lastUpdate`, `createdAt`) VALUES (2,4,3,'PENDING','2026-11-25 23:02:16','2026-11-25 23:02:16.473791');
 /*!40000 ALTER TABLE `housekeeping` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -193,8 +194,8 @@ CREATE TABLE `payments` (
 
 LOCK TABLES `payments` WRITE;
 /*!40000 ALTER TABLE `payments` DISABLE KEYS */;
-INSERT INTO `payments` (`paymentId`, `reservationId`, `amount`, `paymentMethod`, `status`, `date`, `createdAt`) VALUES (1,1,5900.00,'CARD','PAID','2026-11-15 15:02:16','2026-11-25 23:02:16.461864');
-INSERT INTO `payments` (`paymentId`, `reservationId`, `amount`, `paymentMethod`, `status`, `date`, `createdAt`) VALUES (2,2,5000.00,'E_WALLET','PAID','2026-11-25 15:02:16','2026-11-25 23:02:16.467169');
+INSERT INTO `payments` (`paymentId`, `reservationId`, `amount`, `paymentMethod`, `status`, `date`, `createdAt`) VALUES (1,1,5900.00,'CARD','PAID','2026-11-15 23:02:16','2026-11-25 23:02:16.461864');
+INSERT INTO `payments` (`paymentId`, `reservationId`, `amount`, `paymentMethod`, `status`, `date`, `createdAt`) VALUES (2,2,5000.00,'E_WALLET','PAID','2026-11-25 23:02:16','2026-11-25 23:02:16.467169');
 /*!40000 ALTER TABLE `payments` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -258,7 +259,7 @@ CREATE TABLE `rooms` (
   KEY `IDX_rooms_status_type` (`roomStatus`,`roomType`),
   CONSTRAINT `CHK_rooms_pricePerNight` CHECK (`pricePerNight` >= 0),
   CONSTRAINT `CHK_rooms_roomStatus` CHECK (`roomStatus` in ('AVAILABLE','OCCUPIED','CLEANING','MAINTENANCE'))
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -312,7 +313,7 @@ CREATE TABLE `service_orders` (
 
 LOCK TABLES `service_orders` WRITE;
 /*!40000 ALTER TABLE `service_orders` DISABLE KEYS */;
-INSERT INTO `service_orders` (`orderId`, `reservationId`, `serviceType`, `itemCode`, `quantity`, `unitPrice`, `totalAmount`, `status`, `date`, `notes`) VALUES (1,1,'Food','BREAKFAST_SET',2,450.00,900.00,'DELIVERED','2026-11-16 15:02:16',NULL);
+INSERT INTO `service_orders` (`orderId`, `reservationId`, `serviceType`, `itemCode`, `quantity`, `unitPrice`, `totalAmount`, `status`, `date`, `notes`) VALUES (1,1,'Food','BREAKFAST_SET',2,450.00,900.00,'DELIVERED','2026-11-16 23:02:16',NULL);
 /*!40000 ALTER TABLE `service_orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
