@@ -8,13 +8,17 @@ import { CreateReservationDto } from './dto/create-reservation.dto';
 import { ReservationQueryDto } from './dto/reservation-query.dto';
 import { UpdateReservationDto } from './dto/update-reservation.dto';
 import { ReservationsService } from './reservations.service';
+import { StayService } from './stay.service';
 
 @ApiTags('Reservations')
 @ApiBearerAuth()
 @Roles(Role.GUEST, Role.FRONT_DESK, Role.MANAGER) // Housekeeping has no access to reservations
 @Controller('reservations')
 export class ReservationsController {
-  constructor(private readonly reservationsService: ReservationsService) {}
+  constructor(
+    private readonly reservationsService: ReservationsService,
+    private readonly stayService: StayService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Book a room (Guest; Front Desk/Manager on behalf of a guest) — Lab 05 #3' })
@@ -62,6 +66,30 @@ export class ReservationsController {
   @ApiResponse({ status: 409, description: 'Reservation is not PENDING' })
   confirm(@Param('id', ParseIdPipe) id: number) {
     return this.reservationsService.confirm(id);
+  }
+
+  @Patch(':id/check-in')
+  @ApiOperation({
+    summary: 'Digital check-in (owner or Front Desk/Manager) — issues a digital room key',
+  })
+  @ApiResponse({ status: 200, description: 'CHECKED_IN, room OCCUPIED, digital key returned once' })
+  @ApiResponse({ status: 403, description: "Another guest's reservation" })
+  @ApiResponse({
+    status: 409,
+    description: 'Not confirmed, not yet check-in date, unpaid balance, or room not ready',
+  })
+  checkIn(@Param('id', ParseIdPipe) id: number, @CurrentUser() user: AuthUser) {
+    return this.stayService.checkIn(id, user);
+  }
+
+  @Patch(':id/check-out')
+  @ApiOperation({
+    summary: 'Digital check-out (owner or Front Desk/Manager) — revokes keys, queues cleaning',
+  })
+  @ApiResponse({ status: 200, description: 'CHECKED_OUT, keys revoked, room CLEANING, housekeeping task' })
+  @ApiResponse({ status: 409, description: 'Not checked in, or outstanding balance' })
+  checkOut(@Param('id', ParseIdPipe) id: number, @CurrentUser() user: AuthUser) {
+    return this.stayService.checkOut(id, user);
   }
 
   @Delete(':id')

@@ -10,6 +10,7 @@ import { RolesGuard } from './common/guards/roles.guard';
 import { validateEnv } from './config/env.validation';
 import { buildDataSourceOptions } from './database/database.config';
 import { GuestsModule } from './guests/guests.module';
+import { PaymentsModule } from './payments/payments.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { RoomsModule } from './rooms/rooms.module';
 
@@ -27,6 +28,7 @@ import { RoomsModule } from './rooms/rooms.module';
     GuestsModule,
     RoomsModule,
     ReservationsModule,
+    PaymentsModule,
   ],
   providers: [
     // Global guards run in this order for every request:

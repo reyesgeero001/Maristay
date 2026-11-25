@@ -19,6 +19,7 @@ import { nightsBetween, todayDateString } from '../common/utilities/date.util';
 import { fromCents, toCents } from '../common/utilities/money.util';
 import { assertGuestOwnerOrStaff, isGuest } from '../common/utilities/ownership.util';
 import { Guest } from '../guests/entities/guest.entity';
+import { BillingService } from '../payments/billing.service';
 import { Room } from '../rooms/entities/room.entity';
 import { CreateReservationDto } from './dto/create-reservation.dto';
 import { ReservationQueryDto } from './dto/reservation-query.dto';
@@ -41,6 +42,7 @@ export class ReservationsService {
   constructor(
     @InjectRepository(Reservation) private readonly reservations: Repository<Reservation>,
     private readonly dataSource: DataSource,
+    private readonly billing: BillingService,
   ) {}
 
   /**
@@ -168,16 +170,18 @@ export class ReservationsService {
    * DELETE /reservations/:id performs a CANCELLATION — the record is kept for
    * history and reporting; it is never physically deleted.
    */
-  async cancel(reservationId: number, user: AuthUser): Promise<Reservation> {
-    await this.dataSource.transaction(async (em) => {
+  async cancel(reservationId: number, user: AuthUser): Promise<Reservation & { refundDue: number }> {
+    const refundDue = await this.dataSource.transaction(async (em) => {
       const reservation = await this.lockReservation(em, reservationId);
       assertGuestOwnerOrStaff(user, reservation.guestId);
       if (![ReservationStatus.PENDING, ReservationStatus.CONFIRMED].includes(reservation.reservationStatus)) {
         throw new ConflictException(`A ${reservation.reservationStatus} reservation cannot be cancelled`);
       }
       await em.update(Reservation, { reservationId }, { reservationStatus: ReservationStatus.CANCELLED });
+      // Money already PAID is reported so the front desk can refund it (PATCH /payments/:id → REFUNDED).
+      return (await this.billing.summarize(em, reservation)).paidTotal;
     });
-    return this.findById(reservationId);
+    return Object.assign(await this.findById(reservationId), { refundDue });
   }
 
   // ---------------------------------------------------------------- helpers
