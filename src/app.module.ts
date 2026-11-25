@@ -9,10 +9,15 @@ import { globalRateLimit } from './auth/rate-limit.config';
 import { RolesGuard } from './common/guards/roles.guard';
 import { validateEnv } from './config/env.validation';
 import { buildDataSourceOptions } from './database/database.config';
+import { DigitalKeysModule } from './digital-keys/digital-keys.module';
 import { GuestsModule } from './guests/guests.module';
+import { HousekeepingModule } from './housekeeping/housekeeping.module';
+import { NotificationsModule } from './notifications/notifications.module';
 import { PaymentsModule } from './payments/payments.module';
 import { ReservationsModule } from './reservations/reservations.module';
 import { RoomsModule } from './rooms/rooms.module';
+import { ServiceOrdersModule } from './service-orders/service-orders.module';
+import { StaffModule } from './staff/staff.module';
 
 @Module({
   imports: [
@@ -29,6 +34,11 @@ import { RoomsModule } from './rooms/rooms.module';
     RoomsModule,
     ReservationsModule,
     PaymentsModule,
+    DigitalKeysModule,
+    HousekeepingModule,
+    StaffModule,
+    ServiceOrdersModule,
+    NotificationsModule,
   ],
   providers: [
     // Global guards run in this order for every request:
