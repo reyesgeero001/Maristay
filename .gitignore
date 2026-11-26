@@ -3,6 +3,7 @@ node_modules/
 
 # Build output
 dist/
+dist-postman/
 build/
 coverage/
 *.tsbuildinfo
@@ -33,6 +34,17 @@ references/
 exports/tmp/
 exports/*.local.json
 *.postman_environment.local.json
+
+# Postman desktop workspace files (local file-sync copies and the workspace id).
+# The submitted collection is exports/MariStay.postman_collection.json (v2.1).
+.postman/
+postman/
+exports/MariStay API/
+exports/*.environment.yaml
+
+# Database backups (contain password hashes)
+*.sql.bak
+*backup*.sql
 
 # Claude Code local settings
 .claude/settings.local.json

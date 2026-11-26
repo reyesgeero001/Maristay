@@ -23,7 +23,12 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-    "docs:build": "node scripts/build-docs.js"
+    "docs:build": "node scripts/build-docs.js",
+    "postman:setup": "node scripts/postman-instance.js setup",
+    "postman:reset": "node scripts/postman-instance.js reset",
+    "postman:start": "node scripts/postman-instance.js start",
+    "postman:env": "node scripts/postman-instance.js env",
+    "postman:newman": "node scripts/postman-instance.js newman"
   },
   "jest": {
     "moduleFileExtensions": [
