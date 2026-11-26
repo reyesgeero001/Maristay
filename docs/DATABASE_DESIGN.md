@@ -281,3 +281,14 @@ CHECK constraints are enforced by MySQL 8.0.16+ and MariaDB 10.2+ (verified on M
 Seed data (fictional): 1 manager, 1 front desk, 2 housekeeping staff, 2 guests, 9 rooms (101–104 Standard, 201–202 Deluxe, 301 Suite, 302–303 Family; 104 CLEANING, 303 MAINTENANCE), 3 reservations (one checked-out past stay with a delivered order and payment, one confirmed future stay, one pending future stay), 2 housekeeping records.
 
 > Known cosmetic note: on MariaDB, `npm run schema:check` lists two `ALTER … NULL` statements for the nullable `payments.date` and `service_orders.notes` columns because MariaDB reports their default as the text `'NULL'`. The statements would not change anything. (MySQL 8 reports a real `NULL` default, so the diff is expected to be empty there; this was not tested because the development machine runs MariaDB.)
+
+## 4.9 Database server and SQL export
+
+* **Server used:** XAMPP's bundled "MySQL" server, which is **MariaDB 10.4.32**, a MySQL-compatible fork. The application connects with the MySQL driver (`mysql2`, TypeORM `type: 'mysql'`). All results in this document were produced on this server. The schema uses only features that Oracle MySQL 8.0.16+ also supports, but it was **not** tested on Oracle MySQL (see the Requirements Compliance Checklist §6).
+* **Other databases:** the project uses three databases on the shared XAMPP server:
+  * `maristay_db`, the demonstration data;
+  * `maristay_test_db`, recreated by the e2e tests;
+  * `maristay_postman_db`, recreated before each full Postman/Newman run.
+
+  The tools never create, change or drop any other database. The e2e and Postman reset commands refuse to touch a database with a different name.
+* **SQL export:** `exports/maristay.sql` was produced by `mysqldump` from the migrated and seeded `maristay_db`. It contains the 8 tables, the `migrations` table, 7 foreign keys, 17 CHECK constraints, 23 indexes and the demonstration records. It begins with `CREATE DATABASE IF NOT EXISTS maristay_db; USE maristay_db;` and contains no `DROP TABLE` statements. It is meant for a server **without** an existing `maristay_db`. If one already exists with tables, the import stops at the first `CREATE TABLE` and changes nothing. Re-import was verified on 2026-11-26 into a scratch database: all objects were created without errors.

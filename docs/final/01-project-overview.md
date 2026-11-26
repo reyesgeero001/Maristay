@@ -12,9 +12,19 @@ MariStay unifies guest room reservations, digital check-in/check-out, keyless ro
 
 The system is a **backend prototype**: it exposes 44 REST endpoints, stores everything in a MySQL database of 8 related tables, and protects the API with JWT authentication and role-based authorization. Payment gateways, SMS/e-mail and smart locks are simulated.
 
-## 1.3 Background
+## 1.3 Background and problem statement
 
 Lab 03 identified the real-world problems MariStay addresses: long check-in lines at the front desk, slow updates on room cleaning status, and manual room-service tracking. These are *integration* problems — each department has the information another one needs. A reservation must know whether it is paid; a room cannot be given to a guest until housekeeping has cleaned it; a room key must stop working the moment the guest checks out. MariStay demonstrates how a well-designed backend makes these modules work together inside database transactions.
+
+**Problem statement.** Hotel departments that keep their own records cannot coordinate a guest's stay reliably. This leads to:
+
+1. **Front-desk bottlenecks.** Every check-in and check-out needs a staff member to verify the booking, the payment and the room by hand.
+2. **Unsafe room assignment.** Without one shared booking record and atomic checks, a room can be double-booked, or given to a guest before it is cleaned or paid for.
+3. **Slow housekeeping updates.** Rooms stay unavailable longer than needed because cleaning status is passed on by phone or paper.
+4. **Untracked guest services and charges.** Room-service orders are tracked manually, so charges can be missed at check-out.
+5. **Weak access control.** Physical keys and shared records cannot ensure that each user sees and changes only what their role allows.
+
+How can one secure backend system integrate reservations, payments, room access, housekeeping and guest services, so that each step updates the others automatically and consistently?
 
 ## 1.4 Objectives
 
@@ -44,7 +54,7 @@ Lab 03 identified the real-world problems MariStay addresses: long check-in line
 * MySQL database (8 tables) with migrations, constraints and seed data.
 * JWT authentication, RBAC with 4 roles, ownership checks, validation, rate limiting, security headers.
 * Integrated workflows with transactional consistency and booking-conflict prevention.
-* Automated unit and end-to-end tests; Postman collection; SQL export.
+* Automated unit and end-to-end tests; a Postman collection (also run with Newman); SQL export.
 
 **Limitations**
 * **Simulated integrations:** no real payment gateway (payments are recorded by the front desk; no card data), no real SMS/e-mail (messages are logged), no physical smart lock (key validation only returns a decision).
@@ -53,4 +63,18 @@ Lab 03 identified the real-world problems MariStay addresses: long check-in line
 * **Single property, single currency (PHP)**, no taxes, discounts, invoices, or partial-night pricing; early check-out does not refund unused nights.
 * **Service catalog** prices are defined in code, not in a database table.
 * **Refresh tokens / logout blacklist** are not implemented; access tokens simply expire (1 h) and deactivation takes effect immediately.
-* Developed and tested on MariaDB 10.4 (XAMPP's MySQL); MySQL 8 is expected to behave the same but was not tested.
+* **Database server:** developed and tested on XAMPP's "MySQL" server, which is MariaDB 10.4.32, a MySQL-compatible fork. It has not been tested on Oracle MySQL 8. Compatibility is expected but not proven (see the Requirements Compliance Checklist §6).
+
+## 1.7 Technologies used
+
+| Component | Technology (version used) | Purpose |
+|---|---|---|
+| Runtime and language | Node.js 24, TypeScript 5.8 | Server runtime and typed source code |
+| Backend framework | NestJS 11 | Modules, controllers, dependency injection, guards, pipes |
+| ORM | TypeORM 0.3 with the `mysql2` driver | Entities, relations, migrations, transactions, row locks |
+| Database | MySQL-compatible server: XAMPP MariaDB 10.4.32; phpMyAdmin | Stores the 8 tables; administration and demonstration |
+| Authentication | `@nestjs/jwt`, `@nestjs/passport`, `passport-jwt`, `bcrypt` | JWT issuing and verification; password hashing |
+| Validation and security | `class-validator`, `class-transformer`, `helmet`, `@nestjs/throttler` | Input validation, security headers, rate limiting |
+| API documentation | `@nestjs/swagger` (OpenAPI / Swagger UI) | Interactive endpoint documentation at `/api/docs` |
+| Testing | Jest, Supertest, Postman, Newman 6 | Unit, end-to-end and collection tests |
+| Version control | Git, GitHub | Source history and submission |

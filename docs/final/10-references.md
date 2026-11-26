@@ -18,4 +18,5 @@ Technical documentation of the tools used:
 13. class-validator — https://github.com/typestack/class-validator
 14. Helmet — https://helmetjs.github.io
 15. Postman Learning Center — https://learning.postman.com
-16. OWASP Cheat Sheet Series — Password Storage; Authentication; REST Security. https://cheatsheetseries.owasp.org
+16. Newman, the Postman command-line collection runner — https://github.com/postmanlabs/newman
+17. OWASP Cheat Sheet Series — Password Storage; Authentication; REST Security. https://cheatsheetseries.owasp.org

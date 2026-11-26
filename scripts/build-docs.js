@@ -28,6 +28,7 @@ const CHAPTERS = [
   { file: 'final/09-conclusion.md', title: 'Conclusion' },
   { file: 'final/10-references.md', title: 'References', unnumbered: true },
   { file: 'final/11-appendix.md', title: 'Appendix', unnumbered: true },
+  { file: 'COMPLIANCE_CHECKLIST.md', title: 'Requirements Compliance Checklist', unnumbered: true },
 ];
 
 const read = (rel) => fs.readFileSync(path.join(DOCS, rel), 'utf8').replace(/\r\n/g, '\n');

@@ -20,7 +20,7 @@ MariStay is a NestJS + TypeORM + MySQL REST API that unifies hotel room reservat
 |---|---|
 | Runtime / language | Node.js 20+ (developed on 24), TypeScript 5.8 |
 | Framework | NestJS 11 |
-| ORM / database | TypeORM 0.3, MySQL (developed on XAMPP MariaDB 10.4), driver `mysql2` |
+| ORM / database | TypeORM 0.3 with the `mysql2` driver; MySQL-compatible server (developed and tested on XAMPP's MariaDB 10.4.32) |
 | Auth | `@nestjs/jwt`, `@nestjs/passport`, `passport-jwt`, `bcrypt` |
 | Validation | `class-validator`, `class-transformer` |
 | Security | `helmet`, `@nestjs/throttler` |
@@ -29,7 +29,7 @@ MariStay is a NestJS + TypeORM + MySQL REST API that unifies hotel room reservat
 ## Prerequisites
 
 - Node.js 20 or newer and npm.
-- A MySQL server, either MySQL 8.0.16+ or MariaDB 10.2+ (XAMPP works). Start MySQL from the XAMPP Control Panel.
+- A MySQL-compatible server. Tested: XAMPP's "MySQL", which is MariaDB 10.4.32. Oracle MySQL 8.0.16+ is expected to work but has not been tested. Start MySQL from the XAMPP Control Panel.
   - On Windows with XAMPP, the `mysql` command is in `C:\xampp\mysql\bin`, which is not on PATH by default. Use the full path or add that folder to PATH.
 - Git and Postman.
 
@@ -85,6 +85,8 @@ Import [`exports/maristay.sql`](exports/maristay.sql) into an empty server:
 - **phpMyAdmin:** open the Import tab, choose `exports/maristay.sql`, click Go.
 - **Command line:** `mysql -u root -p < exports/maristay.sql` (XAMPP: `C:\xampp\mysql\bin\mysql.exe -u root -p < exports\maristay.sql`)
 
+The file creates and uses `maristay_db`, and it has no `DROP TABLE` statements. Import it only on a server that does not already have a `maristay_db`; otherwise the import stops at the first table and changes nothing.
+
 The imported demo accounts' password is the one used when the export was made. It is not stored in the repository. Use Option A to create accounts with your own `SEED_DEMO_PASSWORD`.
 
 ### Exporting the database again
@@ -120,10 +122,32 @@ The seed also creates 9 rooms (101–104 Standard, 201–202 Deluxe, 301 Suite, 
 
 ## Postman
 
-1. Import `exports/MariStay.postman_collection.json` and `exports/MariStay.postman_environment.json`.
-2. Select the **MariStay Local** environment and set `demoPassword` to your `SEED_DEMO_PASSWORD`. Keep this value local and do not export it.
-3. With the API running, run folder **1. Authentication** to log in every role. Tokens and ids are captured automatically.
-4. Run the remaining folders in order (1–11), or the whole collection with the Collection Runner. Folder 9 continues the stay created in folder 6. Folder 11 ends with the rate-limit test, which blocks logins from your IP for about 60 seconds.
+The submitted collection is [`exports/MariStay.postman_collection.json`](exports/MariStay.postman_collection.json) (Postman v2.1): 11 folders and 122 requests with test assertions. Import it together with [`exports/MariStay.postman_environment.json`](exports/MariStay.postman_environment.json).
+
+**Live demonstration (port 3000, `maristay_db`):**
+1. Select the **MariStay Local** environment.
+2. Set `demoPassword` to your `SEED_DEMO_PASSWORD` and **save** the environment (Ctrl+S). Keep this value local.
+3. Send single requests, e.g. *1. Authentication → Login - Manager*, then the room CRUD requests in folder 3.
+
+**Full collection run (isolated database, port 3001).** The full run creates guests, staff, reservations and payments, so never run it against your demonstration database.
+
+```bash
+npm run postman:reset    # rebuild ONLY maristay_postman_db (fresh seed)
+npm run postman:start    # API for Postman on http://localhost:3001/api/v1 (leave running)
+npm run postman:env      # writes exports/tmp/MariStay Postman 3001.postman_environment.json
+```
+
+1. Import the generated *MariStay Postman 3001* environment, set `demoPassword`, and **save** it.
+2. Run the whole collection in the Collection Runner: default order, 1 iteration, sequential.
+3. Before every re-run, stop the server, then run `postman:reset` and `postman:start` again. The login rate limit is kept in memory, and the last request deliberately triggers it.
+
+Command-line alternative:
+1. Run `npm install --no-save newman` once.
+2. Run `npm run postman:newman` while the port-3001 server is running.
+
+The password is read from `.env` in memory and is never shown.
+
+> `npm install --no-save` adds a tool without changing `package.json`, but the next `npm install` removes it again. If you also rebuild the slides, install both tools together: `npm install --no-save newman pptxgenjs`.
 
 ## Testing
 
@@ -133,7 +157,7 @@ npm run test:e2e      # end-to-end tests against a real, isolated MySQL test dat
 npm run test:cov      # unit test coverage report
 ```
 
-The e2e suite drops and recreates `TEST_DB_DATABASE` (default `maristay_test_db`), runs the migrations, seeds it, and exercises the full API. It refuses to run against a database whose name does not end with `_test` or `_test_db`. Latest results: **33/33 unit** and **46/46 e2e** tests passed (see [`docs/TESTING_REPORT.md`](docs/TESTING_REPORT.md)).
+The e2e suite drops and recreates `TEST_DB_DATABASE` (default `maristay_test_db`), runs the migrations, seeds it, and exercises the full API. It refuses to run against a database whose name does not end with `_test` or `_test_db`. Latest results: **33/33 unit** and **46/46 e2e** tests passed. The full Postman collection passed in Newman in three runs: **122/122 requests, 177/177 assertions** (see [`docs/TESTING_REPORT.md`](docs/TESTING_REPORT.md)).
 
 ## Documentation
 
@@ -146,7 +170,9 @@ The e2e suite drops and recreates `TEST_DB_DATABASE` (default `maristay_test_db`
 | [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md) | All 44 endpoints with examples and status codes |
 | [`docs/AUTHENTICATION_SECURITY.md`](docs/AUTHENTICATION_SECURITY.md) | Login flow, JWT, RBAC, validation, rate limiting |
 | [`docs/TESTING_REPORT.md`](docs/TESTING_REPORT.md) | Actual test results |
+| [`docs/MariStay_Presentation.pptx`](docs/MariStay_Presentation.pptx) | Editable defense slides with speaker notes |
 | [`docs/PRESENTATION_GUIDE.md`](docs/PRESENTATION_GUIDE.md), [`docs/VIDEO_DEMO_SCRIPT.md`](docs/VIDEO_DEMO_SCRIPT.md), [`docs/DEFENSE_QUESTIONS.md`](docs/DEFENSE_QUESTIONS.md) | Presentation, video, and Q&A preparation |
+| [`docs/COMPLIANCE_CHECKLIST.md`](docs/COMPLIANCE_CHECKLIST.md) | Every mandatory requirement with its evidence and status |
 | [`docs/PROJECT_REQUIREMENTS.md`](docs/PROJECT_REQUIREMENTS.md), [`docs/DEVELOPMENT_PROGRESS.md`](docs/DEVELOPMENT_PROGRESS.md) | Requirements, deviations, and progress tracker |
 
 ## Project structure
@@ -160,9 +186,10 @@ src/
   database/      connection config, migrations/, seeds/, data-source.ts
   app.module.ts  app.setup.ts  main.ts
 test/            e2e tests (Supertest) and test-database setup
-exports/         maristay.sql, Postman collection and environment
+exports/         maristay.sql, Postman collection (v2.1) and environment
 docs/            documentation (final/ holds chapter sources for the PDF)
-scripts/         build-docs.js
+scripts/         build-docs.js (documentation PDF), postman-instance.js (isolated Postman/Newman runs),
+                 build-presentation.js (slides)
 ```
 
 ## Simulated integrations and limitations
@@ -172,4 +199,4 @@ scripts/         build-docs.js
 - **Smart lock (simulated):** `POST /api/v1/digital-keys/validate` returns an access decision. No physical door is opened.
 - **HTTP only:** the local demo runs over plain HTTP. HTTPS must be provided by a reverse proxy in deployment.
 - **No front-end:** use Postman or Swagger UI.
-- **Database tested:** only MariaDB 10.4 (XAMPP's MySQL). MySQL 8 is expected to work the same way but has not been tested.
+- **Database tested:** only MariaDB 10.4.32 (XAMPP's MySQL-compatible server). Oracle MySQL 8 is expected to work but has not been tested; see [`docs/COMPLIANCE_CHECKLIST.md`](docs/COMPLIANCE_CHECKLIST.md) §6.

@@ -30,6 +30,9 @@ Thumbs.db
 # Private reference material (laboratory PDFs) — not part of the submitted source
 references/
 
+# Private development brief (kept locally, not published)
+MASTER_PROMPT.md
+
 # Temporary exports that may contain credentials or live tokens
 exports/tmp/
 exports/*.local.json
