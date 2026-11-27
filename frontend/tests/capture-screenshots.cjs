@@ -3,10 +3,10 @@
  * all four roles). Run it ONLY against the isolated stack on a freshly reset
  * database, because it registers a guest and creates records:
  *
- *   npm run postman:reset                                   (repository root)
- *   DB_DATABASE=maristay_postman_db PORT=3001 LOGIN_RATE_LIMIT=100 node dist-postman/main.js
+ *   npm run postman:reset                                   (in backend/)
+ *   DB_DATABASE=maristay_postman_db PORT=3001 LOGIN_RATE_LIMIT=100 node dist-postman/main.js   (in backend/)
  *   cd frontend && VITE_API_BASE_URL=http://localhost:3001/api/v1 npm run dev
- *   node --env-file=../.env tests/capture-screenshots.cjs ../docs/screenshots/frontend
+ *   node --env-file=../backend/.env tests/capture-screenshots.cjs ../docs/screenshots/frontend
  *
  * Digital key codes are masked in every image. Nothing secret is printed.
  */

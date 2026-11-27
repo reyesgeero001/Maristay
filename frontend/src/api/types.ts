@@ -1,6 +1,6 @@
 /**
  * Response/request shapes of the MariStay REST API.
- * They mirror the backend entities and DTOs in ../../src (NestJS); keep them in sync.
+ * They mirror the backend entities and DTOs in ../../../backend/src (NestJS); keep them in sync.
  */
 
 export type Role = 'GUEST' | 'FRONT_DESK' | 'HOUSEKEEPING' | 'MANAGER';

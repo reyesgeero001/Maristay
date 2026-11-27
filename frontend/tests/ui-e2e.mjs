@@ -6,10 +6,10 @@
  * test database (maristay_postman_db) — it creates and changes records.
  *
  *   FRONTEND_URL      default http://localhost:5173
- *   SEED_DEMO_PASSWORD demo account password (loaded from the backend .env)
+ *   SEED_DEMO_PASSWORD demo account password (loaded from backend/.env)
  *   SCREENSHOT_DIR    optional folder for screenshots (may show key codes — keep out of git)
  *
- *   node --env-file=../.env tests/ui-e2e.mjs
+ *   node --env-file=../backend/.env tests/ui-e2e.mjs
  */
 import { chromium } from 'playwright-core';
 import { mkdirSync } from 'node:fs';
@@ -19,7 +19,7 @@ const BASE = process.env.FRONTEND_URL ?? 'http://localhost:5173';
 const PASSWORD = process.env.SEED_DEMO_PASSWORD;
 const SHOTS = process.env.SCREENSHOT_DIR;
 if (!PASSWORD) {
-  console.error('SEED_DEMO_PASSWORD is not set (run with --env-file=../.env).');
+  console.error('SEED_DEMO_PASSWORD is not set (run with --env-file=../backend/.env).');
   process.exit(1);
 }
 if (SHOTS) mkdirSync(SHOTS, { recursive: true });

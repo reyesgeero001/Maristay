@@ -19,7 +19,7 @@ try {
 }
 
 // PPTX_OUT lets a preview be written elsewhere; the default is the submitted deck.
-const OUT = process.env.PPTX_OUT ?? path.join(__dirname, '..', 'docs', 'MariStay_Presentation.pptx');
+const OUT = process.env.PPTX_OUT ?? path.join(__dirname, '..', '..', 'docs', 'MariStay_Presentation.pptx');
 
 // ---------- Palette and type ----------
 const C = {
@@ -509,7 +509,7 @@ pres.addSection({ title: 'Results' });
 // =====================================================================
 {
   const s = content('Results', 'Optional React frontend (bonus)');
-  const shot = (file) => path.join(__dirname, '..', 'docs', 'screenshots', 'frontend', file);
+  const shot = (file) => path.join(__dirname, '..', '..', 'docs', 'screenshots', 'frontend', file);
   [
     ['02a-register-form.png', 'Guest sign-up: always a Guest account'],
     ['14a-smart-lock-granted.png', 'Digital key and simulated smart lock'],
@@ -575,5 +575,5 @@ pres.addSection({ title: 'Results' });
     if (!entry.dir) out.file(name, await entry.async('nodebuffer'), { createFolders: false });
   }
   require('fs').writeFileSync(OUT, await out.generateAsync({ type: 'nodebuffer', compression: 'DEFLATE' }));
-  console.log('✔ ' + path.relative(path.join(__dirname, '..'), OUT));
+  console.log('✔ ' + path.relative(path.join(__dirname, '..', '..'), OUT));
 })();

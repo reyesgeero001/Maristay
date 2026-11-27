@@ -11,7 +11,8 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 const { Marked } = require('marked');
 
-const ROOT = path.resolve(__dirname, '..');
+const BACKEND = path.resolve(__dirname, '..');
+const ROOT = path.resolve(BACKEND, '..');
 const DOCS = path.join(ROOT, 'docs');
 const BUILD = path.join(DOCS, 'build');
 
@@ -80,7 +81,7 @@ const marked = new Marked({
     },
   },
 });
-const mermaidPath = path.relative(BUILD, path.join(ROOT, 'node_modules/mermaid/dist/mermaid.min.js')).replace(/\\/g, '/');
+const mermaidPath = path.relative(BUILD, path.join(BACKEND, 'node_modules/mermaid/dist/mermaid.min.js')).replace(/\\/g, '/');
 const html = `<!doctype html>
 <html lang="en"><head><meta charset="utf-8">
 <title>MariStay — Technical Documentation</title>

@@ -4,7 +4,7 @@
  *   npm run postman:setup   create + migrate + seed maristay_postman_db (non-destructive, idempotent)
  *   npm run postman:reset   drop and rebuild ONLY maristay_postman_db (fresh data for a re-run)
  *   npm run postman:start   build into dist-postman/ and start the API on port 3001
- *   npm run postman:env     write a Postman environment for port 3001 to exports/tmp/ (no secrets)
+ *   npm run postman:env     write a Postman environment for port 3001 to postman/tmp/ (no secrets)
  *   npm run postman:newman  optional: run the collection with Newman against port 3001
  *
  * The database name and port are fixed here and passed to child processes as
@@ -19,11 +19,12 @@ const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 
-const ROOT = path.resolve(__dirname, '..');
+const ROOT = path.resolve(__dirname, '..'); // backend/
+const POSTMAN_DIR = path.resolve(ROOT, '..', 'postman');
 const POSTMAN_DB = 'maristay_postman_db';
 const PORT = '3001';
 const BASE_URL = `http://localhost:${PORT}/api/v1`;
-const TMP_DIR = path.join(ROOT, 'exports', 'tmp'); // git-ignored
+const TMP_DIR = path.join(POSTMAN_DIR, 'tmp'); // git-ignored
 
 dotenv.config({ path: path.join(ROOT, '.env'), quiet: true });
 
@@ -85,8 +86,8 @@ function start() {
 
 /** Builds a Postman v2.1 environment object from the committed environment (YAML or JSON). */
 function loadEnvironment() {
-  const json = path.join(ROOT, 'exports', 'MariStay.postman_environment.json');
-  if (!fs.existsSync(json)) fail('exports/MariStay.postman_environment.json not found.');
+  const json = path.join(POSTMAN_DIR, 'MariStay.postman_environment.json');
+  if (!fs.existsSync(json)) fail('postman/MariStay.postman_environment.json not found.');
   const { values } = JSON.parse(fs.readFileSync(json, 'utf8'));
   const secret = (key) => key === 'demoPassword' || /Token$/.test(key);
   return {
@@ -105,11 +106,11 @@ function writeEnvironment() {
   fs.mkdirSync(TMP_DIR, { recursive: true });
   const file = path.join(TMP_DIR, 'MariStay Postman 3001.postman_environment.json');
   fs.writeFileSync(file, JSON.stringify(loadEnvironment(), null, 2) + '\n');
-  console.log(`Wrote ${path.relative(ROOT, file)} (baseUrl ${BASE_URL}; demoPassword left empty).`);
+  console.log(`Wrote ${path.relative(path.dirname(POSTMAN_DIR), file)} (baseUrl ${BASE_URL}; demoPassword left empty).`);
 }
 
 /** The submitted Postman v2.1 export is the collection that Newman runs. */
-const COLLECTION = path.join(ROOT, 'exports', 'MariStay.postman_collection.json');
+const COLLECTION = path.join(POSTMAN_DIR, 'MariStay.postman_collection.json');
 
 function runNewman() {
   let newman;
@@ -121,10 +122,10 @@ function runNewman() {
   const password = process.env.SEED_DEMO_PASSWORD;
   if (!password || password.startsWith('replace_with')) fail('SEED_DEMO_PASSWORD is not set in .env.');
 
-  if (!fs.existsSync(COLLECTION)) fail('exports/MariStay.postman_collection.json not found.');
+  if (!fs.existsSync(COLLECTION)) fail('postman/MariStay.postman_collection.json not found.');
   const collection = JSON.parse(fs.readFileSync(COLLECTION, 'utf8'));
   const count = collection.item.reduce((n, folder) => n + folder.item.length, 0);
-  console.log(`Collection: exports/MariStay.postman_collection.json (${collection.item.length} folders, ${count} requests)\nTarget:     ${BASE_URL}\n`);
+  console.log(`Collection: postman/MariStay.postman_collection.json (${collection.item.length} folders, ${count} requests)\nTarget:     ${BASE_URL}\n`);
   newman.run(
     {
       collection,
@@ -152,7 +153,7 @@ function runNewman() {
       fs.mkdirSync(TMP_DIR, { recursive: true });
       const out = path.join(TMP_DIR, 'newman-summary.json');
       fs.writeFileSync(out, JSON.stringify(report, null, 2) + '\n');
-      console.log(`\nSummary (no tokens or passwords) written to ${path.relative(ROOT, out)}`);
+      console.log(`\nSummary (no tokens or passwords) written to ${path.relative(path.dirname(POSTMAN_DIR), out)}`);
       process.exitCode = failures.length ? 1 : 0;
     },
   );
