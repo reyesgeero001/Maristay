@@ -50,7 +50,7 @@ How can one secure backend system integrate reservations, payments, room access,
 ## 1.6 Scope and limitations
 
 **In scope**
-* NestJS REST API with 9 functional modules and 44 endpoints; Swagger documentation.
+* NestJS REST API with 9 functional modules and 44 endpoints, documented in Chapter 5 and tested with a Postman collection.
 * MySQL database (8 tables) with migrations, constraints and seed data.
 * JWT authentication, RBAC with 4 roles, ownership checks, validation, rate limiting, security headers.
 * Integrated workflows with transactional consistency and booking-conflict prevention.
@@ -58,7 +58,7 @@ How can one secure backend system integrate reservations, payments, room access,
 
 **Limitations**
 * **Simulated integrations:** no real payment gateway (payments are recorded by the front desk; no card data), no real SMS/e-mail (messages are logged), no physical smart lock (key validation only returns a decision).
-* **Front-end is optional and basic:** the required testing tools are Postman and Swagger. An optional React web frontend (bonus) covers the main workflows of all four roles, including guest sign-up, and uses 36 of the 44 endpoints (Appendix G). There is no mobile app.
+* **Front-end is optional and basic:** the required API testing tool is Postman. An optional React web frontend (bonus) covers the main workflows of all four roles, including guest sign-up, and uses 36 of the 44 endpoints (Appendix G). There is no mobile app.
 * **HTTP only locally:** HTTPS must be provided by a reverse proxy in deployment.
 * **Single property, single currency (PHP)**, no taxes, discounts, invoices, or partial-night pricing; early check-out does not refund unused nights.
 * **Service catalog** prices are defined in code, not in a database table.
@@ -75,6 +75,6 @@ How can one secure backend system integrate reservations, payments, room access,
 | Database | MySQL-compatible server: XAMPP MariaDB 10.4.32; phpMyAdmin | Stores the 8 tables; administration and demonstration |
 | Authentication | `@nestjs/jwt`, `@nestjs/passport`, `passport-jwt`, `bcrypt` | JWT issuing and verification; password hashing |
 | Validation and security | `class-validator`, `class-transformer`, `helmet`, `@nestjs/throttler` | Input validation, security headers, rate limiting |
-| API documentation | `@nestjs/swagger` (OpenAPI / Swagger UI) | Interactive endpoint documentation at `/api/docs` |
+| API testing | Postman (desktop app and Newman) | 122-request collection with 177 assertions |
 | Testing | Jest, Supertest, Postman, Newman 6 | Unit, end-to-end and collection tests |
 | Version control | Git, GitHub | Source history and submission |

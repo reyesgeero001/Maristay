@@ -11,7 +11,7 @@
 | Auth | `@nestjs/jwt` 11, `@nestjs/passport` 11, `passport-jwt` 4, `bcrypt` 6 |
 | Validation | `class-validator` 0.14, `class-transformer` 0.5 |
 | Security | `helmet` 8, `@nestjs/throttler` 6 |
-| Docs / tests | `@nestjs/swagger` 11, Jest 29, Supertest 7 |
+| Tests | Jest 29, Supertest 7, Postman / Newman |
 
 ```text
 src/
@@ -29,7 +29,7 @@ src/
 ├── config/          environment validation
 ├── database/        connection options, migration, seed, CLI data source, db:create
 ├── app.module.ts    root module (imports + global guards)
-├── app.setup.ts     global HTTP pipeline (prefix, Helmet, CORS, validation, serializer, filter, Swagger)
+├── app.setup.ts     global HTTP pipeline (prefix, Helmet, CORS, validation, serializer, filter)
 └── main.ts          bootstrap
 test/                e2e tests (Supertest) + isolated test-database setup
 exports/             maristay.sql, Postman collection and environment
@@ -57,7 +57,6 @@ Each functional module follows the same pattern — **module** (wiring), **contr
 Controllers only translate HTTP into a service call. Example — the room endpoints used in the video demo ([`rooms.controller.ts`](../../src/rooms/rooms.controller.ts)):
 
 ```typescript
-@ApiTags('Rooms')
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}   // dependency injection
@@ -68,14 +67,12 @@ export class RoomsController {
     return this.roomsService.findAll(query);
   }
 
-  @ApiBearerAuth()
   @Roles(Role.MANAGER)                        // RolesGuard → 403 for other roles
   @Patch(':id')
   update(@Param('id', ParseIdPipe) id: number, @Body() dto: UpdateRoomDto) {
     return this.roomsService.update(id, dto); // returns the updated Room → 200 + JSON
   }
 
-  @ApiBearerAuth()
   @Roles(Role.MANAGER)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)            // 204
@@ -269,5 +266,5 @@ DECIMAL values are converted to numbers by a column transformer, and all arithme
 | Serialization | `ClassSerializerInterceptor` honours `@Exclude()` |
 | Errors | `AllExceptionsFilter` — consistent JSON, DB error translation |
 | Configuration | `ConfigModule` + `validateEnv()` |
-| Documentation | Swagger at `/api/docs` (Nest CLI Swagger plugin reads DTO types and JSDoc examples) |
+| Documentation | Endpoint reference in Chapter 5; each controller method has a one-line summary comment |
 | Migrations / seed | `src/database/migrations`, `src/database/seeds` (idempotent) |

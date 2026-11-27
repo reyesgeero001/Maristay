@@ -95,7 +95,7 @@ Violations return **403 Forbidden**. Housekeeping staff cannot read payments, re
 | SQL injection | All queries go through TypeORM with bound parameters (`:param`); no string-concatenated SQL with user input; ids validated as integers |
 | Safe errors | `AllExceptionsFilter` returns generic messages; SQL errors and stack traces stay in the server log |
 | Logging | Request bodies, passwords, tokens and key codes are never logged; notification recipients are masked (`0912****789`, `g***@example.com`) |
-| Security headers | `helmet()` — verified in responses: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`; `X-Powered-By` removed. In development the CSP omits `upgrade-insecure-requests` because the local demo is plain HTTP |
+| Security headers | `helmet()` — verified in responses: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`; `X-Powered-By` removed. The API serves JSON only, so Helmet's default headers are used in every environment |
 | CORS | Restricted to `CORS_ORIGIN` (default `http://localhost:5173`); verified: an allowed origin receives `Access-Control-Allow-Origin`, any other origin receives none (browser blocks it) |
 | Inactive accounts | Cannot log in and lose access to protected routes immediately |
 | Historical data | FKs are `ON DELETE RESTRICT`; reservations are cancelled, accounts deactivated — never destroyed |

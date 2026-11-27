@@ -134,8 +134,11 @@ No. Hiding pages only helps usability. Every request still passes `JwtAuthGuard`
 A key code is 32 random bytes, so it can't be guessed. A fast hash is enough, and it lets the smart lock look the key up by its hash. Passwords are chosen by people and can be guessed, so they need a slow, salted hash: bcrypt with cost 10.
 
 **40. The project is backend-focused. Why is there a React frontend?**
-The guidelines list a React frontend as an optional bonus. It doesn't replace anything required: the 44 endpoints, Postman and Swagger are the main deliverables. The frontend calls the same REST API, 36 of the 44 endpoints, and adds no business logic of its own. It also shows that the API works for a real client, including roles, ownership and simulated payments, keys and the smart lock.
+The guidelines list a React frontend as an optional bonus. It doesn't replace anything required: the 44 endpoints and the Postman collection are the main deliverables. The frontend calls the same REST API, 36 of the 44 endpoints, and adds no business logic of its own. It also shows that the API works for a real client, including roles, ownership and simulated payments, keys and the smart lock.
 
 **41. If I change a reservation's status from the browser's developer tools, what happens?**
 Nothing harmful. The UI never sets workflow states directly; it only calls workflow endpoints such as check-in and check-out. Extra fields like `reservationStatus` are rejected with 400, and the server checks the role, the ownership and the current state again for every request.
+
+**42. Why is there no Swagger UI?**
+The guidelines name Postman as the required API testing tool; Swagger isn't required. To keep the project simple, Swagger UI was removed. The endpoints are documented in `docs/API_DOCUMENTATION.md` (Chapter 5), and all 122 requests are in the Postman collection. Removing it changed no endpoint, validation rule or permission, and every test still passes.
 

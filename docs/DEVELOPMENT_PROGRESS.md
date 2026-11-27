@@ -40,7 +40,7 @@
   - **Slides:** editable deck `docs/MariStay_Presentation.pptx` (15 slides with speaker notes at the time; 16 since Phase 12).
   - **Video script:** rewritten for the required order plus the extra parts.
   - **SQL export:** re-verified.
-- **Phase 10 (2026-11-27), optional React frontend** (branch `feature/frontend`, not yet committed):
+- **Phase 10 (2026-11-27), optional React frontend** (committed and pushed on 2026-11-27):
   - `frontend/`: React 19, Vite, TypeScript, Tailwind CSS, Axios, React Router, Lucide. Separate `package.json`; no backend dependency or code change.
   - One login page for all four roles; JWT in `sessionStorage`; role read from the server (`GET /auth/me`); logout on 401 or token expiry; role-guarded routes.
   - Manager: dashboard with live counts, room CRUD with search and filters, staff, guests, reservations, housekeeping assignment.
@@ -49,7 +49,7 @@
   - Housekeeping: own tasks, start and complete cleaning (the room becomes available through the existing API workflow).
   - 35 of the 44 endpoints had a screen at that point (36 after guest sign-up was added in Phase 10b). The unsupported items are listed in `docs/FRONTEND.md` §6.
   - **Verified on 2026-11-27:** browser UI test 30/30 on a freshly reset `maristay_postman_db`; `npm run build` passed; backend regression 33/33 unit and 46/46 e2e.
-- **Phase 10b (2026-11-27), guest sign-up page** (`feature/frontend`, not yet committed):
+- **Phase 10b (2026-11-27), guest sign-up page** (committed and pushed on 2026-11-27):
   - New `/register` page (`frontend/src/pages/RegisterPage.tsx`) and a **Sign up** link on the login page.
   - Fields: first and last name, email, phone, password and confirm password, with show/hide buttons. Browser validation mirrors `CreateGuestDto`. The page has a loading state and server error messages, and redirects to login with a success message.
   - Reuses the existing public `POST /guests`. **No backend change was needed.** The endpoint was already public, always creates a `GUEST` account and hashes with bcrypt. It returns 409 for an email used by any guest or staff account, and 400 for `role` or any other extra field (`forbidNonWhitelisted`). Staff are still created only by a manager.
@@ -60,7 +60,7 @@
 - **Phase 11 (2026-11-27), final verification** (no feature or code change; nothing committed):
   - Regression on isolated databases: backend build ✔, frontend build ✔, unit **33/33**, e2e **46/46**, Newman **177/177**, browser UI **37/37**, registration **49/49**, security/RBAC matrix **126/126** (Testing §8.9).
   - Oracle MySQL 8.4.11 LTS (portable, port 3307, removed afterwards): migration, seed, `schema:check`, e2e **46/46**, Newman **177/177**, SQL export import and constraint enforcement ✔ (Compliance Checklist §6).
-  - ERD in `DATABASE_DESIGN.md` checked against `information_schema`: 8 tables, 64 columns, types, PK/FK/UK and 7 relationships match exactly. API documentation covers all 44 Swagger operations (9 tags).
+  - ERD in `DATABASE_DESIGN.md` checked against `information_schema`: 8 tables, 64 columns, types, PK/FK/UK and 7 relationships match exactly. API documentation covers all 44 Swagger operations (9 tags; Swagger was removed later, in Phase 13).
   - 37 frontend screenshots captured on the isolated database into `docs/screenshots/frontend/` with `frontend/tests/capture-screenshots.cjs` (key codes masked). They were recaptured in Phase 12 with the final UI.
 - **Phase 12 (2026-11-27), UI redesign and finalization** (approved by the student; nothing committed):
   - **Modern Luxury Minimalist UI.** Design tokens are in `frontend/src/index.css`. Login and sign-up share a new `AuthLayout`; the sidebar, keycards and guest banner were restyled. No route, API call, permission or test assertion changed. The previous UI is backed up in the git-ignored `exports/tmp/frontend-ui-backup-2026-11-27/`.
@@ -93,9 +93,9 @@ The full collection passes in Newman against `maristay_postman_db` on port 3001:
 **Passed in the Postman desktop app** on 2026-11-26 (Collection Runner, environment *MariStay Postman 3001*): 177/177 assertions, 0 failed, 0 errors, 17.347 s, average response 13 ms. The two earlier desktop attempts had failed for collection and environment reasons (E9, E10), both since resolved.
 
 ## Screenshot evidence
-The student captured 21 screenshots on 2026-11-26. 20 are used in the documentation:
+The student captured 21 screenshots on 2026-11-26. 20 were used in the documentation; since Phase 13, 19 are used (the Swagger UI screenshot was removed):
 
-* **Where they appear:** Figure 5.1, Figure 7.1 and Figures 8.1–8.18; Testing §8.7 has the captions and the summary table.
+* **Where they appear:** Figure 7.1 and Figures 8.1–8.18 (formerly also Figure 5.1, Swagger UI); Testing §8.7 has the captions and the summary table.
 * **Preparation:**
   * The JWTs in the two login responses and the digital key code were redacted.
   * Each image was cropped to the relevant pane.
@@ -130,7 +130,7 @@ None known.
 | E3 | Placeholder bcrypt dummy hash in AuthService | Real hash generated at startup |
 | E4 | App-written DATETIMEs (UTC) and DB defaults (local) differed by 8 h | `timezone: 'local'`; seeded rows corrected by the measured offset; SQL re-exported |
 | E5 | Login limit 5/min was lower than the 6 role logins in Postman folder 1 | Default raised to 10/min |
-| E6 | Helmet CSP `upgrade-insecure-requests` would break Swagger UI over HTTP | Directive sent only in production |
+| E6 | Helmet CSP `upgrade-insecure-requests` would break Swagger UI over HTTP | Directive sent only in production (since Phase 13, without Swagger, Helmet defaults apply everywhere) |
 | E7 | Mermaid syntax error (`;` in a sequence message) | Replaced with `,`; all diagrams verified |
 | E8 | Weak local demo password would be brute-forceable from hashes in the committed SQL | Rotated to a strong random password before the SQL was ever committed; the 6 demo accounts were re-hashed |
 | E9 | First full Postman run, accidentally against `maristay_db` on port 3000: 71 of 176 assertions failed | 32 request bodies quoted numeric placeholders, so the API rejected them (400). Fixed in the collection; validation unchanged. `maristay_db` was backed up first (git-ignored `exports/tmp/`). Through the API, leftover PENDING bookings #5 and #7 were cancelled and guest #4 was deactivated; nothing was deleted |
@@ -171,11 +171,11 @@ See `docs/PROJECT_REQUIREMENTS.md` §8 (D1–D15).
 11. docs: add compliance checklist and complete final documentation
 12. docs: add presentation slides and video demonstration script
 
-Remote `origin` = https://github.com/reyesgeero001/Maristay. On 2026-11-27 the repository was confirmed **public and empty**. The earlier "Repository not found" came from it not being public yet, while Git on this PC was signed in as a different account (`momonim24`). The MariStay repository now has a repo-local Git identity, `Reyesgeero001`, with the same e-mail as the 12 existing commits; the global identity is unchanged. Nothing has been pushed. Pushing requires Git Credential Manager to be signed in as `reyesgeero001`.
+Remote `origin` = https://github.com/reyesgeero001/Maristay (public). On 2026-11-27 `main` was pushed. The history was then rewritten once, with the student's approval, to remove automatic co-author trailers (pushed with `--force-with-lease`); later commits were pushed normally. A backup of the earlier history is kept locally (branch `backup/pre-trailer-removal` and a git-ignored bundle in `exports/tmp/`). The MariStay repository has a repo-local Git identity, `Reyesgeero001`.
 
 ## Remaining mandatory requirements (student action needed)
 1. ~~Approve and commit the Phase 9 changes~~: done (commits 10–12).
-2. **GitHub:** the repository exists and is configured as `origin`. Approve and commit the screenshot integration, then `git push -u origin main`. If the repository is private, add the instructor as a collaborator. Nothing has been pushed.
+2. ~~**GitHub:** push the project~~: done on 2026-11-27 (public repository, `main`).
 3. ~~Postman desktop run~~: done, 177/177 (§8.6).
 4. ~~Screenshots~~: done and integrated (§8.7).
 5. **Video:** record with your own narration using `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
@@ -184,8 +184,16 @@ Remote `origin` = https://github.com/reyesgeero001/Maristay. On 2026-11-27 the r
 8. ~~Decide about `MASTER_PROMPT.md`~~: done. It was removed from the tracked files and added to `.gitignore`, and the local copy is kept. It still exists in the first commits, because history was deliberately not rewritten; it contains no secrets.
 9. ~~Optional: verify on Oracle MySQL 8~~: done, MySQL 8.4.11 LTS (Compliance Checklist §6).
 
+- **Phase 13 (2026-11-27), Swagger UI removed** (requested by the student; the code change was committed by the student as "Remove Swagger UI"):
+  - Reason: the ITEC 116 guidelines require Postman for API testing; Swagger isn't required.
+  - Removed: `@nestjs/swagger` (and `swagger-ui-dist`), the Nest CLI Swagger plugin, `setupSwagger()`, the `/api/docs` start-up log, and 193 `@Api…` decorators. The 44 endpoint summaries are kept as code comments.
+  - `PartialType`/`OmitType` now come from `@nestjs/mapped-types` (same validation behaviour).
+  - Helmet uses its defaults everywhere.
+  - Documentation, PDF, slides, video script and presentation guide were updated. Figure 5.1 (Swagger screenshot) was removed; its image is kept in the git-ignored `exports/tmp/`. The video script now demonstrates the backend only (no frontend part).
+  - Verified (Testing §8.11): build ✔; `npm run start:dev` maps 44 routes; unit 33/33; e2e 46/46; Newman 177/177; browser 37/37; registration 49/49; security 126/126.
+
 ## Next recommended action
-1. **GitHub:** sign Git in as the account that owns the repository (or create/share `reyesgeero001/Maristay`), confirm the author identity for MariStay, then approve the commit plan.
+1. ~~**GitHub:** push the Swagger UI removal~~: done on 2026-11-27.
 2. **Video:** record it with `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
 3. **Cover:** add the video link and the submission date to `docs/final/00-cover.md`, then run `npm run docs:build` once more and commit the updated PDF.
 4. Rehearse the defense with `docs/PRESENTATION_GUIDE.md` and `docs/DEFENSE_QUESTIONS.md`.

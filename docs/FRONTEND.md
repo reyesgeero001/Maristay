@@ -1,6 +1,6 @@
 # MariStay Frontend (Optional Bonus)
 
-A basic React frontend that uses the existing MariStay REST API. It is optional bonus work: the backend, Postman collection and Swagger UI are unchanged and remain the required deliverables.
+A basic React frontend that uses the existing MariStay REST API. It is optional bonus work: the backend and the Postman collection are unchanged and remain the required deliverables.
 
 ## 1. Technology
 
@@ -122,7 +122,7 @@ All data comes from the live API. The dashboards count records with `meta.total`
 | Housekeeping | `GET /housekeeping`, `POST /housekeeping`, `PATCH /housekeeping/:id` |
 | Service orders | `GET /service-orders`, `POST /service-orders`, `PATCH /service-orders/:id` |
 
-That is 36 of the 44 endpoints. The other 8 stay available in Postman and Swagger: `PUT /rooms/:id`, and the single-record `GET /:id` for rooms, guests, staff, payments, digital keys, housekeeping and service orders.
+That is 36 of the 44 endpoints. The other 8 stay available in Postman: `PUT /rooms/:id`, and the single-record `GET /:id` for rooms, guests, staff, payments, digital keys, housekeeping and service orders.
 
 **Errors.** The backend returns `{ statusCode, message, … }`. `errorMessage()` in `api/client.ts` turns this into a readable message: 400 "Invalid input: …", 401 session expired or invalid login, 403 "Not allowed: …", 404 "Not found: …", 409 "Conflict: …", 429 "Too many attempts". The message appears next to the form or table that caused it. Forms also check input in the browser first, using the same rules as the backend DTOs (room number pattern, price decimals, dates, quantity 1–20, names and password strength).
 

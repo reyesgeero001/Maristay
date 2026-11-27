@@ -99,7 +99,7 @@ const html = `<!doctype html>
   pre code { background: none; padding: 0; }
   pre.mermaid { background: #fff; border: none; text-align: center; page-break-inside: avoid; }
   /* Tall diagrams (e.g. the Lab 06 login flow) scale down to fit one A4 page instead of splitting. */
-  pre.mermaid svg { max-height: 225mm; }
+  pre.mermaid svg { max-height: 205mm; }
   .page-break { page-break-before: always; }
   .cover { text-align: center; padding-top: 50mm; }
   .cover h1 { border: none; font-size: 26pt; }

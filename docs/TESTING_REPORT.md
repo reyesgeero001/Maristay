@@ -110,9 +110,9 @@ Tests:       46 passed, 46 total
 | Check | Result |
 |---|---|
 | `npm run build` | ✔ 0 TypeScript errors |
-| `npm run start:dev` against `maristay_db` | ✔ "Found 0 errors", 44 routes mapped, API + Swagger URLs logged |
+| `npm run start:dev` against `maristay_db` | ✔ "Found 0 errors", 44 routes mapped, API + Swagger URLs logged (Swagger UI was removed on 2026-11-27; see Testing §8.11.) |
 | Video flow on `maristay_db`: manager login → create room → GET → PATCH → DELETE → POST without token | ✔ 200 → 201 → 200 → 200 → 204 → 401 |
-| Swagger `/api/docs-json` | ✔ 200, 44 operations, 18 schemas; UI assets load under CSP |
+| Swagger `/api/docs-json` | ✔ 200, 44 operations, 18 schemas; UI assets load under CSP (Swagger UI was removed on 2026-11-27; see Testing §8.11.) |
 | Security headers / CORS | ✔ CSP, HSTS, nosniff, SAMEORIGIN present; `X-Powered-By` absent; only the configured origin receives `Access-Control-Allow-Origin` |
 | CHECK constraints (MariaDB) | ✔ negative price → `CONSTRAINT CHK_rooms_pricePerNight failed`; checkOut = checkIn → `CHK_reservations_dates failed` |
 | FK RESTRICT | ✔ deleting a room with history → error 1451 |
@@ -136,7 +136,7 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
 | B2 | Captured API samples | `createdAt` (DB default, local time) and app-written datetimes (UTC) differed by 8 h | Use the `local` time zone for both; corrected seeded rows; re-exported SQL |
 | B3 | Postman design review | Login limit of 5/min was below the 6 role logins in folder 1 | Default raised to 10/min (still blocks brute force; 429 test updated) |
 | B4 | e2e test | Test tried to set `expiresAt` before `issuedAt`; the CHECK constraint correctly refused | Test fixed (constraint confirmed working) |
-| B5 | Header review | Helmet CSP `upgrade-insecure-requests` could break Swagger UI over plain HTTP | Directive sent only in production |
+| B5 | Header review | Helmet CSP `upgrade-insecure-requests` could break Swagger UI over plain HTTP | Directive sent only in production. Since Swagger was removed (2026-11-27), Helmet defaults apply everywhere |
 | B6 | First full Postman run | 32 request bodies sent numeric ids and amounts as quoted placeholders (`"roomId": "{{stayRoomId}}"`), so the API correctly answered 400 (`roomId must be an integer number`), and payments, same-day bookings, check-in and the workflow cascaded into failures | Placeholders unquoted (`"roomId": {{stayRoomId}}`) in the collection; API validation unchanged |
 | B7 | Second Postman desktop run (port 3001): 38 passed, 138 failed, 10 script errors, every protected request 401 | Not a code bug: all six logins failed, so no tokens were saved. Newman reproduced the same signature only when `demoPassword` was empty (400 on every login) or wrong (401), each giving 36 passed / 140 failed. Spending the login rate limit beforehand produced different counts. | Login - Manager now has a pre-request guard that stops with a clear message when `demoPassword` is empty. No assertion, validation or authentication was changed. |
 
@@ -187,7 +187,7 @@ All screenshots were captured by the student on 2026-11-26 on the development ma
   * the plain digital key code in the check-in response (Figure 8.14).
 * **Cropped:** each image is cropped to the relevant part of the screen. This removed the Postman AI side panel and collection sidebar, and the phpMyAdmin database list, which showed database names unrelated to this project.
 
-Nothing else was edited. The Swagger UI is Figure 5.1 (Chapter 5) and the server start-up is Figure 7.1 (Chapter 7).
+Nothing else was edited. The server start-up is Figure 7.1 (Chapter 7). The Swagger UI screenshot (formerly Figure 5.1) was removed together with Swagger on 2026-11-27.
 
 **Environments used.** Two groups of screenshots use two different databases:
 
@@ -199,23 +199,22 @@ Nothing else was edited. The Swagger UI is Figure 5.1 (Chapter 5) and the server
 | # | Evidence | Result | Figure |
 |---|---|---|---|
 | 1 | Server start-up, routes mapped | ✔ | 7.1 |
-| 2 | Swagger UI at `http://localhost:3000/api/docs` | ✔ | 5.1 |
-| 3 | Manager login | ✔ 200 OK, JWT issued | 8.1 |
-| 4 | Guest login | ✔ 200 OK, JWT issued | 8.2 |
-| 5 | Create room | ✔ 201 Created (Room ID 13, 2500.00) | 8.3 |
-| 6 | Retrieve room | ✔ 200 OK (Room ID 13) | 8.4 |
-| 7 | Update room with PATCH | ✔ 200 OK, price 2500 → 2800 (Room ID 13) | 8.5, 8.6 |
-| 8 | Retrieve a deleted room | ✔ 404 Not Found (Room ID 13) | 8.7, 8.8 |
-| 9 | Delete room | ✔ 204 No Content (temporary Room ID 14, see note below) | 8.9 |
-| 10 | Protected route without a token | ✔ 401 Unauthorized | 8.10 |
-| 11 | Guest calls a manager-only route | ✔ 403 Forbidden | 8.11 |
-| 12 | Full collection in the Postman desktop Runner | ✔ 177 / 177 assertions, 0 failed, 0 errors, 17.347 s, avg 13 ms | 8.12 |
-| 13 | Digital check-in issues a key; simulated smart lock grants access | ✔ 200 OK, "Key issued", "Access granted" | 8.13, 8.14 |
-| 14 | Overlapping reservation | ✔ 409 Conflict | 8.15 |
-| 15 | `reservations` table unchanged by the manual requests | ✔ | 8.16 |
-| 16 | Unit tests | ✔ 33 / 33 passed, 4 / 4 suites, 37.441 s | 8.17 |
-| 17 | End-to-end tests | ✔ 46 / 46 passed, 1 / 1 suite, 13.62 s | 8.18 |
-| 18 | Newman (command-line runner) | ✔ 177 / 177 in three runs (table in §8.6) | text only |
+| 2 | Manager login | ✔ 200 OK, JWT issued | 8.1 |
+| 3 | Guest login | ✔ 200 OK, JWT issued | 8.2 |
+| 4 | Create room | ✔ 201 Created (Room ID 13, 2500.00) | 8.3 |
+| 5 | Retrieve room | ✔ 200 OK (Room ID 13) | 8.4 |
+| 6 | Update room with PATCH | ✔ 200 OK, price 2500 → 2800 (Room ID 13) | 8.5, 8.6 |
+| 7 | Retrieve a deleted room | ✔ 404 Not Found (Room ID 13) | 8.7, 8.8 |
+| 8 | Delete room | ✔ 204 No Content (temporary Room ID 14, see note below) | 8.9 |
+| 9 | Protected route without a token | ✔ 401 Unauthorized | 8.10 |
+| 10 | Guest calls a manager-only route | ✔ 403 Forbidden | 8.11 |
+| 11 | Full collection in the Postman desktop Runner | ✔ 177 / 177 assertions, 0 failed, 0 errors, 17.347 s, avg 13 ms | 8.12 |
+| 12 | Digital check-in issues a key; simulated smart lock grants access | ✔ 200 OK, "Key issued", "Access granted" | 8.13, 8.14 |
+| 13 | Overlapping reservation | ✔ 409 Conflict | 8.15 |
+| 14 | `reservations` table unchanged by the manual requests | ✔ | 8.16 |
+| 15 | Unit tests | ✔ 33 / 33 passed, 4 / 4 suites, 37.441 s | 8.17 |
+| 16 | End-to-end tests | ✔ 46 / 46 passed, 1 / 1 suite, 13.62 s | 8.18 |
+| 17 | Newman (command-line runner) | ✔ 177 / 177 in three runs (table in §8.6) | text only |
 
 **Protected route with an invalid token → 401.** This case has no separate screenshot. It is covered by the passing Runner assertion *Protected Route With Invalid Token → 401* (inside the 177 in Figure 8.12), by e2e test 7 (Figure 8.18), and by all three Newman runs.
 
@@ -371,7 +370,7 @@ The only difference is cosmetic: foreign keys imported from the MariaDB dump sho
 ### Documentation checks
 
 * **ERD:** the Mermaid ERD in `DATABASE_DESIGN.md` was parsed and compared with `information_schema`. All 8 tables, 64 columns, data types, PK/FK/UK markers and 7 relationships match.
-* **API documentation:** the endpoint table covers all 44 operations reported by Swagger (`/api/docs-json`, 9 tags).
+* **API documentation:** the endpoint table covers all 44 operations reported by Swagger (`/api/docs-json`, 9 tags), checked before Swagger was removed. After the removal, the start-up log maps the same 44 routes (§8.11).
 
 ### Frontend screenshots
 
@@ -407,4 +406,24 @@ The React frontend was restyled (Modern Luxury Minimalist) after the functional 
 | Browser UI test | 30/30 (before sign-up) | 37/37 (after the UI redesign, §8.10) |
 | Registration checks | 49/49 (when sign-up was added) | 49/49 (after the UI redesign) |
 | Security / RBAC matrix | — | 126/126 (§8.9) |
+
+## 8.11 Swagger UI removal and regression (2026-11-27)
+
+The ITEC 116 guidelines name Postman as the required API testing tool, so Swagger UI was removed. Only documentation tooling changed:
+* `@nestjs/swagger`, its Nest CLI plugin, the `/api/docs` setup, the start-up log line and 193 `@Api…` decorators were removed. Each endpoint's summary is kept as a one-line code comment.
+* The update DTOs now import `PartialType`/`OmitType` from `@nestjs/mapped-types`, the official package Swagger re-exported. It copies the same class-validator rules.
+* Helmet now uses its defaults in every environment. The development-only CSP exception existed only for Swagger's HTML page.
+
+No endpoint, DTO rule, guard, role, business rule, database object or frontend file changed. Results, on isolated databases only:
+
+| Check | Result |
+|---|---|
+| TypeScript (`src` + `test`) and `nest build` | ✔ 0 errors |
+| `npm run start:dev` (isolated database, port 3101) | ✔ "Found 0 errors", **44 routes mapped**, application started; no Swagger log line; `/api/docs` and `/api/docs-json` return 404 |
+| Unit tests | ✔ **33/33** |
+| End-to-end tests (`maristay_test_db`) | ✔ **46/46** |
+| Postman collection with Newman (fresh `maristay_postman_db`, port 3001) | ✔ **177/177** assertions, 137 requests, 0 failures |
+| Browser integration test (fresh database) | ✔ **37/37** |
+| `npm run verify:registration` | ✔ **49/49** |
+| Security and RBAC matrix | ✔ **126/126** (Helmet CSP, `nosniff`, no `X-Powered-By`, CORS) |
 

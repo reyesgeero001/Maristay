@@ -39,7 +39,7 @@
 | Integrity | No double bookings; multi-table changes are atomic; history never cascade-deleted | Transactions, row locks, FK RESTRICT, CHECK constraints |
 | Reliability | Consistent error format; correct status codes; never 200 on failure | Global exception filter |
 | Maintainability | Modular structure, layered controller/service/repository code, typed DTOs, comments on business rules | NestJS modules, TypeScript |
-| Usability (API) | RESTful URIs, versioning, pagination, case-insensitive filters, Swagger docs, Postman collection | §5 REST API |
+| Usability (API) | RESTful URIs, versioning, pagination, case-insensitive filters, endpoint documentation (Chapter 5), Postman collection | §5 REST API |
 | Performance | Indexed lookups for availability, status filters and FKs; pagination (≤100 per page) | §4 Database |
 | Portability | Runs on any machine with Node.js and MySQL; configuration via `.env` | README |
 | Testability | Automated unit + e2e tests on an isolated database | §8 Testing |

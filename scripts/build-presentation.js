@@ -253,7 +253,7 @@ pres.addSection({ title: 'Design' });
     if (sub) text(s, sub, { x, y: y + 0.43, w, h: 0.32, fontSize: 11, color: fill === C.tint ? C.muted : 'D9E4EA', align: 'center' });
   };
   // Row 1: request pipeline (left to right)
-  box(0.5, 1.25, 1.55, 'Client', 'Postman · Swagger');
+  box(0.5, 1.25, 1.55, 'Client', 'Postman · React');
   box(2.4, 1.25, 1.55, 'Rate limit', 'ThrottlerGuard', C.teal, C.white);
   box(4.3, 1.25, 1.55, 'JWT auth', 'JwtAuthGuard', C.teal, C.white);
   box(6.2, 1.25, 1.55, 'Roles', 'RolesGuard', C.teal, C.white);

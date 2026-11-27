@@ -18,7 +18,7 @@
 3. **Create the database**, using either option:
    * **Option A (recommended):** `npm run db:setup` creates `maristay_db`, runs the migration and seeds the demo data.
    * **Option B:** import `exports/maristay.sql` in phpMyAdmin (Import tab → choose the file → Go) or with `mysql -u root -p < exports/maristay.sql`. The script creates and uses `maristay_db`. Import it only on a server that does not already have `maristay_db`; otherwise it stops at the first table and changes nothing. With Option B, the demo accounts keep the password used when the export was made, so use Option A to choose your own.
-4. **Run the API:** `npm run start:dev`. The API is at `http://localhost:3000/api/v1` and Swagger UI at `http://localhost:3000/api/docs` (log in, click **Authorize**, paste the `accessToken`).
+4. **Run the API:** `npm run start:dev`. The API is at `http://localhost:3000/api/v1`; test it with the Postman collection (step 6).
 5. **Run the automated tests:** `npm run test` (unit tests, no database needed) and `npm run test:e2e`. The e2e tests drop and recreate only `TEST_DB_DATABASE`, default `maristay_test_db`; the name must end in `_test`.
 6. **Postman:**
    * **Demonstration:** import `exports/MariStay.postman_collection.json` and `exports/MariStay.postman_environment.json` (*MariStay Local*, port 3000, `maristay_db`). Set and **save** `demoPassword`. Use single requests from folders 1 and 3 for the live demonstration.

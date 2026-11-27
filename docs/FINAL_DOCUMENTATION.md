@@ -97,6 +97,7 @@
   - [8.8 How to reproduce](#88-how-to-reproduce)
   - [8.9 Final regression and Oracle MySQL verification (2026-11-27)](#89-final-regression-and-oracle-mysql-verification-2026-11-27)
   - [8.10 Frontend verification after the UI redesign (2026-11-27)](#810-frontend-verification-after-the-ui-redesign-2026-11-27)
+  - [8.11 Swagger UI removal and regression (2026-11-27)](#811-swagger-ui-removal-and-regression-2026-11-27)
 - [Chapter 9 — Conclusion](#chapter-9-conclusion)
   - [9.1 Project accomplishments](#91-project-accomplishments)
   - [9.2 Challenges encountered](#92-challenges-encountered)
@@ -174,7 +175,7 @@ How can one secure backend system integrate reservations, payments, room access,
 ## 1.6 Scope and limitations
 
 **In scope**
-* NestJS REST API with 9 functional modules and 44 endpoints; Swagger documentation.
+* NestJS REST API with 9 functional modules and 44 endpoints, documented in Chapter 5 and tested with a Postman collection.
 * MySQL database (8 tables) with migrations, constraints and seed data.
 * JWT authentication, RBAC with 4 roles, ownership checks, validation, rate limiting, security headers.
 * Integrated workflows with transactional consistency and booking-conflict prevention.
@@ -182,7 +183,7 @@ How can one secure backend system integrate reservations, payments, room access,
 
 **Limitations**
 * **Simulated integrations:** no real payment gateway (payments are recorded by the front desk; no card data), no real SMS/e-mail (messages are logged), no physical smart lock (key validation only returns a decision).
-* **Front-end is optional and basic:** the required testing tools are Postman and Swagger. An optional React web frontend (bonus) covers the main workflows of all four roles, including guest sign-up, and uses 36 of the 44 endpoints (Appendix G). There is no mobile app.
+* **Front-end is optional and basic:** the required API testing tool is Postman. An optional React web frontend (bonus) covers the main workflows of all four roles, including guest sign-up, and uses 36 of the 44 endpoints (Appendix G). There is no mobile app.
 * **HTTP only locally:** HTTPS must be provided by a reverse proxy in deployment.
 * **Single property, single currency (PHP)**, no taxes, discounts, invoices, or partial-night pricing; early check-out does not refund unused nights.
 * **Service catalog** prices are defined in code, not in a database table.
@@ -199,7 +200,7 @@ How can one secure backend system integrate reservations, payments, room access,
 | Database | MySQL-compatible server: XAMPP MariaDB 10.4.32; phpMyAdmin | Stores the 8 tables; administration and demonstration |
 | Authentication | `@nestjs/jwt`, `@nestjs/passport`, `passport-jwt`, `bcrypt` | JWT issuing and verification; password hashing |
 | Validation and security | `class-validator`, `class-transformer`, `helmet`, `@nestjs/throttler` | Input validation, security headers, rate limiting |
-| API documentation | `@nestjs/swagger` (OpenAPI / Swagger UI) | Interactive endpoint documentation at `/api/docs` |
+| API testing | Postman (desktop app and Newman) | 122-request collection with 177 assertions |
 | Testing | Jest, Supertest, Postman, Newman 6 | Unit, end-to-end and collection tests |
 | Version control | Git, GitHub | Source history and submission |
 
@@ -246,7 +247,7 @@ How can one secure backend system integrate reservations, payments, room access,
 | Integrity | No double bookings; multi-table changes are atomic; history never cascade-deleted | Transactions, row locks, FK RESTRICT, CHECK constraints |
 | Reliability | Consistent error format; correct status codes; never 200 on failure | Global exception filter |
 | Maintainability | Modular structure, layered controller/service/repository code, typed DTOs, comments on business rules | NestJS modules, TypeScript |
-| Usability (API) | RESTful URIs, versioning, pagination, case-insensitive filters, Swagger docs, Postman collection | §5 REST API |
+| Usability (API) | RESTful URIs, versioning, pagination, case-insensitive filters, endpoint documentation (Chapter 5), Postman collection | §5 REST API |
 | Performance | Indexed lookups for availability, status filters and FKs; pagination (≤100 per page) | §4 Database |
 | Portability | Runs on any machine with Node.js and MySQL; configuration via `.env` | README |
 | Testability | Automated unit + e2e tests on an isolated database | §8 Testing |
@@ -319,7 +320,7 @@ MariStay is a **modular monolith**: one NestJS application, organised into nine 
 ```mermaid
 flowchart TB
     subgraph Clients["Clients"]
-        PM["Postman / Swagger UI"]
+        PM["Postman (desktop app / Newman)"]
         FE["React web frontend (optional bonus, Vite, port 5173)"]
     end
 
@@ -352,7 +353,7 @@ flowchart TB
 | Lab 03 component | MariStay implementation |
 |---|---|
 | Users: guests, front desk, housekeeping, management | Roles `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER` enforced by `RolesGuard` |
-| Client application (web/mobile) | Postman and Swagger UI (the required testing tools), plus an optional React web frontend in `frontend/` for all four roles (15 screens, 36 of the 44 endpoints; see `docs/FRONTEND.md`). A mobile app is future work. |
+| Client application (web/mobile) | Postman, the required API testing tool, plus an optional React web frontend in `frontend/` for all four roles (15 screens, 36 of the 44 endpoints; see `docs/FRONTEND.md`). A mobile app is future work. |
 | API calls | REST/JSON under `/api/v1` (44 endpoints) |
 | Application / web server | NestJS 11 on Node.js 24 (Express platform) |
 | Auth service | `AuthModule` — bcrypt + JWT (HS256) + passport-jwt |
@@ -801,7 +802,7 @@ Seed data (fictional): 1 manager, 1 front desk, 2 housekeeping staff, 2 guests, 
 
 # Chapter 5 — REST API Design
 
-Base URL (local): `http://localhost:3000/api/v1` · Interactive docs (Swagger/OpenAPI): `http://localhost:3000/api/docs` · Postman: [`exports/MariStay.postman_collection.json`](../exports/MariStay.postman_collection.json)
+Base URL (local): `http://localhost:3000/api/v1` · Postman: [`exports/MariStay.postman_collection.json`](../exports/MariStay.postman_collection.json)
 
 ## 5.1 API conventions (Lab 05 Part B)
 
@@ -913,7 +914,6 @@ HTTP methods used: **GET** (read), **POST** (create / actions that create someth
 | `GET /staff` | `role`, `accountStatus`, `search`, `page`, `limit` |
 | `GET /service-orders` | `status`, `serviceType`, `reservationId`, `page`, `limit` |
 
-![Swagger UI](screenshots/11-swagger-ui.png)**Figure 5.1.** Swagger UI at `http://localhost:3000/api/docs` (OpenAPI 3.0, API version 1.0.0), generated from the controllers and DTOs. It shows the *Authentication* and *Digital Keys* groups. Lock icons mark routes that need a Bearer token; the **Authorize** button accepts the `accessToken` returned by `POST /api/v1/auth/login`.
 
 ## 5.4 Request and response examples
 
@@ -1195,7 +1195,7 @@ Violations return **403 Forbidden**. Housekeeping staff cannot read payments, re
 | SQL injection | All queries go through TypeORM with bound parameters (`:param`); no string-concatenated SQL with user input; ids validated as integers |
 | Safe errors | `AllExceptionsFilter` returns generic messages; SQL errors and stack traces stay in the server log |
 | Logging | Request bodies, passwords, tokens and key codes are never logged; notification recipients are masked (`0912****789`, `g***@example.com`) |
-| Security headers | `helmet()` — verified in responses: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`; `X-Powered-By` removed. In development the CSP omits `upgrade-insecure-requests` because the local demo is plain HTTP |
+| Security headers | `helmet()` — verified in responses: `Content-Security-Policy`, `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`; `X-Powered-By` removed. The API serves JSON only, so Helmet's default headers are used in every environment |
 | CORS | Restricted to `CORS_ORIGIN` (default `http://localhost:5173`); verified: an allowed origin receives `Access-Control-Allow-Origin`, any other origin receives none (browser blocks it) |
 | Inactive accounts | Cannot log in and lose access to protected routes immediately |
 | Historical data | FKs are `ON DELETE RESTRICT`; reservations are cancelled, accounts deactivated — never destroyed |
@@ -1255,7 +1255,7 @@ Run on the isolated database (Testing §8.9):
 | Auth | `@nestjs/jwt` 11, `@nestjs/passport` 11, `passport-jwt` 4, `bcrypt` 6 |
 | Validation | `class-validator` 0.14, `class-transformer` 0.5 |
 | Security | `helmet` 8, `@nestjs/throttler` 6 |
-| Docs / tests | `@nestjs/swagger` 11, Jest 29, Supertest 7 |
+| Tests | Jest 29, Supertest 7, Postman / Newman |
 
 ```text
 src/
@@ -1273,7 +1273,7 @@ src/
 ├── config/          environment validation
 ├── database/        connection options, migration, seed, CLI data source, db:create
 ├── app.module.ts    root module (imports + global guards)
-├── app.setup.ts     global HTTP pipeline (prefix, Helmet, CORS, validation, serializer, filter, Swagger)
+├── app.setup.ts     global HTTP pipeline (prefix, Helmet, CORS, validation, serializer, filter)
 └── main.ts          bootstrap
 test/                e2e tests (Supertest) + isolated test-database setup
 exports/             maristay.sql, Postman collection and environment
@@ -1301,7 +1301,6 @@ Each functional module follows the same pattern — **module** (wiring), **contr
 Controllers only translate HTTP into a service call. Example — the room endpoints used in the video demo ([`rooms.controller.ts`](../src/rooms/rooms.controller.ts)):
 
 ```typescript
-@ApiTags('Rooms')
 @Controller('rooms')
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}   // dependency injection
@@ -1312,14 +1311,12 @@ export class RoomsController {
     return this.roomsService.findAll(query);
   }
 
-  @ApiBearerAuth()
   @Roles(Role.MANAGER)                        // RolesGuard → 403 for other roles
   @Patch(':id')
   update(@Param('id', ParseIdPipe) id: number, @Body() dto: UpdateRoomDto) {
     return this.roomsService.update(id, dto); // returns the updated Room → 200 + JSON
   }
 
-  @ApiBearerAuth()
   @Roles(Role.MANAGER)
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)            // 204
@@ -1513,7 +1510,7 @@ DECIMAL values are converted to numbers by a column transformer, and all arithme
 | Serialization | `ClassSerializerInterceptor` honours `@Exclude()` |
 | Errors | `AllExceptionsFilter` — consistent JSON, DB error translation |
 | Configuration | `ConfigModule` + `validateEnv()` |
-| Documentation | Swagger at `/api/docs` (Nest CLI Swagger plugin reads DTO types and JSDoc examples) |
+| Documentation | Endpoint reference in Chapter 5; each controller method has a one-line summary comment |
 | Migrations / seed | `src/database/migrations`, `src/database/seeds` (idempotent) |
 
 <div class="page-break"></div>
@@ -1630,9 +1627,9 @@ Tests:       46 passed, 46 total
 | Check | Result |
 |---|---|
 | `npm run build` | ✔ 0 TypeScript errors |
-| `npm run start:dev` against `maristay_db` | ✔ "Found 0 errors", 44 routes mapped, API + Swagger URLs logged |
+| `npm run start:dev` against `maristay_db` | ✔ "Found 0 errors", 44 routes mapped, API + Swagger URLs logged (Swagger UI was removed on 2026-11-27; see Testing §8.11.) |
 | Video flow on `maristay_db`: manager login → create room → GET → PATCH → DELETE → POST without token | ✔ 200 → 201 → 200 → 200 → 204 → 401 |
-| Swagger `/api/docs-json` | ✔ 200, 44 operations, 18 schemas; UI assets load under CSP |
+| Swagger `/api/docs-json` | ✔ 200, 44 operations, 18 schemas; UI assets load under CSP (Swagger UI was removed on 2026-11-27; see Testing §8.11.) |
 | Security headers / CORS | ✔ CSP, HSTS, nosniff, SAMEORIGIN present; `X-Powered-By` absent; only the configured origin receives `Access-Control-Allow-Origin` |
 | CHECK constraints (MariaDB) | ✔ negative price → `CONSTRAINT CHK_rooms_pricePerNight failed`; checkOut = checkIn → `CHK_reservations_dates failed` |
 | FK RESTRICT | ✔ deleting a room with history → error 1451 |
@@ -1656,7 +1653,7 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
 | B2 | Captured API samples | `createdAt` (DB default, local time) and app-written datetimes (UTC) differed by 8 h | Use the `local` time zone for both; corrected seeded rows; re-exported SQL |
 | B3 | Postman design review | Login limit of 5/min was below the 6 role logins in folder 1 | Default raised to 10/min (still blocks brute force; 429 test updated) |
 | B4 | e2e test | Test tried to set `expiresAt` before `issuedAt`; the CHECK constraint correctly refused | Test fixed (constraint confirmed working) |
-| B5 | Header review | Helmet CSP `upgrade-insecure-requests` could break Swagger UI over plain HTTP | Directive sent only in production |
+| B5 | Header review | Helmet CSP `upgrade-insecure-requests` could break Swagger UI over plain HTTP | Directive sent only in production. Since Swagger was removed (2026-11-27), Helmet defaults apply everywhere |
 | B6 | First full Postman run | 32 request bodies sent numeric ids and amounts as quoted placeholders (`"roomId": "{{stayRoomId}}"`), so the API correctly answered 400 (`roomId must be an integer number`), and payments, same-day bookings, check-in and the workflow cascaded into failures | Placeholders unquoted (`"roomId": {{stayRoomId}}`) in the collection; API validation unchanged |
 | B7 | Second Postman desktop run (port 3001): 38 passed, 138 failed, 10 script errors, every protected request 401 | Not a code bug: all six logins failed, so no tokens were saved. Newman reproduced the same signature only when `demoPassword` was empty (400 on every login) or wrong (401), each giving 36 passed / 140 failed. Spending the login rate limit beforehand produced different counts. | Login - Manager now has a pre-request guard that stops with a clear message when `demoPassword` is empty. No assertion, validation or authentication was changed. |
 
@@ -1707,7 +1704,7 @@ All screenshots were captured by the student on 2026-11-26 on the development ma
   * the plain digital key code in the check-in response (Figure 8.14).
 * **Cropped:** each image is cropped to the relevant part of the screen. This removed the Postman AI side panel and collection sidebar, and the phpMyAdmin database list, which showed database names unrelated to this project.
 
-Nothing else was edited. The Swagger UI is Figure 5.1 (Chapter 5) and the server start-up is Figure 7.1 (Chapter 7).
+Nothing else was edited. The server start-up is Figure 7.1 (Chapter 7). The Swagger UI screenshot (formerly Figure 5.1) was removed together with Swagger on 2026-11-27.
 
 **Environments used.** Two groups of screenshots use two different databases:
 
@@ -1719,23 +1716,22 @@ Nothing else was edited. The Swagger UI is Figure 5.1 (Chapter 5) and the server
 | # | Evidence | Result | Figure |
 |---|---|---|---|
 | 1 | Server start-up, routes mapped | ✔ | 7.1 |
-| 2 | Swagger UI at `http://localhost:3000/api/docs` | ✔ | 5.1 |
-| 3 | Manager login | ✔ 200 OK, JWT issued | 8.1 |
-| 4 | Guest login | ✔ 200 OK, JWT issued | 8.2 |
-| 5 | Create room | ✔ 201 Created (Room ID 13, 2500.00) | 8.3 |
-| 6 | Retrieve room | ✔ 200 OK (Room ID 13) | 8.4 |
-| 7 | Update room with PATCH | ✔ 200 OK, price 2500 → 2800 (Room ID 13) | 8.5, 8.6 |
-| 8 | Retrieve a deleted room | ✔ 404 Not Found (Room ID 13) | 8.7, 8.8 |
-| 9 | Delete room | ✔ 204 No Content (temporary Room ID 14, see note below) | 8.9 |
-| 10 | Protected route without a token | ✔ 401 Unauthorized | 8.10 |
-| 11 | Guest calls a manager-only route | ✔ 403 Forbidden | 8.11 |
-| 12 | Full collection in the Postman desktop Runner | ✔ 177 / 177 assertions, 0 failed, 0 errors, 17.347 s, avg 13 ms | 8.12 |
-| 13 | Digital check-in issues a key; simulated smart lock grants access | ✔ 200 OK, "Key issued", "Access granted" | 8.13, 8.14 |
-| 14 | Overlapping reservation | ✔ 409 Conflict | 8.15 |
-| 15 | `reservations` table unchanged by the manual requests | ✔ | 8.16 |
-| 16 | Unit tests | ✔ 33 / 33 passed, 4 / 4 suites, 37.441 s | 8.17 |
-| 17 | End-to-end tests | ✔ 46 / 46 passed, 1 / 1 suite, 13.62 s | 8.18 |
-| 18 | Newman (command-line runner) | ✔ 177 / 177 in three runs (table in §8.6) | text only |
+| 2 | Manager login | ✔ 200 OK, JWT issued | 8.1 |
+| 3 | Guest login | ✔ 200 OK, JWT issued | 8.2 |
+| 4 | Create room | ✔ 201 Created (Room ID 13, 2500.00) | 8.3 |
+| 5 | Retrieve room | ✔ 200 OK (Room ID 13) | 8.4 |
+| 6 | Update room with PATCH | ✔ 200 OK, price 2500 → 2800 (Room ID 13) | 8.5, 8.6 |
+| 7 | Retrieve a deleted room | ✔ 404 Not Found (Room ID 13) | 8.7, 8.8 |
+| 8 | Delete room | ✔ 204 No Content (temporary Room ID 14, see note below) | 8.9 |
+| 9 | Protected route without a token | ✔ 401 Unauthorized | 8.10 |
+| 10 | Guest calls a manager-only route | ✔ 403 Forbidden | 8.11 |
+| 11 | Full collection in the Postman desktop Runner | ✔ 177 / 177 assertions, 0 failed, 0 errors, 17.347 s, avg 13 ms | 8.12 |
+| 12 | Digital check-in issues a key; simulated smart lock grants access | ✔ 200 OK, "Key issued", "Access granted" | 8.13, 8.14 |
+| 13 | Overlapping reservation | ✔ 409 Conflict | 8.15 |
+| 14 | `reservations` table unchanged by the manual requests | ✔ | 8.16 |
+| 15 | Unit tests | ✔ 33 / 33 passed, 4 / 4 suites, 37.441 s | 8.17 |
+| 16 | End-to-end tests | ✔ 46 / 46 passed, 1 / 1 suite, 13.62 s | 8.18 |
+| 17 | Newman (command-line runner) | ✔ 177 / 177 in three runs (table in §8.6) | text only |
 
 **Protected route with an invalid token → 401.** This case has no separate screenshot. It is covered by the passing Runner assertion *Protected Route With Invalid Token → 401* (inside the 177 in Figure 8.12), by e2e test 7 (Figure 8.18), and by all three Newman runs.
 
@@ -1891,7 +1887,7 @@ The only difference is cosmetic: foreign keys imported from the MariaDB dump sho
 ### Documentation checks
 
 * **ERD:** the Mermaid ERD in `DATABASE_DESIGN.md` was parsed and compared with `information_schema`. All 8 tables, 64 columns, data types, PK/FK/UK markers and 7 relationships match.
-* **API documentation:** the endpoint table covers all 44 operations reported by Swagger (`/api/docs-json`, 9 tags).
+* **API documentation:** the endpoint table covers all 44 operations reported by Swagger (`/api/docs-json`, 9 tags), checked before Swagger was removed. After the removal, the start-up log maps the same 44 routes (§8.11).
 
 ### Frontend screenshots
 
@@ -1927,6 +1923,26 @@ The React frontend was restyled (Modern Luxury Minimalist) after the functional 
 | Browser UI test | 30/30 (before sign-up) | 37/37 (after the UI redesign, §8.10) |
 | Registration checks | 49/49 (when sign-up was added) | 49/49 (after the UI redesign) |
 | Security / RBAC matrix | — | 126/126 (§8.9) |
+
+## 8.11 Swagger UI removal and regression (2026-11-27)
+
+The ITEC 116 guidelines name Postman as the required API testing tool, so Swagger UI was removed. Only documentation tooling changed:
+* `@nestjs/swagger`, its Nest CLI plugin, the `/api/docs` setup, the start-up log line and 193 `@Api…` decorators were removed. Each endpoint's summary is kept as a one-line code comment.
+* The update DTOs now import `PartialType`/`OmitType` from `@nestjs/mapped-types`, the official package Swagger re-exported. It copies the same class-validator rules.
+* Helmet now uses its defaults in every environment. The development-only CSP exception existed only for Swagger's HTML page.
+
+No endpoint, DTO rule, guard, role, business rule, database object or frontend file changed. Results, on isolated databases only:
+
+| Check | Result |
+|---|---|
+| TypeScript (`src` + `test`) and `nest build` | ✔ 0 errors |
+| `npm run start:dev` (isolated database, port 3101) | ✔ "Found 0 errors", **44 routes mapped**, application started; no Swagger log line; `/api/docs` and `/api/docs-json` return 404 |
+| Unit tests | ✔ **33/33** |
+| End-to-end tests (`maristay_test_db`) | ✔ **46/46** |
+| Postman collection with Newman (fresh `maristay_postman_db`, port 3001) | ✔ **177/177** assertions, 137 requests, 0 failures |
+| Browser integration test (fresh database) | ✔ **37/37** |
+| `npm run verify:registration` | ✔ **49/49** |
+| Security and RBAC matrix | ✔ **126/126** (Helmet CSP, `nosniff`, no `X-Powered-By`, CORS) |
 
 <div class="page-break"></div>
 
@@ -2034,7 +2050,7 @@ Technical documentation of the tools used:
 3. **Create the database**, using either option:
    * **Option A (recommended):** `npm run db:setup` creates `maristay_db`, runs the migration and seeds the demo data.
    * **Option B:** import `exports/maristay.sql` in phpMyAdmin (Import tab → choose the file → Go) or with `mysql -u root -p < exports/maristay.sql`. The script creates and uses `maristay_db`. Import it only on a server that does not already have `maristay_db`; otherwise it stops at the first table and changes nothing. With Option B, the demo accounts keep the password used when the export was made, so use Option A to choose your own.
-4. **Run the API:** `npm run start:dev`. The API is at `http://localhost:3000/api/v1` and Swagger UI at `http://localhost:3000/api/docs` (log in, click **Authorize**, paste the `accessToken`).
+4. **Run the API:** `npm run start:dev`. The API is at `http://localhost:3000/api/v1`; test it with the Postman collection (step 6).
 5. **Run the automated tests:** `npm run test` (unit tests, no database needed) and `npm run test:e2e`. The e2e tests drop and recreate only `TEST_DB_DATABASE`, default `maristay_test_db`; the name must end in `_test`.
 6. **Postman:**
    * **Demonstration:** import `exports/MariStay.postman_collection.json` and `exports/MariStay.postman_environment.json` (*MariStay Local*, port 3000, `maristay_db`). Set and **save** `demoPassword`. Use single requests from folders 1 and 3 for the live demonstration.
@@ -2139,7 +2155,7 @@ Status key:
 | 1 | Complete NestJS project that builds and runs | NestJS 11 modular monolith, 9 feature modules | `npm run build`: 0 errors. `npm run start:dev`: "Found 0 errors", 44 routes mapped | Complete |
 | 2 | Authentication module: login, JWT, protected routes, password hashing, input validation | `src/auth/` (AuthService, JwtStrategy, global JwtAuthGuard, RolesGuard), bcrypt cost 10, global `ValidationPipe` (whitelist, forbid unknown fields) | e2e tests 1–12; Newman folders 1 and 11 | Complete |
 | 3 | At least 2 additional CRUD modules | **Rooms** (POST, GET, PATCH, PUT, DELETE) and **Staff** (POST, GET, PATCH, DELETE = deactivate). Guests and Reservations also cover all four operations | e2e 15–21 and 44; Newman folders 3 and 8 | Complete |
-| 4 | At least 20 REST endpoints | **44 endpoints** in 9 resources | Swagger `/api/docs-json`: 44 operations; [API documentation](API_DOCUMENTATION.md) §5.3 | Complete |
+| 4 | At least 20 REST endpoints | **44 endpoints** in 9 resources | Start-up log maps 44 routes (`npm run start:dev`, 2026-11-27); [API documentation](API_DOCUMENTATION.md) §5.3 | Complete |
 | 5 | GET, POST, PUT or PATCH, DELETE | GET 18 · POST 10 · PATCH 11 · PUT 1 · DELETE 4 | §5.3 endpoint table | Complete |
 | 6 | Correct HTTP status codes | 200, 201, 204, 400, 401, 403, 404, 409, 429, 500 with one error format | §5.5; Newman status mix (8.6) | Complete |
 | 7 | Database connection works | TypeORM + `mysql2`, settings only from `.env` | Server start log; e2e suite against a real database | Complete |
@@ -2171,23 +2187,23 @@ Status key:
 | 18 | All endpoints tested | Jest unit tests, Supertest e2e tests, Postman collection | 33/33 unit, 46/46 e2e (Figures 8.17–8.18); final regression 2026-11-27: 33/33 unit, 46/46 e2e on MariaDB and 46/46 on Oracle MySQL 8.4 (Testing §8.9) | Complete |
 | 19 | Postman collection exported (`.json`) | `exports/MariStay.postman_collection.json` (v2.1): 11 folders, 122 requests | 5 Newman runs, each 177/177 assertions: 3 on 2026-11-26, and on 2026-11-27 one on MariaDB and one on Oracle MySQL 8.4 | Complete |
 | 20 | Postman testing in the Postman app | Same collection in the Postman desktop Collection Runner, environment *MariStay Postman 3001* (port 3001) | 2026-11-26: 177/177 assertions passed, 0 failed, 0 errors, 17.347 s, average response 13 ms (Testing §8.6, Figure 8.12) | Complete |
-| 21 | Representative API screenshots in the documentation | 20 screenshots in `docs/screenshots/` (tokens and key code redacted), with captions: Figure 5.1, Figure 7.1 and Figures 8.1–8.18 | Login 200, room CRUD 201/200/200/204/404, 401, 403, overlap 409, digital check-in and smart lock, phpMyAdmin tables, test runs | Complete |
+| 21 | Representative API screenshots in the documentation | 19 screenshots in `docs/screenshots/` (tokens and key code redacted), with captions: Figure 7.1 and Figures 8.1–8.18 (the Swagger UI screenshot was removed with Swagger on 2026-11-27) | Login 200, room CRUD 201/200/200/204/404, 401, 403, overlap 409, digital check-in and smart lock, phpMyAdmin tables, test runs | Complete |
 
 ## 5. Repository, documentation, video and presentation
 
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
-| 22 | Repository under the student's own GitHub account, public or private with the instructor as collaborator | https://github.com/reyesgeero001/Maristay (remote `origin`) | 2026-11-27: the repository exists, is **public** and is still empty. Git's author identity for this repository is set to `Reyesgeero001`, the same as the 12 existing commits. Pushing needs Git signed in as `reyesgeero001` | Student action (sign in, approve the commits, push) |
+| 22 | Repository under the student's own GitHub account, public or private with the instructor as collaborator | https://github.com/reyesgeero001/Maristay (public, remote `origin`) | 2026-11-27: `main` pushed and opens publicly. All commits are by `Reyesgeero001`; the history was rewritten once, with the student's approval, to remove automatic co-author trailers | Complete |
 | 23 | README describing the project, tech stack and how to run it | `README.md` | All npm commands it mentions exist in `package.json` | Complete |
 | 24 | `.gitignore` excluding `node_modules` and `.env` | `.gitignore` also excludes `dist/`, backups, `exports/tmp/` and Postman workspace files | `git check-ignore` | Complete |
-| 25 | At least 5 separate, meaningful commits | 12 incremental commits | `git log` | Complete (frontend, screenshots and final documentation still to be committed) |
+| 25 | At least 5 separate, meaningful commits | More than 20 incremental commits on `main` (25–27 Nov 2026) | `git log`; GitHub commit history | Complete |
 | 26 | Documentation PDF with all required chapters | `docs/MariStay_Final_Documentation.pdf`, built from the chapter files | Rebuilt 2026-11-27: cover, table of contents, Chapters 1–9, References, Appendix A–G (with the final frontend screenshots) and the compliance checklist; every page rendered and checked visually | Complete (video link and date pending) |
 | 27 | GitHub link and video link on the cover page | `docs/final/00-cover.md` | GitHub link added; video link and submission date still placeholders | Student action (video link, date) |
 | 28 | Video 5–10 min with narration, in the required order | `docs/VIDEO_DEMO_SCRIPT.md` | Not recorded | Student action |
 | 29 | Presentation slides (10–15 min) | `docs/MariStay_Presentation.pptx`: 16 editable slides with speaker notes, including one bonus frontend slide; `docs/PRESENTATION_GUIDE.md` | Rebuilt 2026-11-27; every slide rendered and checked visually | Complete (rehearsal by the student) |
 | 30 | Documentation matches the implementation | Generated from the same sources; counts re-checked | This checklist | Complete |
-| — | Optional React front-end (bonus) | `frontend/` (React 19, Vite, TypeScript, Tailwind CSS); all four roles; 15 screens; 36 of 44 endpoints; approved Modern Luxury Minimalist design; see `docs/FRONTEND.md` | 2026-11-27, after the UI redesign: browser UI test 37/37 and registration 49/49 on a freshly reset isolated database; production build passed; responsive audit 331 checks with 0 findings. 37 screenshots recaptured with the final UI (`docs/screenshots/frontend/`, key codes masked; Figures G.1–G.8) | Complete (not yet committed) |
-| — | Guest self-registration page (front-end) | `/register` → existing public `POST /api/v1/guests`; no role field; `GUEST` role enforced by the backend (guests table; `forbidNonWhitelisted` rejects `role`); staff created only by a manager | 2026-11-27 on `maristay_postman_db`: 7 browser checks and 49 API/database checks passed (201 without hash, bcrypt `$2b$10$`, login as GUEST, duplicate 409, invalid input 400, `role` MANAGER/FRONT_DESK/HOUSEKEEPING rejected with 400, new guest 403 on staff routes, four demo roles still log in) | Complete (not yet committed) |
+| — | Optional React front-end (bonus) | `frontend/` (React 19, Vite, TypeScript, Tailwind CSS); all four roles; 15 screens; 36 of 44 endpoints; approved Modern Luxury Minimalist design; see `docs/FRONTEND.md` | 2026-11-27, after the UI redesign: browser UI test 37/37 and registration 49/49 on a freshly reset isolated database; production build passed; responsive audit 331 checks with 0 findings. 37 screenshots recaptured with the final UI (`docs/screenshots/frontend/`, key codes masked; Figures G.1–G.8) | Complete |
+| — | Guest self-registration page (front-end) | `/register` → existing public `POST /api/v1/guests`; no role field; `GUEST` role enforced by the backend (guests table; `forbidNonWhitelisted` rejects `role`); staff created only by a manager | 2026-11-27 on `maristay_postman_db`: 7 browser checks and 49 API/database checks passed (201 without hash, bcrypt `$2b$10$`, login as GUEST, duplicate 409, invalid input 400, `role` MANAGER/FRONT_DESK/HOUSEKEEPING rejected with 400, new guest 403 on staff routes, four demo roles still log in) | Complete |
 
 ## 6. MySQL requirement: MariaDB and Oracle MySQL verification
 

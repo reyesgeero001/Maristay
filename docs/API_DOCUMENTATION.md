@@ -1,6 +1,6 @@
 # REST API Design and Documentation
 
-Base URL (local): `http://localhost:3000/api/v1` · Interactive docs (Swagger/OpenAPI): `http://localhost:3000/api/docs` · Postman: [`exports/MariStay.postman_collection.json`](../exports/MariStay.postman_collection.json)
+Base URL (local): `http://localhost:3000/api/v1` · Postman: [`exports/MariStay.postman_collection.json`](../exports/MariStay.postman_collection.json)
 
 ## 5.1 API conventions (Lab 05 Part B)
 
@@ -112,7 +112,6 @@ HTTP methods used: **GET** (read), **POST** (create / actions that create someth
 | `GET /staff` | `role`, `accountStatus`, `search`, `page`, `limit` |
 | `GET /service-orders` | `status`, `serviceType`, `reservationId`, `page`, `limit` |
 
-![Swagger UI](screenshots/11-swagger-ui.png)**Figure 5.1.** Swagger UI at `http://localhost:3000/api/docs` (OpenAPI 3.0, API version 1.0.0), generated from the controllers and DTOs. It shows the *Authentication* and *Digital Keys* groups. Lock icons mark routes that need a Bearer token; the **Authorize** button accepts the `accessToken` returned by `POST /api/v1/auth/login`.
 
 ## 5.4 Request and response examples
 

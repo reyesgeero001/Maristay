@@ -66,7 +66,7 @@ Show this only if time allows. It is a bonus and replaces nothing above. On the 
 2. Log in as the guest `juan.delacruz@example.com`. Show the dashboard, then **My Digital Keys** (the keycard design and the "Simulated Smart Lock" label).
 3. Log out and log in as the manager. Show the dashboard's live room counts, then try `/staff` as the guest in another window to show "Access denied".
 
-Do not book, pay or check in on `maristay_db` during the defense unless you accept the extra records. The full workflow is in the video (Part C) and in the screenshots in Appendix G.
+Do not book, pay or check in on `maristay_db` during the defense unless you accept the extra records. The full frontend workflow is shown in the screenshots in Appendix G; the video demonstrates the backend only.
 
 ## Likely questions
 

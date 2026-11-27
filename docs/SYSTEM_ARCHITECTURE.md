@@ -7,7 +7,7 @@ MariStay is a **modular monolith**: one NestJS application, organised into nine 
 ```mermaid
 flowchart TB
     subgraph Clients["Clients"]
-        PM["Postman / Swagger UI"]
+        PM["Postman (desktop app / Newman)"]
         FE["React web frontend (optional bonus, Vite, port 5173)"]
     end
 
@@ -40,7 +40,7 @@ flowchart TB
 | Lab 03 component | MariStay implementation |
 |---|---|
 | Users: guests, front desk, housekeeping, management | Roles `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER` enforced by `RolesGuard` |
-| Client application (web/mobile) | Postman and Swagger UI (the required testing tools), plus an optional React web frontend in `frontend/` for all four roles (15 screens, 36 of the 44 endpoints; see `docs/FRONTEND.md`). A mobile app is future work. |
+| Client application (web/mobile) | Postman, the required API testing tool, plus an optional React web frontend in `frontend/` for all four roles (15 screens, 36 of the 44 endpoints; see `docs/FRONTEND.md`). A mobile app is future work. |
 | API calls | REST/JSON under `/api/v1` (44 endpoints) |
 | Application / web server | NestJS 11 on Node.js 24 (Express platform) |
 | Auth service | `AuthModule` — bcrypt + JWT (HS256) + passport-jwt |

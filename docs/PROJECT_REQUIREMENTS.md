@@ -25,7 +25,7 @@ the final requirements differ, the final requirements win and the change is list
 
 NestJS 11 · TypeScript · TypeORM 0.3 · MySQL (local server: XAMPP MariaDB 10.4, MySQL-compatible) ·
 mysql2 · JWT (@nestjs/jwt + passport-jwt) · bcrypt · class-validator / class-transformer ·
-@nestjs/throttler · Helmet · @nestjs/swagger · Jest + Supertest · Postman · Git/GitHub · npm.
+@nestjs/throttler · Helmet · Jest + Supertest · Postman · Git/GitHub · npm.
 
 Architecture: **modular monolith** — one NestJS application, one MySQL database, one module per business area.
 
