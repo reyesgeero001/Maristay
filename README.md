@@ -41,17 +41,19 @@ Clone the repository:
 
 ```bash
 git clone https://github.com/reyesgeero001/Maristay.git
-cd Maristay
+cd Maristay/backend
 npm install
 ```
 
-Create the environment configuration in PowerShell:
+Run all backend commands below from the `backend` folder.
+
+Create the environment configuration in `backend/` (PowerShell):
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Configure the database connection, JWT secret, and demo account password in the `.env` file. Do not commit this file.
+Configure the database connection, JWT secret, and demo account password in `backend/.env`. Do not commit this file.
 
 For a fresh database, run:
 
@@ -59,7 +61,7 @@ For a fresh database, run:
 npm run db:setup
 ```
 
-Alternatively, import `exports/maristay.sql` using phpMyAdmin on a server without an existing `maristay_db` database. The exported accounts use the original seed password. Using `db:setup` allows you to configure your own demo password.
+Alternatively, import `database/maristay.sql` using phpMyAdmin on a server without an existing `maristay_db` database. The exported accounts use the original seed password. Using `db:setup` allows you to configure your own demo password.
 
 ## Running the Backend
 
@@ -81,6 +83,8 @@ npm install
 npm run dev
 ```
 
+(From `backend/`, use `cd ../frontend`.)
+
 Website: http://localhost:5173
 
 The frontend uses `VITE_API_BASE_URL` to connect to the backend. The default API is `http://localhost:3000/api/v1`.
@@ -98,7 +102,7 @@ For newly seeded accounts, use the password configured in `SEED_DEMO_PASSWORD`.
 
 ## API Testing
 
-Import the Postman collection and environment from the `exports` folder. Set the local `demoPassword` variable before logging in.
+Import the Postman collection and environment from the `postman` folder. Set the local `demoPassword` variable before logging in.
 
 For automated tests:
 
@@ -121,12 +125,11 @@ Run `npm run postman:newman` in a separate terminal with Newman installed. Do no
 ## Project Structure
 
 ```
-src/        Backend source code
+backend/    NestJS API: src/, test/ (e2e), scripts/, package.json, .env.example
+database/   SQL database export (maristay.sql)
+docs/       Project documentation, screenshots and slides
 frontend/   React frontend
-docs/       Project documentation
-exports/    SQL database and Postman files
-scripts/    Utility scripts
-test/       End-to-end tests
+postman/    Postman collection and environment
 ```
 
 ## Documentation
@@ -134,8 +137,8 @@ test/       End-to-end tests
 - [Project Documentation](docs/MariStay_Final_Documentation.pdf)
 - [API Documentation](docs/API_DOCUMENTATION.md)
 - [Database Design](docs/DATABASE_DESIGN.md)
-- [Postman Collection](exports/MariStay.postman_collection.json)
-- [SQL Database Export](exports/maristay.sql)
+- [Postman Collection](postman/MariStay.postman_collection.json)
+- [SQL Database Export](database/maristay.sql)
 
 ## Limitations
 
