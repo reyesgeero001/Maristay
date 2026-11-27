@@ -157,15 +157,15 @@ None known.
 See `docs/PROJECT_REQUIREMENTS.md` §8 (D1–D15).
 
 ## Git commit history
-1. `a7964e1` chore: initialize MariStay NestJS backend
-2. `e2ec3b1` feat: configure MySQL and TypeORM database entities
-3. `874c285` feat: implement JWT authentication and role authorization
-4. `f40f47e` feat: implement guest room and reservation management
-5. `e4b7f89` feat: integrate payments and digital check-in checkout
-6. `ebe0911` feat: implement digital keys housekeeping and service orders
-7. `fe48d88` test: add API collections integration tests and validation
-8. `cfcaa17` fix: use local time zone for DATETIME columns
-9. `ff2ed95` docs: finalize project documentation and setup guide
+1. `33cf23a` chore: initialize MariStay NestJS backend
+2. `f6fa020` feat: configure MySQL and TypeORM database entities
+3. `d70247d` feat: implement JWT authentication and role authorization
+4. `de13a77` feat: implement guest room and reservation management
+5. `01f02b8` feat: integrate payments and digital check-in checkout
+6. `404f2b3` feat: implement digital keys housekeeping and service orders
+7. `cd1a654` test: add API collections integration tests and validation
+8. `246d06b` fix: use local time zone for DATETIME columns
+9. `aaa37e2` docs: finalize project documentation and setup guide
 
 10. test: run Postman collection on isolated database and fix collection bugs
 11. docs: add compliance checklist and complete final documentation
