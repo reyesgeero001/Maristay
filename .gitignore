@@ -36,6 +36,11 @@ docs/MariStay_Final_Project_Documentation.pdf
 docs/VIDEO_DEMO_SCRIPT.md
 docs/TESTING_REPORT.md
 docs/DEFENSE_QUESTIONS.md
+docs/MariStay_Final_Documentation.docx
+/docs/reference/
+
+# Microsoft Word temporary lock files
+~$*.docx
 
 # Private development brief (kept locally, not published)
 MASTER_PROMPT.md

@@ -4,7 +4,7 @@
  *   npm install --no-save pptxgenjs     (once; not a project dependency)
  *   node backend/scripts/build-presentation.js
  *
- * Every number on the slides comes from verified results (docs/TESTING_REPORT.md).
+ * Every number on the slides comes from verified results (the testing report, kept locally and not published).
  * Diagrams are native, editable PowerPoint shapes.
  */
 'use strict';
@@ -560,7 +560,7 @@ pres.addSection({ title: 'Results' });
   text(s, 'Thank you.', { x: 0.6, y: 2.95, w: 8.8, h: 0.5, fontFace: HEAD, fontSize: 22, color: C.gold });
   text(s, 'MariStay  ·  Geero Andrei E. Reyes  ·  BSIT 4C  ·  ITEC 116', { x: 0.6, y: 3.5, w: 8.8, h: 0.4, fontSize: 16, color: 'C9D6DF' });
   s.addNotes(
-    "Thank you. I'm ready for your questions. (Prepared answers are in docs/DEFENSE_QUESTIONS.md: NestJS structure, TypeORM, keys and relationships, PUT versus PATCH, JWT, hashing, double-booking prevention, transactions, and the simulated integrations.)",
+    "Thank you. I'm ready for your questions. (Prepared answers cover: NestJS structure, TypeORM, keys and relationships, PUT versus PATCH, JWT, hashing, double-booking prevention, transactions, and the simulated integrations.)",
   );
 }
 

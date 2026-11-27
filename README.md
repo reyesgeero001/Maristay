@@ -129,14 +129,13 @@ With the same isolated API running, `npm run security:check` runs the 126 securi
 ```
 backend/    NestJS API: src/, test/ (e2e), scripts/, package.json, .env.example
 database/   SQL database export (maristay.sql)
-docs/       Project documentation, slides, screenshots and the archived technical reference
+docs/       Project documentation, slides and screenshots
 frontend/   React frontend
 postman/    Postman collection and environment
 ```
 
 ## Documentation
 
-- [Technical Reference](docs/reference/MariStay_Technical_Reference.pdf), the archived detailed report
 - [API Documentation](docs/API_DOCUMENTATION.md)
 - [Database Design](docs/DATABASE_DESIGN.md)
 - [Postman Collection](postman/MariStay.postman_collection.json)

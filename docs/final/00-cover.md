@@ -4,7 +4,7 @@
 
 ### Technical Reference — Systems Integration Backend Prototype
 
-Archived detailed report. The official submitted documentation is `docs/MariStay_Final_Project_Documentation.pdf`.
+Archived detailed report. The official final project documentation is submitted separately.
 
 | | |
 |---|---|

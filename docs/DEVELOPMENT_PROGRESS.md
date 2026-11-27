@@ -86,7 +86,7 @@
 By method: GET 18 · POST 10 · PATCH 11 · PUT 1 · DELETE 4.
 
 ## Tested endpoints
-All 44 endpoints were exercised by the e2e suite and the Postman collection, with positive and negative cases (`docs/TESTING_REPORT.md`).
+All 44 endpoints were exercised by the e2e suite and the Postman collection, with positive and negative cases (detailed in the testing report, kept locally and submitted separately).
 
 The full collection passes in Newman against `maristay_postman_db` on port 3001: 122/122 requests, 177/177 assertions, 0 failures. There were three runs on 2026-11-26; the last used the submitted v2.1 file and the rotated JWT secret.
 
@@ -178,8 +178,8 @@ Remote `origin` = https://github.com/reyesgeero001/Maristay (public). On 2026-11
 2. ~~**GitHub:** push the project~~: done on 2026-11-27 (public repository, `main`).
 3. ~~Postman desktop run~~: done, 177/177 (§8.6).
 4. ~~Screenshots~~: done and integrated (§8.7).
-5. **Video:** record with your own narration using `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
-6. **Cover page:** the GitHub link is in. Add the video link and the submission date to the cover of `docs/MariStay_Final_Project_Documentation.docx`, then export it to PDF from Word (same file name).
+5. **Video:** record with your own narration using the video demo script (kept locally, not published), upload it, and test the link in an incognito window.
+6. **Cover page:** the GitHub link is in. Add the video link and the submission date to the cover of the final documentation (kept locally and submitted separately), then export it to PDF from Word (same file name).
 7. **Slides:** review and rehearse `docs/MariStay_Presentation.pptx` (about 13 minutes).
 8. ~~Decide about `MASTER_PROMPT.md`~~: done. It was removed from the tracked files and added to `.gitignore`, and the local copy is kept. It still exists in the first commits, because history was deliberately not rewritten; it contains no secrets.
 9. ~~Optional: verify on Oracle MySQL 8~~: done, MySQL 8.4.11 LTS (Compliance Checklist §6).
@@ -202,8 +202,12 @@ Remote `origin` = https://github.com/reyesgeero001/Maristay (public). On 2026-11
   - The detailed report built from the Markdown chapters is archived as `docs/reference/MariStay_Technical_Reference.pdf` (with `TECHNICAL_REFERENCE.md`); `npm run docs:build` now writes there.
   - The 126-check security matrix is now `backend/scripts/security-check.js` (`npm run security:check`).
 
+- **Phase 16 (2026-11-28), repository cleanup for final submission** (requested by the student):
+  - The final documentation (`.docx`/`.pdf`) is submitted separately. It was removed from the repository, together with the video demo script, the testing report, the defense questions and the archived technical reference (`docs/reference/`). Local copies are kept, the files are listed in `.gitignore`, and no history was rewritten. The phase entries above describe these files as they were at the time.
+  - `npm run docs:build` still works without the private testing report: it puts a short placeholder note in that chapter. It writes its output to the git-ignored `docs/reference/`.
+
 ## Next recommended action
 1. ~~**GitHub:** push the Swagger UI removal~~: done on 2026-11-27.
-2. **Video:** record it with `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
-3. **Cover:** add the video link and the submission date to the cover of `docs/MariStay_Final_Project_Documentation.docx`, export the PDF from Word, and commit both files.
-4. Rehearse the defense with `docs/PRESENTATION_GUIDE.md` and `docs/DEFENSE_QUESTIONS.md`.
+2. **Video:** record it with the video demo script (kept locally), upload it, and test the link in an incognito window.
+3. **Cover:** add the video link and the submission date to the cover of the final documentation (kept locally), export the PDF from Word, and submit it separately; it is not committed.
+4. Rehearse the defense with `docs/PRESENTATION_GUIDE.md` and the defense questions (kept locally).

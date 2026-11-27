@@ -4,8 +4,11 @@
  *   docs/build/final-documentation.html  (print-ready HTML, Mermaid diagrams rendered in the browser)
  *   docs/reference/MariStay_Technical_Reference.pdf (if Microsoft Edge or Google Chrome is installed)
  *
- * This is the archived detailed technical reference. The official submitted
- * documentation is docs/MariStay_Final_Project_Documentation.docx / .pdf.
+ * This is the archived detailed technical reference. The official final
+ * documentation is submitted separately and is not part of the repository.
+ *
+ * Chapters marked `optional` (the private testing report) are kept locally and
+ * not published; when one is missing, a short note is inserted in its place.
  *
  * Usage: npm run docs:build
  */
@@ -29,7 +32,17 @@ const CHAPTERS = [
   { file: 'API_DOCUMENTATION.md', title: 'REST API Design' },
   { file: 'AUTHENTICATION_SECURITY.md', title: 'Authentication and Security' },
   { file: 'final/07-backend-implementation.md', title: 'Backend Implementation' },
-  { file: 'TESTING_REPORT.md', title: 'API Testing and Validation' },
+  {
+    file: 'TESTING_REPORT.md',
+    title: 'API Testing and Validation',
+    optional: true,
+    fallback:
+      '# API Testing and Validation\n\n' +
+      'The detailed testing report is submitted separately and is not included in this repository. ' +
+      'The tests themselves are: the unit tests (`backend/src/**/*.spec.ts`), the end-to-end tests ' +
+      '(`backend/test/`) and the Postman collection (`postman/MariStay.postman_collection.json`). ' +
+      'See the API Testing section of the README for how to run them.',
+  },
   { file: 'final/09-conclusion.md', title: 'Conclusion' },
   { file: 'final/10-references.md', title: 'References', unnumbered: true },
   { file: 'final/11-appendix.md', title: 'Appendix', unnumbered: true },
@@ -44,7 +57,9 @@ const slug = (text) =>
 let chapterNo = 0;
 const toc = [];
 const bodies = CHAPTERS.map((chapter) => {
-  let text = read(chapter.file);
+  const missing = chapter.optional && !fs.existsSync(path.join(DOCS, chapter.file));
+  if (missing) console.log(`ℹ docs/${chapter.file} not found (kept locally, not published); using a placeholder chapter.`);
+  let text = missing ? chapter.fallback : read(chapter.file);
   // Links in docs/final/*.md are relative to docs/final; the assembled file lives in docs/.
   if (chapter.file.startsWith('final/')) {
     text = text.replace(/\]\(\.\.\/\.\.\//g, '](../').replace(/\]\(\.\.\/screenshots\//g, '](screenshots/');

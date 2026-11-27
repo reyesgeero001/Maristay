@@ -2,7 +2,7 @@
 
 **Slides:** [`docs/MariStay_Presentation.pptx`](MariStay_Presentation.pptx). There are 16 editable slides in 16:9, and every slide has speaker notes (in PowerPoint: View → Notes). To regenerate the deck after editing the generator: run `npm install --no-save pptxgenjs`, then `node backend/scripts/build-presentation.js`.
 
-The deck follows the instructor's presentation flow (guidelines §6): overview → architecture → database → REST API → security → backend demonstration → API testing → conclusion → Q&A. Every number on the slides comes from verified results in `docs/TESTING_REPORT.md`. Speak in your own words; the notes are a guide, not a script to read.
+The deck follows the instructor's presentation flow (guidelines §6): overview → architecture → database → REST API → security → backend demonstration → API testing → conclusion → Q&A. Every number on the slides comes from verified test results (recorded in the testing report, which is kept locally and submitted separately). Speak in your own words; the notes are a guide, not a script to read.
 
 ## Before you present
 
@@ -34,7 +34,7 @@ The deck follows the instructor's presentation flow (guidelines §6): overview �
 | 13 | System demonstration | 3:00 | Live demo (below) |
 | 14 | Optional React frontend (bonus) | 0:30 | Same API; sign-up always creates a Guest; the API still enforces every permission |
 | 15 | Conclusion | 0:45 | Accomplishments, lessons, next steps |
-| 16 | Questions and answers | — | Prepared answers: [`docs/DEFENSE_QUESTIONS.md`](DEFENSE_QUESTIONS.md) |
+| 16 | Questions and answers | — | Prepared answers: defense questions (kept locally) |
 | | **Total** | **≈ 13:45** | Within the 10–15 minute limit |
 
 If time is short, shorten slides 2, 4 and 8 to about 20 seconds each.
@@ -70,7 +70,7 @@ Do not book, pay or check in on `maristay_db` during the defense unless you acce
 
 ## Likely questions
 
-Prepared answers are in [`DEFENSE_QUESTIONS.md`](DEFENSE_QUESTIONS.md), questions 1–41. The ones most likely for this project:
+Prepared answers are in the defense questions document (kept locally, not published), questions 1–41. The ones most likely for this project:
 * 19–24: JWT, hashing, 401 vs 403, ownership.
 * 25–26: double booking, transactions.
 * 29–30: digital keys, simulations.
