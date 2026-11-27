@@ -1,0 +1,37 @@
+01-login.png — Login page for all four roles, with the Sign up link
+02a-register-form.png — Guest registration form (no role selection)
+02b-register-validation.png — Registration validation: invalid email, weak password, password mismatch
+02c-register-success.png — After sign-up: success message on the login page
+03-new-guest-dashboard.png — Newly registered account signs in with the Guest role and guest navigation only
+04-access-denied-guest.png — Access control: a guest opening the manager-only Staff page
+05-manager-dashboard.png — Manager dashboard with live statistics
+06a-manager-rooms.png — Manager: room list with search and filters
+06b-room-create.png — Room CRUD — Create (Add room dialog)
+06c-room-read.png — Room CRUD — Read (search finds the new room)
+06d-room-update.png — Room CRUD — Update (Edit room dialog)
+06e-room-delete.png — Room CRUD — Delete (confirmation dialog)
+07-manager-staff.png — Manager: staff management
+08-manager-guests.png — Guest management (shows the newly registered guest)
+09-guest-dashboard.png — Guest dashboard
+10a-guest-availability.png — Guest: room availability search for chosen dates
+10b-guest-booking-dialog.png — Guest: booking confirmation
+10c-reservation-pending.png — Reservation detail: PENDING until paid
+11-frontdesk-dashboard.png — Front desk dashboard
+12a-record-payment.png — Front desk: Record payment (simulated, no card data)
+12b-reservation-confirmed.png — Full payment automatically confirms the reservation
+12c-payments.png — Payments list
+13a-checkin-dialog.png — Guest: digital check-in
+13b-digital-key-issued.png — Digital check-in result: one-time digital room key (key code masked)
+14a-smart-lock-granted.png — Simulated smart lock: access granted for the booked room (key code masked)
+14b-smart-lock-denied.png — Simulated smart lock: access denied for a different room (403)
+15a-service-request-new.png — Guest: new service request
+15b-service-requests.png — Guest: service requests list
+16-frontdesk-service-orders.png — Front desk: service order marked delivered
+17a-checkout-blocked.png — Check-out blocked while a service charge is unpaid (409)
+17b-checkout-summary.png — Digital check-out: keys revoked, room sent to housekeeping
+17c-revoked-key-denied.png — After check-out the revoked key no longer opens the door
+18-frontdesk-digital-keys.png — Front desk: digital key history (no key codes are ever listed)
+19a-housekeeping-dashboard.png — Housekeeping dashboard
+19b-housekeeping-completed.png — Housekeeping: task completed, room available again
+20-access-denied-housekeeping.png — Access control: housekeeping cannot open Reservations
+21-manager-housekeeping.png — Manager: housekeeping assignments
