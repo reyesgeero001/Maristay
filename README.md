@@ -122,19 +122,22 @@ npm run postman:start
 
 Run `npm run postman:newman` in a separate terminal with Newman installed. Do not run the full collection against the main database.
 
+With the same isolated API running, `npm run security:check` runs the 126 security and role-access checks. It only sends requests that are rejected by design, prints no secrets, and refuses to run against port 3000.
+
 ## Project Structure
 
 ```
 backend/    NestJS API: src/, test/ (e2e), scripts/, package.json, .env.example
 database/   SQL database export (maristay.sql)
-docs/       Project documentation, screenshots and slides
+docs/       Official documentation, slides, screenshots and the archived technical reference
 frontend/   React frontend
 postman/    Postman collection and environment
 ```
 
 ## Documentation
 
-- [Project Documentation](docs/MariStay_Final_Documentation.pdf)
+- [Final Project Documentation (PDF)](docs/MariStay_Final_Project_Documentation.pdf), the official submitted document ([Word version](docs/MariStay_Final_Project_Documentation.docx))
+- [Technical Reference](docs/reference/MariStay_Technical_Reference.pdf), the archived detailed report
 - [API Documentation](docs/API_DOCUMENTATION.md)
 - [Database Design](docs/DATABASE_DESIGN.md)
 - [Postman Collection](postman/MariStay.postman_collection.json)
