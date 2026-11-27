@@ -13,7 +13,7 @@
 | **Course** | ITEC 116 — IT Elective 4 (Systems Integration and Architecture 2) |
 | **Instructor** | John Vincent A. Dallego, MIT |
 | **Project type** | Individual Final Project |
-| **GitHub repository** | `[TO BE ADDED: https://github.com/<your-username>/maristay]` |
+| **GitHub repository** | [https://github.com/reyesgeero001/Maristay](https://github.com/reyesgeero001/Maristay) |
 | **Video demonstration** | `[TO BE ADDED: shareable Google Drive / YouTube (unlisted) link]` |
 | **Date** | `[TO BE ADDED: submission date]` |
 
@@ -74,6 +74,8 @@
   - [6.8 Rate limiting](#68-rate-limiting)
   - [6.9 Credential and data protection](#69-credential-and-data-protection)
   - [6.10 Lab 06 security measures — traceability](#610-lab-06-security-measures-traceability)
+  - [6.11 Guest self-registration and the optional frontend](#611-guest-self-registration-and-the-optional-frontend)
+  - [6.12 Final security verification (2026-11-27)](#612-final-security-verification-2026-11-27)
 - [Chapter 7 — Backend Implementation](#chapter-7-backend-implementation)
   - [7.1 Technology and project structure](#71-technology-and-project-structure)
   - [7.2 NestJS modules](#72-nestjs-modules)
@@ -93,6 +95,8 @@
   - [8.6 Postman collection](#86-postman-collection)
   - [8.7 Evidence and representative screenshots](#87-evidence-and-representative-screenshots)
   - [8.8 How to reproduce](#88-how-to-reproduce)
+  - [8.9 Final regression and Oracle MySQL verification (2026-11-27)](#89-final-regression-and-oracle-mysql-verification-2026-11-27)
+  - [8.10 Frontend verification after the UI redesign (2026-11-27)](#810-frontend-verification-after-the-ui-redesign-2026-11-27)
 - [Chapter 9 — Conclusion](#chapter-9-conclusion)
   - [9.1 Project accomplishments](#91-project-accomplishments)
   - [9.2 Challenges encountered](#92-challenges-encountered)
@@ -107,13 +111,14 @@
   - [D. Status values](#d-status-values)
   - [E. Git commit history](#e-git-commit-history)
   - [F. Deviations from the laboratory designs](#f-deviations-from-the-laboratory-designs)
+  - [G. Optional React frontend (bonus)](#g-optional-react-frontend-bonus)
 - [Requirements Compliance Checklist](#requirements-compliance-checklist)
   - [1. Backend application](#1-backend-application)
   - [2. Database](#2-database)
   - [3. Authentication and security](#3-authentication-and-security)
   - [4. API testing](#4-api-testing)
   - [5. Repository, documentation, video and presentation](#5-repository-documentation-video-and-presentation)
-  - [6. MySQL requirement: MariaDB compatibility and Oracle MySQL verification](#6-mysql-requirement-mariadb-compatibility-and-oracle-mysql-verification)
+  - [6. MySQL requirement: MariaDB and Oracle MySQL verification](#6-mysql-requirement-mariadb-and-oracle-mysql-verification)
 
 <div class="page-break"></div>
 
@@ -177,12 +182,12 @@ How can one secure backend system integrate reservations, payments, room access,
 
 **Limitations**
 * **Simulated integrations:** no real payment gateway (payments are recorded by the front desk; no card data), no real SMS/e-mail (messages are logged), no physical smart lock (key validation only returns a decision).
-* **No front-end:** the API is used through Postman/Swagger. The optional React front-end was not built.
+* **Front-end is optional and basic:** the required testing tools are Postman and Swagger. An optional React web frontend (bonus) covers the main workflows of all four roles, including guest sign-up, and uses 36 of the 44 endpoints (Appendix G). There is no mobile app.
 * **HTTP only locally:** HTTPS must be provided by a reverse proxy in deployment.
 * **Single property, single currency (PHP)**, no taxes, discounts, invoices, or partial-night pricing; early check-out does not refund unused nights.
 * **Service catalog** prices are defined in code, not in a database table.
 * **Refresh tokens / logout blacklist** are not implemented; access tokens simply expire (1 h) and deactivation takes effect immediately.
-* **Database server:** developed and tested on XAMPP's "MySQL" server, which is MariaDB 10.4.32, a MySQL-compatible fork. It has not been tested on Oracle MySQL 8. Compatibility is expected but not proven (see the Requirements Compliance Checklist §6).
+* **Database server:** developed on XAMPP's "MySQL" server, which is MariaDB 10.4.32, a MySQL-compatible fork. It was also verified on Oracle MySQL 8.4.11 LTS: migration, seed, end-to-end tests and the full Postman collection all passed (§8.9 and the Requirements Compliance Checklist §6).
 
 ## 1.7 Technologies used
 
@@ -315,7 +320,7 @@ MariStay is a **modular monolith**: one NestJS application, organised into nine 
 flowchart TB
     subgraph Clients["Clients"]
         PM["Postman / Swagger UI"]
-        FE["Web or mobile app (future)"]
+        FE["React web frontend (optional bonus, Vite, port 5173)"]
     end
 
     subgraph API["MariStay API — NestJS application server (Node.js, port 3000, prefix /api/v1)"]
@@ -335,7 +340,7 @@ flowchart TB
     PG["Payment gateway (SIMULATED: payments are recorded, no money moves)"]
 
     PM -->|HTTPS in production / HTTP locally · JSON · Bearer JWT| MW
-    FE --> MW
+    FE -->|Axios · JSON · Bearer JWT| MW
     MW --> G --> Modules
     Modules -->|TypeORM + mysql2, parameterised SQL| DB
     RES --> NOTIF
@@ -347,11 +352,11 @@ flowchart TB
 | Lab 03 component | MariStay implementation |
 |---|---|
 | Users: guests, front desk, housekeeping, management | Roles `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER` enforced by `RolesGuard` |
-| Client application (web/mobile) | Any HTTP client — Postman and Swagger UI for this prototype (React front-end is optional future work) |
+| Client application (web/mobile) | Postman and Swagger UI (the required testing tools), plus an optional React web frontend in `frontend/` for all four roles (15 screens, 36 of the 44 endpoints; see `docs/FRONTEND.md`). A mobile app is future work. |
 | API calls | REST/JSON under `/api/v1` (44 endpoints) |
 | Application / web server | NestJS 11 on Node.js 24 (Express platform) |
 | Auth service | `AuthModule` — bcrypt + JWT (HS256) + passport-jwt |
-| Database server | MySQL-compatible server (XAMPP MariaDB 10.4) accessed with TypeORM 0.3 and `mysql2` |
+| Database server | MySQL-compatible server accessed with TypeORM 0.3 and `mysql2`: XAMPP MariaDB 10.4.32 for development, also verified on Oracle MySQL 8.4.11 LTS (Testing §8.9) |
 | SMS / e-mail notification | `NotificationsService` — simulated adapter (logs masked messages) |
 | Payment gateway | Simulated: `PaymentsModule` records payments only |
 | Smart locks | Simulated: `POST /digital-keys/validate` returns an access decision |
@@ -779,18 +784,18 @@ CHECK constraints are enforced by MySQL 8.0.16+ and MariaDB 10.2+ (verified on M
 
 Seed data (fictional): 1 manager, 1 front desk, 2 housekeeping staff, 2 guests, 9 rooms (101–104 Standard, 201–202 Deluxe, 301 Suite, 302–303 Family; 104 CLEANING, 303 MAINTENANCE), 3 reservations (one checked-out past stay with a delivered order and payment, one confirmed future stay, one pending future stay), 2 housekeeping records.
 
-> Known cosmetic note: on MariaDB, `npm run schema:check` lists two `ALTER … NULL` statements for the nullable `payments.date` and `service_orders.notes` columns because MariaDB reports their default as the text `'NULL'`. The statements would not change anything. (MySQL 8 reports a real `NULL` default, so the diff is expected to be empty there; this was not tested because the development machine runs MariaDB.)
+> Known cosmetic note: on MariaDB, `npm run schema:check` lists two `ALTER … NULL` statements for the nullable `payments.date` and `service_orders.notes` columns because MariaDB reports their default as the text `'NULL'`. The statements would not change anything. (MySQL 8 reports a real `NULL` default, so the diff is empty there: on Oracle MySQL 8.4.11 LTS, `npm run schema:check` reported "Your schema is up to date" on 2026-11-27.)
 
 ## 4.9 Database server and SQL export
 
-* **Server used:** XAMPP's bundled "MySQL" server, which is **MariaDB 10.4.32**, a MySQL-compatible fork. The application connects with the MySQL driver (`mysql2`, TypeORM `type: 'mysql'`). All results in this document were produced on this server. The schema uses only features that Oracle MySQL 8.0.16+ also supports, but it was **not** tested on Oracle MySQL (see the Requirements Compliance Checklist §6).
+* **Server used:** XAMPP's bundled "MySQL" server, which is **MariaDB 10.4.32**, a MySQL-compatible fork. The application connects with the MySQL driver (`mysql2`, TypeORM `type: 'mysql'`). Development and the results in this document used this server. On 2026-11-27 the same migration, seed data, e2e tests (46/46) and Postman collection (177/177) were also verified on **Oracle MySQL 8.4.11 LTS**, and the schema was identical on both servers: 8 tables, 64 columns, 7 foreign keys, 17 CHECK constraints and 13 unique indexes (Requirements Compliance Checklist §6, Testing §8.9).
 * **Other databases:** the project uses three databases on the shared XAMPP server:
   * `maristay_db`, the demonstration data;
   * `maristay_test_db`, recreated by the e2e tests;
   * `maristay_postman_db`, recreated before each full Postman/Newman run.
 
   The tools never create, change or drop any other database. The e2e and Postman reset commands refuse to touch a database with a different name.
-* **SQL export:** `exports/maristay.sql` was produced by `mysqldump` from the migrated and seeded `maristay_db`. It contains the 8 tables, the `migrations` table, 7 foreign keys, 17 CHECK constraints, 23 indexes and the demonstration records. It begins with `CREATE DATABASE IF NOT EXISTS maristay_db; USE maristay_db;` and contains no `DROP TABLE` statements. It is meant for a server **without** an existing `maristay_db`. If one already exists with tables, the import stops at the first `CREATE TABLE` and changes nothing. Re-import was verified on 2026-11-26 into a scratch database: all objects were created without errors.
+* **SQL export:** `exports/maristay.sql` was produced by `mysqldump` from the migrated and seeded `maristay_db`. It contains the 8 tables, the `migrations` table, 7 foreign keys, 17 CHECK constraints, 23 indexes and the demonstration records. It begins with `CREATE DATABASE IF NOT EXISTS maristay_db; USE maristay_db;` and contains no `DROP TABLE` statements. It is meant for a server **without** an existing `maristay_db`. If one already exists with tables, the import stops at the first `CREATE TABLE` and changes nothing. Re-import was verified on 2026-11-26 into a scratch database: all objects were created without errors. On 2026-11-27 a copy without the `CREATE DATABASE`/`USE` lines was also imported into Oracle MySQL 8.4.11 LTS. Only deprecation warnings appeared, and the FK, CHECK and UNIQUE constraints were enforced. Foreign keys imported from this MariaDB dump show `ON DELETE NO ACTION`, which InnoDB treats exactly like `RESTRICT`.
 
 <div class="page-break"></div>
 
@@ -907,6 +912,8 @@ HTTP methods used: **GET** (read), **POST** (create / actions that create someth
 | `GET /housekeeping` | `status`, `roomId`, `staffId` (manager), `page`, `limit` |
 | `GET /staff` | `role`, `accountStatus`, `search`, `page`, `limit` |
 | `GET /service-orders` | `status`, `serviceType`, `reservationId`, `page`, `limit` |
+
+![Swagger UI](screenshots/11-swagger-ui.png)**Figure 5.1.** Swagger UI at `http://localhost:3000/api/docs` (OpenAPI 3.0, API version 1.0.0), generated from the controllers and DTOs. It shows the *Authentication* and *Digital Keys* groups. Lock icons mark routes that need a Bearer token; the **Authorize** button accepts the `accessToken` returned by `POST /api/v1/auth/login`.
 
 ## 5.4 Request and response examples
 
@@ -1210,6 +1217,29 @@ Threats from Lab 06 Part C and how MariStay addresses them: **SQL injection** �
 
 **Authentication vs authorization** (Lab 06 Q5): authentication (`JwtAuthGuard`) answers *who are you?* and fails with 401; authorization (`RolesGuard` + ownership) answers *what may you do?* and fails with 403.
 
+## 6.11 Guest self-registration and the optional frontend
+
+* **Public sign-up cannot create staff.** `POST /guests` is public, but it always writes to the `guests` table, and accounts from that table always receive the `GUEST` role at login. Staff roles exist only in the `staff` table, which only a manager can write to (`POST /staff`, `@Roles(MANAGER)`). Because the global `ValidationPipe` uses `forbidNonWhitelisted`, a sign-up request that adds `role`, `accountType`, `accountStatus` or `guestId` is rejected with 400 and creates nothing.
+* **Duplicate e-mails** are rejected with 409 across both the guest and staff tables, in any letter case.
+* **The React frontend is not a security boundary.** It hides pages a role cannot use, but every request is still checked by `JwtAuthGuard`, `RolesGuard` and the ownership rules. The JWT is kept in `sessionStorage`, and the role is always re-read from the server (`GET /auth/me`). One-time digital key codes are kept only in memory for the current tab.
+
+## 6.12 Final security verification (2026-11-27)
+
+Run on the isolated database (Testing §8.9):
+
+* `npm run verify:registration`: **49/49** checks.
+  * 201 without any password field; a bcrypt `$2b$10$` hash in the database; login as GUEST.
+  * Duplicate e-mail → 409; invalid input and weak passwords → 400.
+  * `role` MANAGER / FRONT_DESK / HOUSEKEEPING → 400 with no account created.
+  * The new guest gets 403 on staff routes.
+* Security and RBAC matrix: **126/126** checks.
+  * 21 endpoints × no token and the four roles: 401/403 enforced.
+  * Rejected tokens: tampered, `alg: none`, expired, and signed with another secret.
+  * Ownership checks hold.
+  * No `passwordHash` or `keyCodeHash` in any response.
+  * SQL-injection text is treated as data, and mass assignment is rejected.
+  * Helmet headers are present, and CORS allows only the configured origin.
+
 <div class="page-break"></div>
 
 # Chapter 7 — Backend Implementation
@@ -1221,7 +1251,7 @@ Threats from Lab 06 Part C and how MariStay addresses them: **SQL injection** �
 | Runtime | Node.js 24, TypeScript 5.8 |
 | Framework | NestJS 11.2 (`@nestjs/common`, `core`, `platform-express`) |
 | ORM / driver | TypeORM 0.3.31 + `mysql2` 3 (`@nestjs/typeorm` 11) |
-| Database | MySQL protocol — XAMPP MariaDB 10.4.32 locally |
+| Database | MySQL protocol — XAMPP MariaDB 10.4.32 locally; also verified on Oracle MySQL 8.4.11 LTS |
 | Auth | `@nestjs/jwt` 11, `@nestjs/passport` 11, `passport-jwt` 4, `bcrypt` 6 |
 | Validation | `class-validator` 0.14, `class-transformer` 0.5 |
 | Security | `helmet` 8, `@nestjs/throttler` 6 |
@@ -1411,6 +1441,8 @@ export function buildDataSourceOptions(env = process.env, databaseOverride?: str
 
 `AppModule` registers it with `TypeOrmModule.forRootAsync(...)`, and the app refuses to start if any required variable is missing or the JWT secret is weak.
 
+![Server start-up log](screenshots/01-server-startup.png)**Figure 7.1.** Part of the `npm run start:dev` log on 2026-11-26 (process 24636, 11:32:44 AM). NestJS's `RoutesResolver` and `RouterExplorer` map the *Rooms*, *Reservations* and *Payments* routes under `/api/v1`, including PATCH/PUT/DELETE `/rooms/:id` and the reservation `confirm`, `check-in` and `check-out` actions. The routes are mapped only after the database connection succeeds. The whole log maps 44 routes; the 0-error compile is recorded in §8.3.
+
 ## 7.8 Important business logic
 
 ### Preventing double bookings ([`reservations.service.ts`](../src/reservations/reservations.service.ts))
@@ -1488,9 +1520,9 @@ DECIMAL values are converted to numbers by a column transformer, and all arithme
 
 # Chapter 8 — API Testing and Validation
 
-**Test dates:** 2026-11-25 (development and full suite); 2026-11-26 (Newman runs, and unit + e2e regression after rotating the JWT secret: 33/33 and 46/46) · **Environment:** Windows 11, Node.js 24.21.0, NestJS 11.2, TypeORM 0.3.31, XAMPP MariaDB 10.4.32 (MySQL-compatible) on localhost:3306.
+**Test dates:** 2026-11-25 (development and full suite); 2026-11-26 (Newman runs; unit + e2e regression after rotating the JWT secret; Postman desktop Runner 177/177; screenshot evidence in §8.7); 2026-11-27 (final regression on MariaDB and Oracle MySQL 8.4.11 LTS, §8.9) · **Environment:** Windows 11, Node.js 24.21.0, NestJS 11.2, TypeORM 0.3.31, XAMPP MariaDB 10.4.32 (MySQL-compatible) on localhost:3306.
 
-All results in this report were produced by actually running the tests on the development machine. Nothing is estimated. Items that still need manual action are marked **⚠ TO DO**.
+All results in this report were produced by actually running the tests on the development machine. Nothing is estimated. The screenshots in §8.7 were captured by the student on the same machine; only redaction and cropping were applied.
 
 ## 8.1 Testing approach
 
@@ -1507,7 +1539,7 @@ The e2e database name must end with `_test` (or `_test_db`); the test refuses to
 
 ## 8.2 Automated test results
 
-### Unit tests — `npm run test` → **33 passed, 0 failed** (4 suites)
+### Unit tests — `npm run test` → **33 passed, 0 failed** (4 / 4 suites; latest run 37.441 s, Figure 8.17)
 
 | Suite | Tests |
 |---|---|
@@ -1516,7 +1548,7 @@ The e2e database name must end with `_test` (or `_test_db`); the test refuses to
 | `common/guards/roles.guard.spec.ts` | routes without @Roles allowed · public routes allowed · listed role allowed · wrong role → 403 (not 401) |
 | `auth/auth.service.spec.ts` | valid guest gets JWT with id/accountType/role and no hash · staff login carries staff role · wrong password → 401 · unknown email → same 401 message · INACTIVE account → 401 · deactivated account's token resolves to no user |
 
-### End-to-end tests — `npm run test:e2e` → **46 passed, 0 failed** (≈8 s)
+### End-to-end tests — `npm run test:e2e` → **46 passed, 0 failed** (latest run 13.62 s, Figure 8.18)
 
 | # | Scenario (test name) | Expected | Actual |
 |---|---|---|---|
@@ -1656,35 +1688,146 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
 
 The 137 HTTP requests include 15 sent by `pm.sendRequest`: 4 concurrent bookings and 11 rate-limit logins. HTTP status mix in each run: 200 ×64, 201 ×24, 204 ×3, 400 ×7, 401 ×5, 403 ×10, 404 ×1, 409 ×13, 429 ×10. Every 4xx response is the expected result of a negative test. The Newman output contained no tokens or passwords.
 
-* **Postman desktop app:** ⚠ **not yet passed.** Two earlier desktop runs failed for reasons outside the API (B6 and B7). The student must run it once more and record the Runner totals in §8.7. Steps:
+* **Postman desktop app:** ✔ **passed** on 2026-11-26 (Runner started 12:12:44 PM). The run used the *MariStay Postman 3001* environment against a freshly reset `maristay_postman_db` on port 3001.
+  * Totals reported by the Runner: 1 iteration, **177 tests, 177 passed, 0 failed, 0 skipped, 0 errors**.
+  * Duration **17 s 347 ms**; average response time **13 ms**.
+  * Evidence: Figures 8.12 to 8.15.
+
+  Two earlier desktop runs had failed for reasons outside the API (B6 and B7). Newman counts 177 assertions only when every request succeeds; failing runs count fewer, because a failed test stops before its later assertions. A total of 177 passed therefore means all 122 requests ran successfully. To repeat the run:
   1. Stop the port-3001 server, then run `npm run postman:reset` and `npm run postman:start`.
   2. Select the *MariStay Postman 3001* environment. Set `demoPassword` and **save** the environment.
   3. Run all 122 requests in their default order, sequentially.
 
-  Newman counts 177 assertions when every request succeeds. Failing runs count fewer, because a failed test stops before its later assertions.
-
 ## 8.7 Evidence and representative screenshots
 
-The text evidence in this report comes from real runs. Screenshots must come from the student's own screen, and none are fabricated here.
+All screenshots were captured by the student on 2026-11-26 on the development machine. They were then prepared for publication as follows:
 
-| # | Evidence | Where it comes from | Status |
+* **Redacted:**
+  * the JWT payload and signature in the two login responses (Figures 8.1 and 8.2);
+  * the plain digital key code in the check-in response (Figure 8.14).
+* **Cropped:** each image is cropped to the relevant part of the screen. This removed the Postman AI side panel and collection sidebar, and the phpMyAdmin database list, which showed database names unrelated to this project.
+
+Nothing else was edited. The Swagger UI is Figure 5.1 (Chapter 5) and the server start-up is Figure 7.1 (Chapter 7).
+
+**Environments used.** Two groups of screenshots use two different databases:
+
+* **Manual requests (Figures 8.1–8.11):** sent one at a time with the *MariStay Local* environment to the demonstration instance on port 3000 (`maristay_db`). Only login, room CRUD and the 401/403 checks were run there.
+* **Collection Runner (Figures 8.12–8.15):** the full collection, run on the isolated instance on port 3001 (`maristay_postman_db`). This keeps the demonstration data clean, as described in §8.6.
+
+### Summary of verified results
+
+| # | Evidence | Result | Figure |
 |---|---|---|---|
-| 1 | `npm run start:dev` with "Found 0 errors" and the mapped routes | Terminal | ⚠ Screenshot needed |
-| 2 | Login – Manager: 200 and `accessToken` | Postman | ⚠ Screenshot needed |
-| 3 | Create Room 201 → Get Room 200 → Update Room (PATCH) 200 → Delete Room 204 | Postman | ⚠ Screenshot needed |
-| 4 | Protected route without a token → 401; guest on a manager-only route → 403 | Postman | ⚠ Screenshot needed |
-| 5 | Digital check-in response with the issued key | Postman | ⚠ Screenshot needed |
-| 6 | Overlapping reservation → 409 | Postman | ⚠ Screenshot needed |
-| 7 | Collection Runner summary (all 122 requests) | Postman desktop | ⚠ Screenshot needed after a successful desktop run |
-| 8 | `rooms` and `reservations` tables matching the Postman actions | phpMyAdmin | ⚠ Screenshot needed |
-| 9 | `npm run test` (33 passed) and `npm run test:e2e` (46 passed) summaries | Terminal | Text results in 8.2; ⚠ screenshot recommended |
-| 10 | Newman summary table | Terminal | Text results above; ⚠ screenshot optional |
-| 11 | Swagger UI at `http://localhost:3000/api/docs` | Browser | ⚠ Screenshot needed |
+| 1 | Server start-up, routes mapped | ✔ | 7.1 |
+| 2 | Swagger UI at `http://localhost:3000/api/docs` | ✔ | 5.1 |
+| 3 | Manager login | ✔ 200 OK, JWT issued | 8.1 |
+| 4 | Guest login | ✔ 200 OK, JWT issued | 8.2 |
+| 5 | Create room | ✔ 201 Created (Room ID 13, 2500.00) | 8.3 |
+| 6 | Retrieve room | ✔ 200 OK (Room ID 13) | 8.4 |
+| 7 | Update room with PATCH | ✔ 200 OK, price 2500 → 2800 (Room ID 13) | 8.5, 8.6 |
+| 8 | Retrieve a deleted room | ✔ 404 Not Found (Room ID 13) | 8.7, 8.8 |
+| 9 | Delete room | ✔ 204 No Content (temporary Room ID 14, see note below) | 8.9 |
+| 10 | Protected route without a token | ✔ 401 Unauthorized | 8.10 |
+| 11 | Guest calls a manager-only route | ✔ 403 Forbidden | 8.11 |
+| 12 | Full collection in the Postman desktop Runner | ✔ 177 / 177 assertions, 0 failed, 0 errors, 17.347 s, avg 13 ms | 8.12 |
+| 13 | Digital check-in issues a key; simulated smart lock grants access | ✔ 200 OK, "Key issued", "Access granted" | 8.13, 8.14 |
+| 14 | Overlapping reservation | ✔ 409 Conflict | 8.15 |
+| 15 | `reservations` table unchanged by the manual requests | ✔ | 8.16 |
+| 16 | Unit tests | ✔ 33 / 33 passed, 4 / 4 suites, 37.441 s | 8.17 |
+| 17 | End-to-end tests | ✔ 46 / 46 passed, 1 / 1 suite, 13.62 s | 8.18 |
+| 18 | Newman (command-line runner) | ✔ 177 / 177 in three runs (table in §8.6) | text only |
 
-To add a screenshot:
-1. Save it as `docs/screenshots/NN-name.png`.
-2. Reference it here, e.g. `![Login – Manager](screenshots/02-login.png)`.
-3. Rebuild the PDF with `npm run docs:build`.
+**Protected route with an invalid token → 401.** This case has no separate screenshot. It is covered by the passing Runner assertion *Protected Route With Invalid Token → 401* (inside the 177 in Figure 8.12), by e2e test 7 (Figure 8.18), and by all three Newman runs.
+
+### 8.7.1 Authentication
+
+![Manager login in Postman](screenshots/02-manager-login.png)\
+**Figure 8.1.** *Login - Manager* (`POST /auth/login`) on port 3000 returns **200 OK** with an access token (JWT payload and signature redacted).
+
+The response gives `tokenType: "Bearer"` and `expiresIn: "1h"`, and the user's role is `MANAGER`. The password hash is not part of the response. All three test assertions passed (Test Results 3/3).
+
+![Guest login in Postman](screenshots/04d-guest-login.png)\
+**Figure 8.2.** *Login - Guest (Juan)* returns **200 OK** with an access token for the fictional demo guest, whose role is `GUEST` (token redacted).
+
+This token is used for the 403 check in Figure 8.11.
+
+### 8.7.2 Room management: full CRUD
+
+Figures 8.3 to 8.8 follow one test room, **Room ID 13** (room number `T91562`, generated by the collection). It was created, read, updated, and is shown to be gone. The **204 response in Figure 8.9 belongs to a second, temporary room, Room ID 14**. That room was created the same way, only to capture a clean DELETE screenshot, because the DELETE response for Room 13 was not captured. Neither room still exists. A read-only query of `maristay_db` on 2026-11-26 found no room with an ID of 10 or higher and `AUTO_INCREMENT = 15`, which confirms that rooms 13 and 14 were both created and then deleted.
+
+![Create room](screenshots/03a-create-room.png)\
+**Figure 8.3.** *Create Room (Manager)* returns **201 Created**. The new room has `roomId: 13`, type Deluxe, `pricePerNight: 2500` and `roomStatus: "AVAILABLE"`.
+
+![Get room](screenshots/03b-get-room.png)\
+**Figure 8.4.** *Get Room* (`GET /rooms/{{roomId}}`) returns **200 OK** with the same record, Room ID 13. The test script shown checks both the status and the room number.
+
+![Update room with PATCH](screenshots/03c-update-room.png)\
+**Figure 8.5.** *Update Room - PATCH* returns **200 OK**. `pricePerNight` changes from **2500 to 2800**, and `updatedAt` advances while `createdAt` stays the same.
+
+![rooms table after the update](screenshots/08a-database-room-updated.png)\
+**Figure 8.6.** phpMyAdmin, `maristay_db.rooms`, after the PATCH. Room 13 (`T91562`) is stored with **2800.00**, and the nine other rooms are not affected by these requests.
+
+![Deleted room returns 404](screenshots/03e-get-deleted-room.png)\
+**Figure 8.7.** *Get Deleted Room → 404* returns **404 Not Found** for `/api/v1/rooms/13`, with the standard error body ("Room not found"). The purple bar is Postman's built-in AI suggestion and is not part of the API response.
+
+![rooms table after deletion](screenshots/08b-database-room-deleted.png)\
+**Figure 8.8.** phpMyAdmin, `maristay_db.rooms`, after Room 13 was deleted. Nine rows remain: the seeded rooms 101–303, none affected by these requests.
+
+![Delete room returns 204](screenshots/03d-delete-room.png)\
+**Figure 8.9.** *Delete Room (Manager)* returns **204 No Content**, and the test "Status is 204" passed (1/1). This request deleted the **temporary Room ID 14**, not Room 13 (see the note above).
+
+### 8.7.3 Authorization: 401 and 403
+
+![Protected route without a token](screenshots/04a-protected-route-no-token.png)\
+**Figure 8.10.** *Protected Route Without Token → 401*: `GET /reservations` with Auth type **No Auth** returns **401 Unauthorized** ("Invalid or missing access token"). The global `JwtAuthGuard` rejects the request before any controller runs.
+
+![Guest calls a manager-only route](screenshots/04c-forbidden-guest.png)\
+**Figure 8.11.** *Guest Calls Manager-only Route → 403*: the guest's valid token on `POST /rooms` returns **403 Forbidden** ("You do not have permission to perform this action"). Authentication succeeded, but `RolesGuard` refused the role. No room was created.
+
+### 8.7.4 Postman desktop Collection Runner (port 3001)
+
+![Collection Runner summary](screenshots/07-collection-runner.png)\
+**Figure 8.12.** Run summary of the Collection Runner, environment *MariStay Postman 3001*: **177 tests, 177 passed, 0 failed, 0 skipped, 0 errors**; duration 17 s 347 ms; average response 13 ms. The list shows the final security tests.
+
+The last request, *Login Rate Limit → 429*, displays its own response, a 401 caused by a deliberately wrong password. Its test script then sends 11 more logins and asserts that a **429 Too Many Requests** is returned, and that assertion passed.
+
+![Digital check-in and smart lock in the Runner](screenshots/05a-digital-check-in-runner.png)\
+**Figure 8.13.** The *6. Digital Keys* results from the same run:
+
+* *Setup - Digital Check-in (Guest)* → **200**, "Key issued".
+* *Validate Digital Key (simulated smart lock)* → **200**, "Access granted".
+* *Get Key Metadata* → "No hash or code exposed".
+* *Reissue Key* → **201**.
+
+![Digital check-in response](screenshots/05b-digital-key-response.png)\
+**Figure 8.14.** The digital check-in response, opened from the Runner. Reservation 6 is `CHECKED_IN`, room 101 is `OCCUPIED`, and a `digitalKey` with `status: "ACTIVE"` expires at 12:00 on the check-out date. The plain key code, returned once at issue, is redacted here. The database stores only its SHA-256 hash.
+
+![Overlapping reservation in the Runner](screenshots/06-overlapping-reservation.png)\
+**Figure 8.15.** *11. Security and Negative Testing* results from the same run:
+
+* *Overlapping Reservation* → **409 Conflict**.
+* *Concurrent Conflicting Reservations*: exactly one of the concurrent bookings succeeded (201) and all the others were rejected (409).
+* Invalid reservation dates → 400.
+* Another guest's reservation → 403.
+
+### 8.7.5 Database state of the demonstration database
+
+![reservations table](screenshots/08c-database-reservations.png)\
+**Figure 8.16.** phpMyAdmin, `maristay_db.reservations`. It holds the same seven rows as after the approved clean-up at 01:24:47. Rows 4–7 are cancelled test bookings from that clean-up, and no row was added afterwards. This confirms that the manual port-3000 requests in Figures 8.1–8.11 created no reservations. The overlapping-reservation test ran only on the isolated port-3001 database.
+
+### 8.7.6 Automated test runs
+
+![Unit test results](screenshots/09a-unit-testing.png)\
+**Figure 8.17.** `npm run test`: **4 of 4 suites, 33 of 33 tests passed** in 37.441 s.
+
+![End-to-end test results](screenshots/09b-e2e-testing.png)\
+**Figure 8.18.** `npm run test:e2e`: **46 of 46 tests passed** in 13.62 s against the isolated `maristay_test_db`. The visible part shows the integrated guest workflow, staff management and login rate-limiting tests.
+
+**Not captured as screenshots:**
+
+* Newman: its results are given as text in §8.6.
+* The `Found 0 errors` line of `npm run start:dev`: Figure 7.1 shows the route-mapping part of the start-up log; the 0-error compile is recorded in §8.3.
+* The video demonstration: pending.
 
 ## 8.8 How to reproduce
 
@@ -1699,6 +1842,92 @@ npm install --no-save newman
 npm run postman:newman  # terminal 2
 ```
 
+## 8.9 Final regression and Oracle MySQL verification (2026-11-27)
+
+Run after the functional scope was frozen. Every run used an isolated database; `maristay_db` was only read (schema comparison), never written. No code was changed by this verification.
+
+### Final regression (MariaDB 10.4.32)
+
+| Check | Command / database | Result |
+|---|---|---|
+| Backend production build | `nest build -p tsconfig.postman.json` (same compiler options as `npm run build`, output `dist-postman/`) | ✔ 0 errors |
+| Frontend production build | `cd frontend && npm run build` (tsc + Vite) | ✔ |
+| Unit tests | `npm run test` | ✔ **33/33**, 4/4 suites, 10.1 s |
+| End-to-end tests | `npm run test:e2e` → `maristay_test_db` | ✔ **46/46**, 9.1 s |
+| Postman collection | `npm run postman:reset`, `postman:start`, `postman:newman` → `maristay_postman_db`, port 3001 | ✔ **177/177** assertions, 137 requests, 0 failures, 12 s, avg 10 ms |
+| Browser integration test | `frontend/tests/ui-e2e.mjs` (Microsoft Edge) → fresh `maristay_postman_db` | ✔ **37/37** |
+| Guest registration API + database | `npm run verify:registration` | ✔ **49/49** |
+| Security and RBAC matrix | one-off script, isolated API | ✔ **126/126** (below) |
+| Integrated hotel workflow | Newman folder 10, e2e steps 1–10, browser test | ✔ booking → payment → automatic confirmation → check-in with key → smart lock → service order → check-out blocked by balance → payment → check-out (keys revoked, cleaning task) → housekeeping completes → room available |
+
+**Security and RBAC matrix (126 checks).**
+* Each role's login returns a JWT carrying that role.
+* 21 representative endpoints × {no token, GUEST, FRONT_DESK, HOUSEKEEPING, MANAGER}: 401 without a token, 403 for roles that are not allowed, and the guard passes for allowed roles. Allowed write calls used invalid bodies (400) or nonexistent ids (404), so no data changed.
+* Tokens rejected with 401: a guest token with its role edited to MANAGER (bad signature), `alg: none`, a garbage token, a correctly signed but expired token, and a token signed with another secret.
+* Ownership: a guest cannot read another guest's profile (403), and a guest's reservation list contains only their own reservations.
+* No `passwordHash` or `keyCodeHash` in the staff, guest, key or `/auth/me` responses.
+* `' OR 1=1 -- ` in a search is treated as text (0 rows).
+* An extra `reservationStatus` field in a booking is rejected (400).
+* Helmet headers: `nosniff`, CSP, no `X-Powered-By`.
+* CORS allows only the configured origin.
+* Error bodies contain no stack trace.
+
+### Oracle MySQL 8.4.11 LTS
+
+A temporary, portable MySQL Community Server 8.4.11 LTS ran on `127.0.0.1:3307`, with its own data folder in a temporary directory. The binaries were verified as signed by Oracle America, Inc. It was stopped and removed afterwards. Only environment variables pointed MariStay at it.
+
+| Check | Result |
+|---|---|
+| `npm run db:setup` (create, migrate, seed) → `maristay_mysql8_db` | ✔ |
+| `npm run schema:check` | ✔ schema up to date |
+| Schema vs MariaDB `maristay_db` (`information_schema`) | ✔ identical: 9 tables, 67 columns (64 application), 7 FKs, 17 CHECKs, 13 unique indexes |
+| `npm run test:e2e` → `maristay_mysql8_test` | ✔ **46/46**, 19.8 s |
+| Newman, API on port 3001 backed by MySQL → `maristay_mysql8_postman` | ✔ **177/177** assertions, 137 requests, 19.7 s, avg 47 ms |
+| `exports/maristay.sql` import (copy without `CREATE DATABASE`/`USE`) → `maristay_mysql8_import` | ✔ imported; deprecation warnings only |
+| Constraints on imported data | ✔ FK 1451/1452, CHECK 3819, UNIQUE 1062 enforced |
+
+The only difference is cosmetic: foreign keys imported from the MariaDB dump show `ON DELETE NO ACTION` instead of `RESTRICT`, which InnoDB treats identically (Compliance Checklist §6).
+
+### Documentation checks
+
+* **ERD:** the Mermaid ERD in `DATABASE_DESIGN.md` was parsed and compared with `information_schema`. All 8 tables, 64 columns, data types, PK/FK/UK markers and 7 relationships match.
+* **API documentation:** the endpoint table covers all 44 operations reported by Swagger (`/api/docs-json`, 9 tags).
+
+### Frontend screenshots
+
+37 screenshots of all four roles were captured on the isolated database into `docs/screenshots/frontend/`, with key codes masked (`docs/FRONTEND.md` §9).
+
+### Reproduce the additional checks
+
+```bash
+npm run verify:registration                         # isolated API on port 3001 (postman:start)
+cd frontend && node --env-file=../.env tests/ui-e2e.mjs
+```
+
+## 8.10 Frontend verification after the UI redesign (2026-11-27)
+
+The React frontend was restyled (Modern Luxury Minimalist) after the functional scope was frozen. No backend file, route, API call or test assertion changed. Results on a freshly reset `maristay_postman_db` with the final UI:
+
+| Check | Result |
+|---|---|
+| Frontend production build (`npm run build`) | ✔ |
+| Browser integration test (`frontend/tests/ui-e2e.mjs`) | ✔ **37/37**. A first run had 32/37: a required-field asterisk had been placed inside the sign-up labels, which changed their text. The asterisk was moved outside the labels; the test was not changed |
+| `npm run verify:registration` | ✔ **49/49** |
+| Responsive and accessibility audit (Microsoft Edge, 1440 / 1280 / 768 / 390 px, every screen of all four roles, plus the Add room dialog) | ✔ **331** checks, 0 findings, 0 console errors |
+| Main configuration (read-only) | ✔ the main frontend calls the API on port 3000, which is connected to `maristay_db` (confirmed by comparing record timestamps); manager login shows live data |
+
+### Result history
+
+| Suite | Earlier | Latest (2026-11-27) |
+|---|---|---|
+| Unit tests | 33/33 (2026-11-25/26) | 33/33 (final regression, §8.9) |
+| E2E tests, MariaDB | 46/46 (2026-11-25/26) | 46/46 (§8.9) |
+| E2E tests, Oracle MySQL 8.4.11 | — | 46/46 (§8.9) |
+| Postman / Newman | 177/177 × 3 Newman + 1 desktop Runner (2026-11-26) | 177/177 on MariaDB and 177/177 on MySQL 8.4 (§8.9) |
+| Browser UI test | 30/30 (before sign-up) | 37/37 (after the UI redesign, §8.10) |
+| Registration checks | 49/49 (when sign-up was added) | 49/49 (after the UI redesign) |
+| Security / RBAC matrix | — | 126/126 (§8.9) |
+
 <div class="page-break"></div>
 
 # Chapter 9 — Conclusion
@@ -1710,14 +1939,15 @@ npm run postman:newman  # terminal 2
 * **44 REST endpoints** (target was ≥ 20) using GET, POST, PUT, PATCH and DELETE, including all 7 Lab 05 endpoints with their original access levels; full CRUD for Rooms and Staff (Guests and Reservations also support all four operations).
 * **Security** from Lab 06: bcrypt hashing, JWT with expiry, global authentication guard, RBAC with four roles, ownership checks, strict input validation, login rate limiting, Helmet headers, restricted CORS, no hardcoded secrets.
 * **Real integration**: payment status drives reservation confirmation; check-in coordinates payments, rooms and digital keys; check-out coordinates service orders, billing, keys, rooms and housekeeping — each in a single database transaction.
-* **Testing**: 33 unit tests and 46 end-to-end tests against a real MySQL-compatible test database, all passing. The 122-request Postman collection ran with Newman against an isolated database three times, with 177/177 assertions passing each time.
+* **Testing**: 33 unit tests and 46 end-to-end tests against a real MySQL-compatible test database, all passing. The 122-request Postman collection ran against an isolated database three times with Newman and once in the Postman desktop Collection Runner, with 177/177 assertions passing each time. Annotated screenshots of the manual and Runner tests are in §8.7. The final regression on 2026-11-27 passed again on MariaDB, and the e2e suite and the Postman collection also passed on Oracle MySQL 8.4.11 LTS (§8.9).
+* **Optional React frontend (bonus)** for all four roles, with guest self-registration that always creates a Guest account (Appendix G).
 
 ## 9.2 Challenges encountered
 
 1. **MySQL vs MariaDB differences.** XAMPP's "MySQL" is MariaDB 10.4. TypeORM generated MySQL 8 lock syntax (`FOR SHARE`) that MariaDB rejects. The booking logic was redesigned to use a row lock (`FOR UPDATE`, supported by both) with `READ COMMITTED` isolation, and concurrency was re-tested.
 2. **Preventing double bookings.** Checking "is the room free?" and then inserting is not safe when two requests arrive at the same time. Locking the room row inside a transaction solved it.
 3. **Time zones.** Timestamps written by the application and those generated by MySQL defaults disagreed by eight hours until both were configured to use the same time zone.
-4. **Testing the Postman collection for real.** On paper, the collection looked complete. Running it showed that 32 request bodies sent numeric ids as quoted text. The API correctly rejected them, and the first failure cascaded into many more. A later desktop run failed because the environment's password was not saved. Both problems were fixed in the collection, not by relaxing validation. The full collection now runs against its own database, so test data never mixes with the demonstration data.
+4. **Testing the Postman collection for real.** On paper, the collection looked complete. Running it showed that 32 request bodies sent numeric ids as quoted text. The API correctly rejected them, and the first failure cascaded into many more. A later desktop run failed because the environment's password was not saved. Both problems were fixed in the collection, not by relaxing validation. The final desktop run passed all 177 assertions. The full collection now runs against its own database, so test data never mixes with the demonstration data.
 5. **Keeping documentation consistent with code.** Lab 05 used names like `roomNumber` and client-supplied totals; the implementation standardised on the Lab 04 names and server-side pricing, and every change is listed as a documented deviation.
 
 ## 9.3 Lessons learned
@@ -1731,17 +1961,17 @@ npm run postman:newman  # terminal 2
 ## 9.4 Current limitations
 
 * Payment gateway, SMS/e-mail and smart lock are simulated.
-* No front-end application; testing is through Postman and Swagger.
+* The React frontend is a basic web client; there is no mobile app.
 * HTTP only on localhost; HTTPS is a deployment task.
 * No refresh tokens, password-reset e-mails, invoices, taxes, discounts or multi-property support.
 * Service catalog prices live in code.
-* Tested on MariaDB 10.4.32 (XAMPP's MySQL-compatible server) only, not on Oracle MySQL.
+* Sign-up has no e-mail verification or CAPTCHA.
 
 ## 9.5 Recommendations and future improvements
 
 **Recommendations for deployment or continued development**
 
-* Verify the system once on Oracle MySQL 8 (a separate test server on another port is enough). Development used MariaDB 10.4 (see the Requirements Compliance Checklist §6).
+* Use the same server family in production that the tests ran on. MariStay passed on both MariaDB 10.4.32 and Oracle MySQL 8.4.11 LTS (Requirements Compliance Checklist §6).
 * Give the database a dedicated account with a strong password instead of XAMPP's password-less `root`, and keep all secrets in environment variables.
 * Serve the API only over HTTPS behind a reverse proxy, and set `CORS_ORIGIN` to the real front-end origin.
 * Keep running the automated suites (`npm run test`, `npm run test:e2e`, `npm run postman:newman`) before every release.
@@ -1749,7 +1979,7 @@ npm run postman:newman  # terminal 2
 **Future improvements**
 
 
-1. React + Vite front-end for guests, front desk, housekeeping and managers (optional bonus).
+1. A mobile app and e-mail verification for guest sign-up, on top of the existing React web frontend.
 2. Real integrations behind the existing adapters: a payment gateway (e.g. card/e-wallet provider), SMS/e-mail provider, and a smart-lock vendor API.
 3. Deployment with HTTPS (reverse proxy), Docker, and a managed MySQL database.
 4. Refresh tokens and token revocation on logout; password reset by e-mail.
@@ -1863,11 +2093,39 @@ See `docs/DEVELOPMENT_PROGRESS.md` for the full list of incremental commits.
 
 See `docs/PROJECT_REQUIREMENTS.md` §8 (D1–D15) — e.g. `roomNo` instead of `roomNumber`, required password at registration, server-controlled statuses and prices, staff password columns, reservation price snapshot, simulated external services, HTTPS as a deployment requirement.
 
+## G. Optional React frontend (bonus)
+
+A React 19 + Vite + TypeScript web client in `frontend/` uses the same REST API: 15 screens, all four roles, and 36 of the 44 endpoints. Its design, endpoint mapping and tests are described in `docs/FRONTEND.md`. The screenshots were captured automatically on the isolated test database (`maristay_postman_db`) on 2026-11-27. Digital key codes are masked. The full set of 37 images is in `docs/screenshots/frontend/`.
+
+![Guest sign-up](screenshots/frontend/02a-register-form.png)\
+**Figure G.1.** Guest self-registration. There is no role field: every public sign-up becomes a Guest account, enforced by the API.
+
+![Manager dashboard](screenshots/frontend/05-manager-dashboard.png)\
+**Figure G.2.** Manager dashboard with live counts from the API.
+
+![Room create dialog](screenshots/frontend/06b-room-create.png)\
+**Figure G.3.** Room CRUD: the manager's Add room dialog.
+
+![Record payment](screenshots/frontend/12a-record-payment.png)\
+**Figure G.4.** Front desk records a simulated payment. Full payment confirms the reservation automatically.
+
+![Digital key issued](screenshots/frontend/13b-digital-key-issued.png)\
+**Figure G.5.** Digital check-in: the room becomes occupied and a one-time digital key is issued (key code masked).
+
+![Smart lock granted](screenshots/frontend/14a-smart-lock-granted.png)\
+**Figure G.6.** Simulated smart lock: access granted for the booked room.
+
+![Check-out summary](screenshots/frontend/17b-checkout-summary.png)\
+**Figure G.7.** Digital check-out: balance settled, keys revoked, room sent to housekeeping.
+
+![Access denied](screenshots/frontend/04-access-denied-guest.png)\
+**Figure G.8.** Access control: a guest opening a manager-only page. The API also rejects the request with 403.
+
 <div class="page-break"></div>
 
 # Requirements Compliance Checklist
 
-Audit of every mandatory requirement in the ITEC 116 Final Project guidelines (§3 Requirements, §4 Deliverables, §7 Submission Checklist), checked against the implemented system on 2026-11-26.
+Audit of every mandatory requirement in the ITEC 116 Final Project guidelines (§3 Requirements, §4 Deliverables, §7 Submission Checklist), checked against the implemented system on 2026-11-26. Final regression and Oracle MySQL 8.4 verification on 2026-11-27 (Testing §8.9).
 
 Status key:
 - **Complete:** implemented and verified by the evidence listed.
@@ -1890,11 +2148,11 @@ Status key:
 
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
-| 8 | MySQL database created and working | `maristay_db` on the XAMPP "MySQL" server, which is **MariaDB 10.4.32** (see §6 below) | Migration and seed run; 46 e2e tests and 3 Newman runs against it | Note: verified on MariaDB, not on Oracle MySQL |
+| 8 | MySQL database created and working | `maristay_db` on the XAMPP "MySQL" server, which is **MariaDB 10.4.32**; also verified on **Oracle MySQL 8.4.11 LTS** (see §6 below) | MariaDB: migration, seed, 46 e2e, Newman 177/177. Oracle MySQL 8.4.11: migration, seed, `schema:check` up to date, 46/46 e2e, Newman 177/177, SQL export imported (2026-11-27) | Complete |
 | 9 | TypeORM entities for every table | 8 entities: Guest, Room, Reservation, Payment, DigitalKey, Housekeeping, Staff, ServiceOrder | `src/*/entities/*.entity.ts` | Complete |
 | 10 | Entity relationships configured | `@ManyToOne` / `@OneToMany` for all 7 relationships | Database Design §4.5 | Complete |
 | 11 | Primary keys, foreign keys, normalization | 8 auto-increment PKs, 7 FKs (`ON DELETE RESTRICT`), 3NF, 17 CHECK constraints, unique indexes | §4.4–4.7; constraint tests (Testing §8.3) | Complete |
-| 12 | SQL export (`.sql`) | `exports/maristay.sql`, produced by `mysqldump` from the live database | Re-imported into a scratch database on 2026-11-26: 8 tables + `migrations`, 7 FKs, 17 CHECKs, 23 indexes | Complete |
+| 12 | SQL export (`.sql`) | `exports/maristay.sql`, produced by `mysqldump` from the live database | Re-imported into a scratch database on 2026-11-26: 8 tables + `migrations`, 7 FKs, 17 CHECKs, 23 indexes. 2026-11-27: also imported into Oracle MySQL 8.4.11 (8 tables, 64 columns, 7 FKs, 17 CHECKs enforced) | Complete |
 
 ## 3. Authentication and security
 
@@ -1910,40 +2168,43 @@ Status key:
 
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
-| 18 | All endpoints tested | Jest unit tests, Supertest e2e tests, Postman collection | 33/33 unit, 46/46 e2e | Complete |
-| 19 | Postman collection exported (`.json`) | `exports/MariStay.postman_collection.json` (v2.1): 11 folders, 122 requests | 3 Newman runs: 122/122 requests, 177/177 assertions | Complete |
-| 20 | Postman testing in the Postman app | Same collection in the Postman desktop app | Not yet passed in the desktop app (earlier attempts failed because of environment setup) | Student action |
-| 21 | Representative API screenshots in the documentation | List in Testing §8.7 | None captured yet | Student action |
+| 18 | All endpoints tested | Jest unit tests, Supertest e2e tests, Postman collection | 33/33 unit, 46/46 e2e (Figures 8.17–8.18); final regression 2026-11-27: 33/33 unit, 46/46 e2e on MariaDB and 46/46 on Oracle MySQL 8.4 (Testing §8.9) | Complete |
+| 19 | Postman collection exported (`.json`) | `exports/MariStay.postman_collection.json` (v2.1): 11 folders, 122 requests | 5 Newman runs, each 177/177 assertions: 3 on 2026-11-26, and on 2026-11-27 one on MariaDB and one on Oracle MySQL 8.4 | Complete |
+| 20 | Postman testing in the Postman app | Same collection in the Postman desktop Collection Runner, environment *MariStay Postman 3001* (port 3001) | 2026-11-26: 177/177 assertions passed, 0 failed, 0 errors, 17.347 s, average response 13 ms (Testing §8.6, Figure 8.12) | Complete |
+| 21 | Representative API screenshots in the documentation | 20 screenshots in `docs/screenshots/` (tokens and key code redacted), with captions: Figure 5.1, Figure 7.1 and Figures 8.1–8.18 | Login 200, room CRUD 201/200/200/204/404, 401, 403, overlap 409, digital check-in and smart lock, phpMyAdmin tables, test runs | Complete |
 
 ## 5. Repository, documentation, video and presentation
 
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
-| 22 | Repository under the student's own GitHub account, public or private with the instructor as collaborator | Local Git repository ready | Not published | Student action |
+| 22 | Repository under the student's own GitHub account, public or private with the instructor as collaborator | https://github.com/reyesgeero001/Maristay (remote `origin`) | 2026-11-27: the repository exists, is **public** and is still empty. Git's author identity for this repository is set to `Reyesgeero001`, the same as the 12 existing commits. Pushing needs Git signed in as `reyesgeero001` | Student action (sign in, approve the commits, push) |
 | 23 | README describing the project, tech stack and how to run it | `README.md` | All npm commands it mentions exist in `package.json` | Complete |
 | 24 | `.gitignore` excluding `node_modules` and `.env` | `.gitignore` also excludes `dist/`, backups, `exports/tmp/` and Postman workspace files | `git check-ignore` | Complete |
-| 25 | At least 5 separate, meaningful commits | 9 incremental commits | `git log` | Complete (final changes still to be committed) |
-| 26 | Documentation PDF with all required chapters | `docs/MariStay_Final_Documentation.pdf`, built from the chapter files | Cover, table of contents, Chapters 1–9, References, Appendix | Complete (links and screenshots pending) |
-| 27 | GitHub link and video link on the cover page | Placeholders in `docs/final/00-cover.md` | — | Student action |
+| 25 | At least 5 separate, meaningful commits | 12 incremental commits | `git log` | Complete (frontend, screenshots and final documentation still to be committed) |
+| 26 | Documentation PDF with all required chapters | `docs/MariStay_Final_Documentation.pdf`, built from the chapter files | Rebuilt 2026-11-27: cover, table of contents, Chapters 1–9, References, Appendix A–G (with the final frontend screenshots) and the compliance checklist; every page rendered and checked visually | Complete (video link and date pending) |
+| 27 | GitHub link and video link on the cover page | `docs/final/00-cover.md` | GitHub link added; video link and submission date still placeholders | Student action (video link, date) |
 | 28 | Video 5–10 min with narration, in the required order | `docs/VIDEO_DEMO_SCRIPT.md` | Not recorded | Student action |
-| 29 | Presentation slides (10–15 min) | `docs/MariStay_Presentation.pptx` (15 slides with speaker notes) and `docs/PRESENTATION_GUIDE.md` | — | Complete (rehearsal by the student) |
+| 29 | Presentation slides (10–15 min) | `docs/MariStay_Presentation.pptx`: 16 editable slides with speaker notes, including one bonus frontend slide; `docs/PRESENTATION_GUIDE.md` | Rebuilt 2026-11-27; every slide rendered and checked visually | Complete (rehearsal by the student) |
 | 30 | Documentation matches the implementation | Generated from the same sources; counts re-checked | This checklist | Complete |
-| — | Optional React front-end | Not built (optional bonus only) | — | Not implemented by choice |
+| — | Optional React front-end (bonus) | `frontend/` (React 19, Vite, TypeScript, Tailwind CSS); all four roles; 15 screens; 36 of 44 endpoints; approved Modern Luxury Minimalist design; see `docs/FRONTEND.md` | 2026-11-27, after the UI redesign: browser UI test 37/37 and registration 49/49 on a freshly reset isolated database; production build passed; responsive audit 331 checks with 0 findings. 37 screenshots recaptured with the final UI (`docs/screenshots/frontend/`, key codes masked; Figures G.1–G.8) | Complete (not yet committed) |
+| — | Guest self-registration page (front-end) | `/register` → existing public `POST /api/v1/guests`; no role field; `GUEST` role enforced by the backend (guests table; `forbidNonWhitelisted` rejects `role`); staff created only by a manager | 2026-11-27 on `maristay_postman_db`: 7 browser checks and 49 API/database checks passed (201 without hash, bcrypt `$2b$10$`, login as GUEST, duplicate 409, invalid input 400, `role` MANAGER/FRONT_DESK/HOUSEKEEPING rejected with 400, new guest 403 on staff routes, four demo roles still log in) | Complete (not yet committed) |
 
-## 6. MySQL requirement: MariaDB compatibility and Oracle MySQL verification
+## 6. MySQL requirement: MariaDB and Oracle MySQL verification
 
-* **What was used:** XAMPP's bundled database server, which phpMyAdmin and the XAMPP Control Panel label "MySQL". It is actually **MariaDB 10.4.32** (`SELECT VERSION()` → `10.4.32-MariaDB`).
-* **Why it satisfies the course requirement in practice:** MariaDB is a fork of MySQL that keeps the MySQL client protocol, SQL dialect and tools. MariStay connects through the MySQL driver (`mysql2`, TypeORM `type: 'mysql'`). The schema, the `mysqldump` export and the phpMyAdmin demonstration are all standard MySQL tooling.
-* **What is verified:** every automated test, the SQL export and all three Newman runs, on MariaDB 10.4.32 only.
-* **What is not verified:** no test has been run on **Oracle MySQL** (for example MySQL 8.0 or 8.4). The code uses only features both servers support:
-  * row locks (`SELECT … FOR UPDATE`) and `READ COMMITTED` isolation,
-  * CHECK constraints (enforced by MySQL from 8.0.16),
-  * `utf8mb4_unicode_ci`, `DATETIME(6)` and `DECIMAL`.
+* **Development server:** XAMPP's bundled database server, which phpMyAdmin and the XAMPP Control Panel label "MySQL". It is actually **MariaDB 10.4.32** (`SELECT VERSION()` → `10.4.32-MariaDB`). MariStay connects through the MySQL driver (`mysql2`, TypeORM `type: 'mysql'`).
+* **Oracle MySQL verification (2026-11-27):** the official **MySQL Community Server 8.4.11 LTS** ZIP archive (binaries signed by Oracle America, Inc.) ran as a separate, temporary server on `127.0.0.1:3307` with its own data folder. XAMPP MariaDB, its databases and other local projects were not touched. Only environment variables were changed (`DB_HOST`, `DB_PORT`, `DB_DATABASE`, `TEST_DB_DATABASE`); no code was changed.
 
-  One MariaDB-specific problem was already found and removed (TypeORM's `FOR SHARE` lock, bug B1). Compatibility with Oracle MySQL is therefore **expected, not proven**.
-* **Optional verification (student, about 15 minutes):** this does not touch XAMPP.
-  1. Download the MySQL Community Server "ZIP Archive" (no installer).
-  2. Initialise a separate data folder with `bin\mysqld --initialize-insecure --datadir=<folder>`.
-  3. Start it on another port with `bin\mysqld --datadir=<folder> --port=3307 --console`.
-  4. Run the e2e suite against it from PowerShell: `$env:DB_PORT='3307'; npm run test:e2e`. The variable lasts only for that terminal, and the suite uses only the `_test` database.
-  5. Record the result in Testing §8.
+  | Check on Oracle MySQL 8.4.11 | Result |
+  |---|---|
+  | Connection (`STRICT_TRANS_TABLES` and `ONLY_FULL_GROUP_BY` enabled by default) | ✔ |
+  | `npm run db:setup`: create database, run the TypeORM migration, seed | ✔ |
+  | `npm run schema:check` (entities vs schema) | ✔ "Your schema is up to date" |
+  | Schema compared with MariaDB `maristay_db` via `information_schema` | ✔ identical: 8 tables + `migrations`, 64 application columns, 7 FKs (`ON DELETE RESTRICT ON UPDATE CASCADE`), 17 CHECK constraints, 13 unique indexes |
+  | Seed data | ✔ 4 staff, 2 guests, 9 rooms, 3 reservations, 2 payments, 2 housekeeping tasks, 1 service order |
+  | Backend e2e suite (`npm run test:e2e`, `maristay_mysql8_test`) | ✔ **46/46** |
+  | Postman collection with Newman (API on port 3001 backed by MySQL 8.4) | ✔ **177/177** assertions, 137 requests, 0 failures |
+  | `exports/maristay.sql` imported (copy without the `CREATE DATABASE`/`USE` lines) | ✔ imported; only deprecation warnings (`utf8` alias, integer display width) from the MariaDB dump header |
+  | Constraint enforcement on the imported data | ✔ FK (1451, 1452), CHECK (3819) and UNIQUE (1062) violations rejected |
+
+* **One cosmetic difference, no functional impact:** MariaDB's `mysqldump` omits `ON DELETE RESTRICT` because it is the default, so a MySQL import of the dump shows the foreign keys as `ON DELETE NO ACTION`. In InnoDB, `NO ACTION` and `RESTRICT` behave identically: the delete is rejected immediately (verified above). Databases created through the TypeORM migration, which is the documented setup, show `RESTRICT` on both servers.
+* **Conclusion:** MariStay runs unchanged on both MariaDB 10.4.32 and Oracle MySQL 8.4.11 LTS.
