@@ -28,7 +28,8 @@
     "postman:reset": "node scripts/postman-instance.js reset",
     "postman:start": "node scripts/postman-instance.js start",
     "postman:env": "node scripts/postman-instance.js env",
-    "postman:newman": "node scripts/postman-instance.js newman"
+    "postman:newman": "node scripts/postman-instance.js newman",
+    "verify:registration": "node scripts/verify-guest-registration.js"
   },
   "jest": {
     "moduleFileExtensions": [
