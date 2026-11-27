@@ -44,15 +44,15 @@ If time is short, shorten slides 2, 4 and 8 to about 20 seconds each.
 These are the guidelines' "Backend Demonstration" and "API Testing" steps, against `maristay_db` on port 3000:
 
 1. **Running application:** show the terminal: "Found 0 errors" and the mapped routes.
-2. **Login:** Postman *1. Authentication → Login - Manager* → 200 with `accessToken`.
+2. **Login:** Postman *1. Authentication → Login Manager* → 200 with `accessToken`.
 3. **CRUD:** folder *3. Rooms*:
    * *Create Room* → 201.
    * *Get Room* → 200.
-   * *Update Room - PATCH* → 200.
+   * *Update Room* → 200.
    * *Delete Room* → 204.
    * *Get Deleted Room* → 404.
 4. **Database interaction:** in phpMyAdmin, refresh `rooms` and show the data matches.
-5. **Authentication flow:** remove the token from *Create Room* (Authorization → No Auth) → 401. Optionally send *11 → Guest Calls Manager-only Route* → 403.
+5. **Authentication flow:** remove the token from *Create Room* (Authorization → No Auth) → 401. Optionally send *11 → Guest Creates Room → 403*.
 
 Use only these single requests on `maristay_db`. **Do not run the whole collection there**: it creates test records. The full 122-request run uses the isolated port-3001 database (README → Postman).
 

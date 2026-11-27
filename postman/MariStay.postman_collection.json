@@ -10,7 +10,7 @@
       "description": "Log in each demo role. Set `demoPassword` in the environment first (it is the SEED_DEMO_PASSWORD from your local .env).",
       "item": [
         {
-          "name": "Login - Manager",
+          "name": "Login Manager",
           "request": {
             "method": "POST",
             "header": [
@@ -37,7 +37,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Logs in the demo manager and saves `managerToken` and `managerId`.\n\n**Auth:** Public, no token needed.\n\nSet `demoPassword` in the environment first."
           },
           "event": [
             {
@@ -69,7 +70,7 @@
           ]
         },
         {
-          "name": "Login - Front Desk",
+          "name": "Login Front Desk",
           "request": {
             "method": "POST",
             "header": [
@@ -96,7 +97,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Logs in the demo front desk clerk and saves `frontDeskToken`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -116,7 +118,7 @@
           ]
         },
         {
-          "name": "Login - Housekeeping 1",
+          "name": "Login Housekeeping 1",
           "request": {
             "method": "POST",
             "header": [
@@ -143,7 +145,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Logs in the first demo housekeeper and saves `housekeepingToken`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -163,7 +166,7 @@
           ]
         },
         {
-          "name": "Login - Housekeeping 2",
+          "name": "Login Housekeeping 2",
           "request": {
             "method": "POST",
             "header": [
@@ -190,7 +193,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Logs in the second demo housekeeper and saves `housekeeping2Token`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -210,7 +214,7 @@
           ]
         },
         {
-          "name": "Login - Guest (Juan)",
+          "name": "Login Guest (Juan)",
           "request": {
             "method": "POST",
             "header": [
@@ -237,7 +241,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Logs in demo guest Juan and saves `guestToken` and `guestId`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -257,7 +262,7 @@
           ]
         },
         {
-          "name": "Login - Guest 2 (Ana)",
+          "name": "Login Guest 2 (Ana)",
           "request": {
             "method": "POST",
             "header": [
@@ -284,7 +289,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Logs in demo guest Ana and saves `guest2Token` and `guest2Id`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -304,7 +310,7 @@
           ]
         },
         {
-          "name": "Get Current User (me)",
+          "name": "Get Current User",
           "request": {
             "method": "GET",
             "header": [
@@ -322,7 +328,8 @@
                 "auth",
                 "me"
               ]
-            }
+            },
+            "description": "Returns the profile of the user who owns the token.\n\n**Auth:** Any logged-in role. Uses the guest token."
           },
           "event": [
             {
@@ -344,7 +351,7 @@
       "description": "Public registration and guest profile management.",
       "item": [
         {
-          "name": "Register Guest (public)",
+          "name": "Register Guest",
           "request": {
             "method": "POST",
             "header": [
@@ -370,7 +377,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Creates a new guest account and saves `newGuestId`.\n\n**Auth:** Public, no token needed. New accounts are always GUEST."
           },
           "event": [
             {
@@ -398,7 +406,7 @@
           ]
         },
         {
-          "name": "List Guests (Front Desk)",
+          "name": "List Guests",
           "request": {
             "method": "GET",
             "header": [
@@ -418,14 +426,17 @@
               "query": [
                 {
                   "key": "page",
-                  "value": "1"
+                  "value": "1",
+                  "description": "Page number, starting at 1."
                 },
                 {
                   "key": "limit",
-                  "value": "10"
+                  "value": "10",
+                  "description": "Results per page."
                 }
               ]
-            }
+            },
+            "description": "Lists guest accounts one page at a time.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -441,7 +452,7 @@
           ]
         },
         {
-          "name": "Get Own Guest Profile",
+          "name": "Get Guest Profile",
           "request": {
             "method": "GET",
             "header": [
@@ -459,7 +470,8 @@
                 "guests",
                 "{{guestId}}"
               ]
-            }
+            },
+            "description": "Returns one guest profile by `{{guestId}}`.\n\n**Auth:** Guests can view only their own profile."
           },
           "event": [
             {
@@ -474,7 +486,7 @@
           ]
         },
         {
-          "name": "Update Own Guest Profile",
+          "name": "Update Guest Profile",
           "request": {
             "method": "PATCH",
             "header": [
@@ -505,7 +517,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Changes the logged-in guest's phone number.\n\n**Auth:** Guests can update only their own profile."
           },
           "event": [
             {
@@ -521,7 +534,7 @@
           ]
         },
         {
-          "name": "Guest Reservation History (nested resource)",
+          "name": "Get Guest Reservations",
           "request": {
             "method": "GET",
             "header": [
@@ -540,7 +553,8 @@
                 "{{guestId}}",
                 "reservations"
               ]
-            }
+            },
+            "description": "Lists all reservations that belong to `{{guestId}}`.\n\n**Auth:** Guests can view only their own history."
           },
           "event": [
             {
@@ -555,7 +569,7 @@
           ]
         },
         {
-          "name": "Deactivate Guest (Manager)",
+          "name": "Deactivate Guest",
           "request": {
             "method": "DELETE",
             "header": [
@@ -573,7 +587,8 @@
                 "guests",
                 "{{newGuestId}}"
               ]
-            }
+            },
+            "description": "Deactivates the guest created by Register Guest (`{{newGuestId}}`).\n\n**Auth:** Manager only. The record is kept, not deleted."
           },
           "event": [
             {
@@ -594,7 +609,7 @@
       "description": "Room Management — the full CRUD sequence used in the video demo (Create → Read → Update → Delete on a dedicated test room).",
       "item": [
         {
-          "name": "List Rooms - ?roomStatus=Available (public, Lab 05)",
+          "name": "List Available Rooms",
           "request": {
             "method": "GET",
             "header": [],
@@ -609,10 +624,12 @@
               "query": [
                 {
                   "key": "roomStatus",
-                  "value": "Available"
+                  "value": "Available",
+                  "description": "Room status filter (AVAILABLE, OCCUPIED, CLEANING or MAINTENANCE)."
                 }
               ]
-            }
+            },
+            "description": "Lists rooms whose status is AVAILABLE.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -628,7 +645,7 @@
           ]
         },
         {
-          "name": "Search Rooms by Type, Price and Dates (public)",
+          "name": "Search Rooms",
           "request": {
             "method": "GET",
             "header": [],
@@ -643,26 +660,32 @@
               "query": [
                 {
                   "key": "roomType",
-                  "value": "Deluxe"
+                  "value": "Deluxe",
+                  "description": "Room type filter, e.g. Standard, Deluxe, Suite or Family."
                 },
                 {
                   "key": "minPrice",
-                  "value": "1000"
+                  "value": "1000",
+                  "description": "Lowest price per night."
                 },
                 {
                   "key": "maxPrice",
-                  "value": "5000"
+                  "value": "5000",
+                  "description": "Highest price per night."
                 },
                 {
                   "key": "checkInDate",
-                  "value": "{{today}}"
+                  "value": "{{today}}",
+                  "description": "First night (YYYY-MM-DD); with checkOutDate, shows only rooms free for those dates."
                 },
                 {
                   "key": "checkOutDate",
-                  "value": "{{dayAfter}}"
+                  "value": "{{dayAfter}}",
+                  "description": "Departure date (YYYY-MM-DD)."
                 }
               ]
-            }
+            },
+            "description": "Finds Deluxe rooms within a price range that are free for the given dates.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -690,7 +713,7 @@
           ]
         },
         {
-          "name": "Create Room (Manager)",
+          "name": "Create Room",
           "request": {
             "method": "POST",
             "header": [
@@ -720,7 +743,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Creates a test room and saves its ID as `roomId`.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -761,7 +785,8 @@
                 "rooms",
                 "{{roomId}}"
               ]
-            }
+            },
+            "description": "Returns the room saved in `{{roomId}}`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -777,7 +802,7 @@
           ]
         },
         {
-          "name": "Update Room - PATCH (Manager, Lab 05)",
+          "name": "Update Room",
           "request": {
             "method": "PATCH",
             "header": [
@@ -808,7 +833,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Changes only the fields sent (price and status) on `{{roomId}}`.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -824,7 +850,7 @@
           ]
         },
         {
-          "name": "Replace Room - PUT (Manager, Lab 05)",
+          "name": "Replace Room",
           "request": {
             "method": "PUT",
             "header": [
@@ -855,7 +881,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Replaces every field of `{{roomId}}` with the values sent.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -871,7 +898,7 @@
           ]
         },
         {
-          "name": "Delete Room (Manager)",
+          "name": "Delete Room",
           "request": {
             "method": "DELETE",
             "header": [
@@ -889,7 +916,8 @@
                 "rooms",
                 "{{roomId}}"
               ]
-            }
+            },
+            "description": "Permanently deletes the test room `{{roomId}}`.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -917,7 +945,8 @@
                 "rooms",
                 "{{roomId}}"
               ]
-            }
+            },
+            "description": "Confirms the deleted room can no longer be found.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -938,7 +967,7 @@
       "description": "Booking lifecycle. Uses a random far-future date range so the folder can be re-run.",
       "item": [
         {
-          "name": "Create Reservation (Guest, Lab 05)",
+          "name": "Create Reservation",
           "request": {
             "method": "POST",
             "header": [
@@ -968,7 +997,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Books a room for future dates and saves `reservationId`; the server calculates the total.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1002,7 +1032,7 @@
           ]
         },
         {
-          "name": "List My Reservations (Guest)",
+          "name": "List My Reservations",
           "request": {
             "method": "GET",
             "header": [
@@ -1019,7 +1049,8 @@
               "path": [
                 "reservations"
               ]
-            }
+            },
+            "description": "Lists only the logged-in guest's reservations.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1034,7 +1065,7 @@
           ]
         },
         {
-          "name": "List Reservations by Status (Front Desk)",
+          "name": "List Reservations by Status",
           "request": {
             "method": "GET",
             "header": [
@@ -1054,10 +1085,12 @@
               "query": [
                 {
                   "key": "reservationStatus",
-                  "value": "pending"
+                  "value": "pending",
+                  "description": "Reservation status filter, e.g. pending or confirmed."
                 }
               ]
-            }
+            },
+            "description": "Lists all PENDING reservations.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -1090,7 +1123,8 @@
                 "reservations",
                 "{{reservationId}}"
               ]
-            }
+            },
+            "description": "Returns the reservation saved in `{{reservationId}}`.\n\n**Auth:** Guests can view only their own reservations."
           },
           "event": [
             {
@@ -1136,7 +1170,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Moves the check-out date and recalculates the total.\n\n**Auth:** Guest (own reservation), Front Desk or Manager."
           },
           "event": [
             {
@@ -1152,7 +1187,7 @@
           ]
         },
         {
-          "name": "Confirm Reservation (Front Desk)",
+          "name": "Confirm Reservation",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1171,7 +1206,8 @@
                 "{{reservationId}}",
                 "confirm"
               ]
-            }
+            },
+            "description": "Changes the reservation from PENDING to CONFIRMED.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -1187,7 +1223,7 @@
           ]
         },
         {
-          "name": "Cancel Reservation (DELETE = cancellation)",
+          "name": "Cancel Reservation",
           "request": {
             "method": "DELETE",
             "header": [
@@ -1205,7 +1241,8 @@
                 "reservations",
                 "{{reservationId}}"
               ]
-            }
+            },
+            "description": "Cancels the reservation; the record is kept with status CANCELLED.\n\n**Auth:** Guest (own reservation), Front Desk or Manager."
           },
           "event": [
             {
@@ -1227,7 +1264,7 @@
       "description": "Simulated payment recording and verification (no real money or card data).",
       "item": [
         {
-          "name": "Setup - Book a Reservation to Pay",
+          "name": "Setup - Book Reservation",
           "request": {
             "method": "POST",
             "header": [
@@ -1257,7 +1294,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Books a reservation for the payment tests and saves `paymentReservationId`.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1287,7 +1325,7 @@
           ]
         },
         {
-          "name": "Record Payment - PENDING (Front Desk, Lab 05)",
+          "name": "Record Payment",
           "request": {
             "method": "POST",
             "header": [
@@ -1317,7 +1355,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Records a simulated payment as PENDING and saves `paymentId`.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -1333,7 +1372,7 @@
           ]
         },
         {
-          "name": "Verify Payment → PAID (Front Desk)",
+          "name": "Verify Payment",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1364,7 +1403,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Marks the payment as PAID, which auto-confirms a fully paid reservation.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -1383,7 +1423,7 @@
           ]
         },
         {
-          "name": "List My Payments (Guest)",
+          "name": "List My Payments",
           "request": {
             "method": "GET",
             "header": [
@@ -1400,7 +1440,8 @@
               "path": [
                 "payments"
               ]
-            }
+            },
+            "description": "Lists only the logged-in guest's payments.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1433,7 +1474,8 @@
                 "payments",
                 "{{paymentId}}"
               ]
-            }
+            },
+            "description": "Returns the payment saved in `{{paymentId}}`.\n\n**Auth:** Guests can view only their own payments."
           },
           "event": [
             {
@@ -1448,7 +1490,7 @@
           ]
         },
         {
-          "name": "Negative - Invalid Payment Information → 400",
+          "name": "Record Invalid Payment → 400",
           "request": {
             "method": "POST",
             "header": [
@@ -1478,7 +1520,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Sends a negative amount and an unknown method to show validation errors.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -1493,7 +1536,7 @@
           ]
         },
         {
-          "name": "Negative - Invalid Status Transition PAID→PENDING → 409",
+          "name": "Revert Paid Payment → 409",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1524,7 +1567,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Tries to move a PAID payment back to PENDING, which is not allowed.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -1545,7 +1589,7 @@
       "description": "Keyless room access. The smart lock is SIMULATED — validation only returns an access decision.",
       "item": [
         {
-          "name": "Setup - Find a Room Free Today",
+          "name": "Setup - Find Room Free Today",
           "request": {
             "method": "GET",
             "header": [],
@@ -1560,18 +1604,22 @@
               "query": [
                 {
                   "key": "roomStatus",
-                  "value": "AVAILABLE"
+                  "value": "AVAILABLE",
+                  "description": "Room status filter (AVAILABLE, OCCUPIED, CLEANING or MAINTENANCE)."
                 },
                 {
                   "key": "checkInDate",
-                  "value": "{{today}}"
+                  "value": "{{today}}",
+                  "description": "First night (YYYY-MM-DD); with checkOutDate, shows only rooms free for those dates."
                 },
                 {
                   "key": "checkOutDate",
-                  "value": "{{dayAfter}}"
+                  "value": "{{dayAfter}}",
+                  "description": "Departure date (YYYY-MM-DD)."
                 }
               ]
-            }
+            },
+            "description": "Finds a room free from today to the day after and saves `stayRoomId`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -1602,7 +1650,7 @@
           ]
         },
         {
-          "name": "Setup - Book for Today (Guest)",
+          "name": "Setup - Book Stay for Today",
           "request": {
             "method": "POST",
             "header": [
@@ -1632,7 +1680,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Books that room for tonight and saves `stayReservationId`.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1648,7 +1697,7 @@
           ]
         },
         {
-          "name": "Setup - Pay in Full (Front Desk)",
+          "name": "Setup - Pay in Full",
           "request": {
             "method": "POST",
             "header": [
@@ -1678,7 +1727,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Pays the full amount so the stay is confirmed.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -1693,7 +1743,7 @@
           ]
         },
         {
-          "name": "Setup - Digital Check-in (Guest)",
+          "name": "Check In Guest",
           "request": {
             "method": "PATCH",
             "header": [
@@ -1712,7 +1762,8 @@
                 "{{stayReservationId}}",
                 "check-in"
               ]
-            }
+            },
+            "description": "Checks the guest in and issues a digital key (`keyId`, `keyCode`).\n\n**Auth:** Guest (own stay), Front Desk or Manager."
           },
           "event": [
             {
@@ -1732,7 +1783,7 @@
           ]
         },
         {
-          "name": "Validate Digital Key (simulated smart lock)",
+          "name": "Validate Digital Key",
           "request": {
             "method": "POST",
             "header": [
@@ -1763,7 +1814,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Asks the simulated smart lock whether `{{keyCode}}` opens the booked room.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1779,7 +1831,7 @@
           ]
         },
         {
-          "name": "Get Key Metadata",
+          "name": "Get Digital Key",
           "request": {
             "method": "GET",
             "header": [
@@ -1797,7 +1849,8 @@
                 "digital-keys",
                 "{{keyId}}"
               ]
-            }
+            },
+            "description": "Returns key details for `{{keyId}}` without the secret code.\n\n**Auth:** Guests can view only their own keys."
           },
           "event": [
             {
@@ -1813,7 +1866,7 @@
           ]
         },
         {
-          "name": "List My Keys",
+          "name": "List My Digital Keys",
           "request": {
             "method": "GET",
             "header": [
@@ -1833,10 +1886,12 @@
               "query": [
                 {
                   "key": "reservationId",
-                  "value": "{{stayReservationId}}"
+                  "value": "{{stayReservationId}}",
+                  "description": "Shows only keys for this reservation."
                 }
               ]
-            }
+            },
+            "description": "Lists the keys issued for the current stay.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1851,7 +1906,7 @@
           ]
         },
         {
-          "name": "Reissue Key (old key is revoked)",
+          "name": "Reissue Digital Key",
           "request": {
             "method": "POST",
             "header": [
@@ -1881,7 +1936,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Issues a new key and revokes the previous one.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1897,7 +1953,7 @@
           ]
         },
         {
-          "name": "Negative - Revoked Key → 403",
+          "name": "Validate Revoked Key → 403",
           "request": {
             "method": "POST",
             "header": [
@@ -1928,7 +1984,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Shows that the replaced key no longer opens the door.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1944,7 +2001,7 @@
           ]
         },
         {
-          "name": "Negative - Invalid Key → 403",
+          "name": "Validate Invalid Key → 403",
           "request": {
             "method": "POST",
             "header": [
@@ -1975,7 +2032,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Shows that a made-up key code is refused.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -1990,7 +2048,7 @@
           ]
         },
         {
-          "name": "Setup - Issue Short-Lived Key (expires in 3 s, Front Desk)",
+          "name": "Setup - Issue Short-Lived Key",
           "request": {
             "method": "POST",
             "header": [
@@ -2020,7 +2078,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Issues a key that expires after 3 seconds for the expiry test.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -2045,7 +2104,7 @@
           ]
         },
         {
-          "name": "Negative - Expired Key → 403 (waits 5 s)",
+          "name": "Validate Expired Key → 403",
           "request": {
             "method": "POST",
             "header": [
@@ -2076,7 +2135,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Waits 5 seconds, then shows that the expired key is refused.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -2101,7 +2161,7 @@
           ]
         },
         {
-          "name": "Reissue Key Again (Guest)",
+          "name": "Reissue Digital Key Again",
           "request": {
             "method": "POST",
             "header": [
@@ -2131,7 +2191,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Issues a fresh key so the revoke test has an active key.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -2147,7 +2208,7 @@
           ]
         },
         {
-          "name": "Revoke Key (Front Desk)",
+          "name": "Revoke Digital Key",
           "request": {
             "method": "PATCH",
             "header": [
@@ -2166,7 +2227,8 @@
                 "{{keyId}}",
                 "revoke"
               ]
-            }
+            },
+            "description": "Revokes the key in `{{keyId}}` immediately.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -2182,7 +2244,7 @@
           ]
         },
         {
-          "name": "Reissue Key for the Rest of the Stay",
+          "name": "Reissue Key for Stay",
           "request": {
             "method": "POST",
             "header": [
@@ -2212,7 +2274,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Issues a working key for the rest of the stay used in folder 9.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -2234,7 +2297,7 @@
       "description": "Manager assigns a cleaning task; only the assigned housekeeper can progress it; completion releases the room. (Automatic assignment at check-out is shown in folders 9 and 10.)",
       "item": [
         {
-          "name": "Setup - Find an Available Room",
+          "name": "Setup - Find Available Room",
           "request": {
             "method": "GET",
             "header": [],
@@ -2249,14 +2312,17 @@
               "query": [
                 {
                   "key": "roomStatus",
-                  "value": "AVAILABLE"
+                  "value": "AVAILABLE",
+                  "description": "Room status filter (AVAILABLE, OCCUPIED, CLEANING or MAINTENANCE)."
                 },
                 {
                   "key": "roomType",
-                  "value": "Family"
+                  "value": "Family",
+                  "description": "Room type filter, e.g. Standard, Deluxe, Suite or Family."
                 }
               ]
-            }
+            },
+            "description": "Finds an available Family room and saves `hkRoomId`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -2274,7 +2340,7 @@
           ]
         },
         {
-          "name": "Assign Cleaning Task (Manager)",
+          "name": "Assign Housekeeping Task",
           "request": {
             "method": "POST",
             "header": [
@@ -2304,7 +2370,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Assigns a cleaning task to Housekeeping 1 and sets the room to CLEANING.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -2320,7 +2387,7 @@
           ]
         },
         {
-          "name": "Negative - Duplicate Open Task → 409",
+          "name": "Assign Duplicate Task → 409",
           "request": {
             "method": "POST",
             "header": [
@@ -2350,7 +2417,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Shows that a room cannot have two open cleaning tasks.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -2365,7 +2433,7 @@
           ]
         },
         {
-          "name": "List My Tasks (Housekeeping)",
+          "name": "List My Housekeeping Tasks",
           "request": {
             "method": "GET",
             "header": [
@@ -2385,10 +2453,12 @@
               "query": [
                 {
                   "key": "status",
-                  "value": "PENDING"
+                  "value": "PENDING",
+                  "description": "Task status filter (PENDING, IN_PROGRESS or COMPLETED)."
                 }
               ]
-            }
+            },
+            "description": "Lists the housekeeper's own PENDING tasks.\n\n**Auth:** Housekeeping token."
           },
           "event": [
             {
@@ -2404,7 +2474,7 @@
           ]
         },
         {
-          "name": "Get Task (Housekeeping)",
+          "name": "Get Housekeeping Task",
           "request": {
             "method": "GET",
             "header": [
@@ -2422,7 +2492,8 @@
                 "housekeeping",
                 "{{hkId}}"
               ]
-            }
+            },
+            "description": "Returns the task saved in `{{hkId}}`.\n\n**Auth:** Housekeepers can view only their own tasks."
           },
           "event": [
             {
@@ -2437,7 +2508,7 @@
           ]
         },
         {
-          "name": "Negative - Another Housekeeper's Task → 403",
+          "name": "Update Another Housekeeper's Task → 403",
           "request": {
             "method": "PATCH",
             "header": [
@@ -2468,7 +2539,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Shows that Housekeeping 2 cannot change a task assigned to Housekeeping 1.\n\n**Auth:** Housekeeping 2 token."
           },
           "event": [
             {
@@ -2483,7 +2555,7 @@
           ]
         },
         {
-          "name": "Negative - Skip to COMPLETED → 409",
+          "name": "Skip to Completed → 409",
           "request": {
             "method": "PATCH",
             "header": [
@@ -2514,7 +2586,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Shows that a task must be IN_PROGRESS before it can be COMPLETED.\n\n**Auth:** Housekeeping token."
           },
           "event": [
             {
@@ -2529,7 +2602,7 @@
           ]
         },
         {
-          "name": "Update Task → IN_PROGRESS (Housekeeping)",
+          "name": "Start Housekeeping Task",
           "request": {
             "method": "PATCH",
             "header": [
@@ -2560,7 +2633,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Moves the task to IN_PROGRESS.\n\n**Auth:** Assigned housekeeper only."
           },
           "event": [
             {
@@ -2575,7 +2649,7 @@
           ]
         },
         {
-          "name": "Update Task → COMPLETED (room released)",
+          "name": "Complete Housekeeping Task",
           "request": {
             "method": "PATCH",
             "header": [
@@ -2606,7 +2680,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Marks the task COMPLETED and makes the room AVAILABLE again.\n\n**Auth:** Assigned housekeeper only."
           },
           "event": [
             {
@@ -2622,7 +2697,7 @@
           ]
         },
         {
-          "name": "List All Tasks (Manager)",
+          "name": "List All Housekeeping Tasks",
           "request": {
             "method": "GET",
             "header": [
@@ -2639,7 +2714,8 @@
               "path": [
                 "housekeeping"
               ]
-            }
+            },
+            "description": "Lists every housekeeping task.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -2660,7 +2736,7 @@
       "description": "Staff account management — full CRUD, Manager only. DELETE deactivates.",
       "item": [
         {
-          "name": "Create Staff (Manager)",
+          "name": "Create Staff",
           "request": {
             "method": "POST",
             "header": [
@@ -2690,7 +2766,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Creates a staff account and saves `staffId`; the password is never returned.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -2715,7 +2792,7 @@
           ]
         },
         {
-          "name": "List Staff (Manager)",
+          "name": "List Staff",
           "request": {
             "method": "GET",
             "header": [
@@ -2735,10 +2812,12 @@
               "query": [
                 {
                   "key": "role",
-                  "value": "HOUSEKEEPING"
+                  "value": "HOUSEKEEPING",
+                  "description": "Staff role filter (FRONT_DESK, HOUSEKEEPING or MANAGER)."
                 }
               ]
-            }
+            },
+            "description": "Lists staff accounts filtered by role.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -2753,7 +2832,7 @@
           ]
         },
         {
-          "name": "Get Staff (Manager)",
+          "name": "Get Staff",
           "request": {
             "method": "GET",
             "header": [
@@ -2771,7 +2850,8 @@
                 "staff",
                 "{{staffId}}"
               ]
-            }
+            },
+            "description": "Returns the staff account saved in `{{staffId}}`.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -2786,7 +2866,7 @@
           ]
         },
         {
-          "name": "Update Staff (Manager)",
+          "name": "Update Staff",
           "request": {
             "method": "PATCH",
             "header": [
@@ -2817,7 +2897,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Changes the staff member's last name.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -2832,7 +2913,7 @@
           ]
         },
         {
-          "name": "Deactivate Staff (Manager)",
+          "name": "Deactivate Staff",
           "request": {
             "method": "DELETE",
             "header": [
@@ -2850,7 +2931,8 @@
                 "staff",
                 "{{staffId}}"
               ]
-            }
+            },
+            "description": "Deactivates the staff account; the record is kept.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -2865,7 +2947,7 @@
           ]
         },
         {
-          "name": "Negative - Front Desk Lists Staff → 403",
+          "name": "List Staff as Front Desk → 403",
           "request": {
             "method": "GET",
             "header": [
@@ -2882,7 +2964,8 @@
               "path": [
                 "staff"
               ]
-            }
+            },
+            "description": "Shows that only the manager can manage staff.\n\n**Auth:** Front Desk token."
           },
           "event": [
             {
@@ -2903,7 +2986,7 @@
       "description": "Food, amenity and service requests for the checked-in stay created in folder 6 (prices come from the server catalog), then check-out of that stay.",
       "item": [
         {
-          "name": "Place Service Order (Guest, Lab 05)",
+          "name": "Place Service Order",
           "request": {
             "method": "POST",
             "header": [
@@ -2933,7 +3016,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Orders an item for the checked-in stay; the server sets the price. Saves `orderId`.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -2952,7 +3036,7 @@
           ]
         },
         {
-          "name": "List My Orders (Guest)",
+          "name": "List My Service Orders",
           "request": {
             "method": "GET",
             "header": [
@@ -2969,7 +3053,8 @@
               "path": [
                 "service-orders"
               ]
-            }
+            },
+            "description": "Lists only the logged-in guest's service orders.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -2984,7 +3069,7 @@
           ]
         },
         {
-          "name": "Get Order",
+          "name": "Get Service Order",
           "request": {
             "method": "GET",
             "header": [
@@ -3002,7 +3087,8 @@
                 "service-orders",
                 "{{orderId}}"
               ]
-            }
+            },
+            "description": "Returns the order saved in `{{orderId}}`.\n\n**Auth:** Guests can view only their own orders."
           },
           "event": [
             {
@@ -3017,7 +3103,7 @@
           ]
         },
         {
-          "name": "Update Order → PREPARING (Front Desk)",
+          "name": "Mark Order Preparing",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3048,7 +3134,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Moves the order to PREPARING.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -3063,7 +3150,7 @@
           ]
         },
         {
-          "name": "Update Order → DELIVERED (Front Desk)",
+          "name": "Mark Order Delivered",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3094,7 +3181,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Moves the order to DELIVERED, which adds it to the bill.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -3109,7 +3197,7 @@
           ]
         },
         {
-          "name": "Negative - Client-supplied Price Rejected → 400",
+          "name": "Order With Client Price → 400",
           "request": {
             "method": "POST",
             "header": [
@@ -3139,7 +3227,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Shows that a guest cannot set their own price.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -3154,7 +3243,7 @@
           ]
         },
         {
-          "name": "Negative - Unauthorized Order on Another Guest's Stay → 403",
+          "name": "Order on Another Guest's Stay → 403",
           "request": {
             "method": "POST",
             "header": [
@@ -3184,7 +3273,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Shows that Guest 2 cannot order on Juan's stay.\n\n**Auth:** Guest 2 token."
           },
           "event": [
             {
@@ -3199,7 +3289,7 @@
           ]
         },
         {
-          "name": "Negative - Check-out With Unpaid Charges → 409",
+          "name": "Check Out With Unpaid Charges → 409",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3218,7 +3308,8 @@
                 "{{stayReservationId}}",
                 "check-out"
               ]
-            }
+            },
+            "description": "Shows that check-out is blocked while the bill has a balance.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -3233,7 +3324,7 @@
           ]
         },
         {
-          "name": "Settle Service Charges (Front Desk)",
+          "name": "Settle Service Charges",
           "request": {
             "method": "POST",
             "header": [
@@ -3263,7 +3354,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Records a payment for the delivered orders so the balance is zero.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -3279,7 +3371,7 @@
           ]
         },
         {
-          "name": "Digital Check-out (Guest)",
+          "name": "Check Out Guest",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3298,7 +3390,8 @@
                 "{{stayReservationId}}",
                 "check-out"
               ]
-            }
+            },
+            "description": "Checks the guest out, revokes keys, sets the room to CLEANING and creates a cleaning task.\n\n**Auth:** Guest (own stay), Front Desk or Manager."
           },
           "event": [
             {
@@ -3325,7 +3418,7 @@
           ]
         },
         {
-          "name": "Cleanup - Assigned Housekeeper Starts Task",
+          "name": "Cleanup - Start Cleaning Task",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3356,7 +3449,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "The housekeeper assigned at check-out starts the cleaning task.\n\n**Auth:** Assigned housekeeper only."
           },
           "event": [
             {
@@ -3371,7 +3465,7 @@
           ]
         },
         {
-          "name": "Cleanup - Assigned Housekeeper Completes Task",
+          "name": "Cleanup - Complete Cleaning Task",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3402,7 +3496,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Completes the cleaning task so the room is AVAILABLE again.\n\n**Auth:** Assigned housekeeper only."
           },
           "event": [
             {
@@ -3424,7 +3519,7 @@
       "description": "One complete guest journey across all modules: register → login → search → book → pay → check-in → key → order → check-out → housekeeping → room available.",
       "item": [
         {
-          "name": "01 Register New Guest",
+          "name": "01 Register Guest",
           "request": {
             "method": "POST",
             "header": [
@@ -3450,7 +3545,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Registers a new guest for this workflow.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -3474,7 +3570,7 @@
           ]
         },
         {
-          "name": "02 Login New Guest",
+          "name": "02 Login Guest",
           "request": {
             "method": "POST",
             "header": [
@@ -3501,7 +3597,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Logs in the new guest and saves `wfToken`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -3517,7 +3614,7 @@
           ]
         },
         {
-          "name": "03 Search Rooms Free Today",
+          "name": "03 Search Rooms for Today",
           "request": {
             "method": "GET",
             "header": [],
@@ -3532,18 +3629,22 @@
               "query": [
                 {
                   "key": "roomStatus",
-                  "value": "AVAILABLE"
+                  "value": "AVAILABLE",
+                  "description": "Room status filter (AVAILABLE, OCCUPIED, CLEANING or MAINTENANCE)."
                 },
                 {
                   "key": "checkInDate",
-                  "value": "{{today}}"
+                  "value": "{{today}}",
+                  "description": "First night (YYYY-MM-DD); with checkOutDate, shows only rooms free for those dates."
                 },
                 {
                   "key": "checkOutDate",
-                  "value": "{{dayAfter}}"
+                  "value": "{{dayAfter}}",
+                  "description": "Departure date (YYYY-MM-DD)."
                 }
               ]
-            }
+            },
+            "description": "Finds a room free tonight and saves `wfRoomId`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -3574,7 +3675,7 @@
           ]
         },
         {
-          "name": "04 Book Room",
+          "name": "04 Create Reservation",
           "request": {
             "method": "POST",
             "header": [
@@ -3604,7 +3705,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Books the room for tonight and saves `wfReservationId`.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -3620,7 +3722,7 @@
           ]
         },
         {
-          "name": "05 Check-in Without Payment → 409",
+          "name": "05 Check In Without Payment → 409",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3639,7 +3741,8 @@
                 "{{wfReservationId}}",
                 "check-in"
               ]
-            }
+            },
+            "description": "Shows that an unpaid reservation cannot be checked in.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -3654,7 +3757,7 @@
           ]
         },
         {
-          "name": "06 Front Desk Records Payment",
+          "name": "06 Record Payment",
           "request": {
             "method": "POST",
             "header": [
@@ -3684,7 +3787,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Records full payment, which auto-confirms the reservation.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -3700,7 +3804,7 @@
           ]
         },
         {
-          "name": "07 Digital Check-in",
+          "name": "07 Check In Guest",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3719,7 +3823,8 @@
                 "{{wfReservationId}}",
                 "check-in"
               ]
-            }
+            },
+            "description": "Checks the guest in, sets the room to OCCUPIED and issues a key.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -3735,7 +3840,7 @@
           ]
         },
         {
-          "name": "08 Open Room Door (validate key)",
+          "name": "08 Validate Digital Key",
           "request": {
             "method": "POST",
             "header": [
@@ -3766,7 +3871,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Opens the room door with the new key (simulated smart lock).\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -3781,7 +3887,7 @@
           ]
         },
         {
-          "name": "09 Order Coffee",
+          "name": "09 Place Service Order",
           "request": {
             "method": "POST",
             "header": [
@@ -3811,7 +3917,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Orders brewed coffee to the room.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -3827,7 +3934,7 @@
           ]
         },
         {
-          "name": "10 Kitchen Prepares Order",
+          "name": "10 Mark Order Preparing",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3858,7 +3965,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Moves the coffee order to PREPARING.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -3873,7 +3981,7 @@
           ]
         },
         {
-          "name": "11 Order Delivered",
+          "name": "11 Mark Order Delivered",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3904,7 +4012,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Moves the coffee order to DELIVERED.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -3919,7 +4028,7 @@
           ]
         },
         {
-          "name": "12 Check-out Blocked by Unpaid Order → 409",
+          "name": "12 Check Out With Unpaid Order → 409",
           "request": {
             "method": "PATCH",
             "header": [
@@ -3938,7 +4047,8 @@
                 "{{wfReservationId}}",
                 "check-out"
               ]
-            }
+            },
+            "description": "Shows that the unpaid coffee blocks check-out.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -3953,7 +4063,7 @@
           ]
         },
         {
-          "name": "13 Pay Service Charges",
+          "name": "13 Settle Service Charges",
           "request": {
             "method": "POST",
             "header": [
@@ -3983,7 +4093,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Pays for the coffee so the balance is zero.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -3998,7 +4109,7 @@
           ]
         },
         {
-          "name": "14 Digital Check-out",
+          "name": "14 Check Out Guest",
           "request": {
             "method": "PATCH",
             "header": [
@@ -4017,7 +4128,8 @@
                 "{{wfReservationId}}",
                 "check-out"
               ]
-            }
+            },
+            "description": "Checks the guest out and creates a cleaning task.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -4037,7 +4149,7 @@
           ]
         },
         {
-          "name": "15 Key No Longer Works → 403",
+          "name": "15 Validate Revoked Key → 403",
           "request": {
             "method": "POST",
             "header": [
@@ -4068,7 +4180,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Shows that the key stops working after check-out.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -4083,7 +4196,7 @@
           ]
         },
         {
-          "name": "16 Housekeeper Starts Cleaning",
+          "name": "16 Start Housekeeping Task",
           "request": {
             "method": "PATCH",
             "header": [
@@ -4114,7 +4227,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "The assigned housekeeper starts cleaning the room.\n\n**Auth:** Assigned housekeeper only."
           },
           "event": [
             {
@@ -4129,7 +4243,7 @@
           ]
         },
         {
-          "name": "17 Housekeeper Completes Cleaning",
+          "name": "17 Complete Housekeeping Task",
           "request": {
             "method": "PATCH",
             "header": [
@@ -4160,7 +4274,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "The assigned housekeeper finishes cleaning the room.\n\n**Auth:** Assigned housekeeper only."
           },
           "event": [
             {
@@ -4176,7 +4291,7 @@
           ]
         },
         {
-          "name": "18 Room Shows as Available",
+          "name": "18 Verify Room Available",
           "request": {
             "method": "GET",
             "header": [],
@@ -4189,7 +4304,8 @@
                 "rooms",
                 "{{wfRoomId}}"
               ]
-            }
+            },
+            "description": "Confirms the room is AVAILABLE again.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -4211,7 +4327,7 @@
       "description": "Authentication, authorization, validation and conflict checks. The rate-limit test is last because it temporarily blocks logins from your IP for 60 s.",
       "item": [
         {
-          "name": "Protected Route Without Token → 401",
+          "name": "No Token → 401",
           "request": {
             "method": "GET",
             "header": [],
@@ -4224,7 +4340,8 @@
                 "auth",
                 "me"
               ]
-            }
+            },
+            "description": "Calls a protected route with no token.\n\n**Auth:** No token on purpose."
           },
           "event": [
             {
@@ -4239,7 +4356,7 @@
           ]
         },
         {
-          "name": "Protected Route With Invalid Token → 401",
+          "name": "Invalid Token → 401",
           "request": {
             "method": "GET",
             "header": [],
@@ -4251,7 +4368,8 @@
               "path": [
                 "reservations"
               ]
-            }
+            },
+            "description": "Calls a protected route with a fake token.\n\n**Auth:** Invalid token on purpose."
           },
           "event": [
             {
@@ -4278,7 +4396,7 @@
           ]
         },
         {
-          "name": "Invalid Login Credentials → 401",
+          "name": "Invalid Login → 401",
           "request": {
             "method": "POST",
             "header": [
@@ -4305,7 +4423,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Logs in with a wrong password.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -4320,7 +4439,7 @@
           ]
         },
         {
-          "name": "Duplicate Email Registration → 409",
+          "name": "Duplicate Email → 409",
           "request": {
             "method": "POST",
             "header": [
@@ -4346,7 +4465,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Registers with an email that is already in use.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -4361,7 +4481,7 @@
           ]
         },
         {
-          "name": "Mass Assignment Blocked (extra property) → 400",
+          "name": "Mass Assignment → 400",
           "request": {
             "method": "POST",
             "header": [
@@ -4387,7 +4507,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Tries to set `role` and `accountStatus` during registration.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -4402,7 +4523,7 @@
           ]
         },
         {
-          "name": "Guest Calls Manager-only Route → 403",
+          "name": "Guest Creates Room → 403",
           "request": {
             "method": "POST",
             "header": [
@@ -4432,7 +4553,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Shows that a guest cannot use a manager-only route.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -4447,7 +4569,7 @@
           ]
         },
         {
-          "name": "Invalid Room Creation → 400",
+          "name": "Invalid Room Data → 400",
           "request": {
             "method": "POST",
             "header": [
@@ -4477,7 +4599,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Sends invalid room data to show validation errors.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -4507,10 +4630,12 @@
               "query": [
                 {
                   "key": "roomStatus",
-                  "value": "Vacant"
+                  "value": "Vacant",
+                  "description": "Invalid status on purpose; the API must answer 400."
                 }
               ]
-            }
+            },
+            "description": "Filters rooms by a status that does not exist.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -4555,7 +4680,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Books with a check-out date before the check-in date.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -4583,7 +4709,7 @@
           ]
         },
         {
-          "name": "Setup - Book Room 101 (Guest)",
+          "name": "Setup - Book Room 101",
           "request": {
             "method": "POST",
             "header": [
@@ -4613,7 +4739,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Books room 101 for future dates and saves `secReservationId`.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -4673,7 +4800,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Guest 2 tries to book room 101 for the same dates.\n\n**Auth:** Guest 2 token."
           },
           "event": [
             {
@@ -4688,7 +4816,7 @@
           ]
         },
         {
-          "name": "Guest Views Another Guest's Reservation → 403",
+          "name": "View Another Guest's Reservation → 403",
           "request": {
             "method": "GET",
             "header": [
@@ -4706,7 +4834,8 @@
                 "reservations",
                 "{{secReservationId}}"
               ]
-            }
+            },
+            "description": "Guest 2 tries to open Juan's reservation.\n\n**Auth:** Guest 2 token."
           },
           "event": [
             {
@@ -4721,7 +4850,7 @@
           ]
         },
         {
-          "name": "Concurrent Conflicting Reservations (only 1 succeeds)",
+          "name": "Concurrent Bookings → 1 Succeeds",
           "request": {
             "method": "GET",
             "header": [],
@@ -4735,7 +4864,7 @@
                 "3"
               ]
             },
-            "description": "Fires 4 simultaneous booking requests for the same room and dates with pm.sendRequest. Exactly one must return 201 and the rest 409."
+            "description": "Sends 4 bookings for the same room and dates at once; exactly one must succeed.\n\n**Auth:** Guest tokens; the bookings are sent by the test script."
           },
           "event": [
             {
@@ -4775,7 +4904,7 @@
           ]
         },
         {
-          "name": "Check-in a PENDING (unpaid) Reservation → 409",
+          "name": "Check In Unpaid Reservation → 409",
           "request": {
             "method": "PATCH",
             "header": [
@@ -4794,7 +4923,8 @@
                 "{{secReservationId}}",
                 "check-in"
               ]
-            }
+            },
+            "description": "Shows that a PENDING reservation cannot be checked in.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -4824,18 +4954,22 @@
               "query": [
                 {
                   "key": "roomStatus",
-                  "value": "AVAILABLE"
+                  "value": "AVAILABLE",
+                  "description": "Room status filter (AVAILABLE, OCCUPIED, CLEANING or MAINTENANCE)."
                 },
                 {
                   "key": "checkInDate",
-                  "value": "{{today}}"
+                  "value": "{{today}}",
+                  "description": "First night (YYYY-MM-DD); with checkOutDate, shows only rooms free for those dates."
                 },
                 {
                   "key": "checkOutDate",
-                  "value": "{{dayAfter}}"
+                  "value": "{{dayAfter}}",
+                  "description": "Departure date (YYYY-MM-DD)."
                 }
               ]
-            }
+            },
+            "description": "Finds a room free tonight and saves `notReadyRoomId`.\n\n**Auth:** Public, no token needed."
           },
           "event": [
             {
@@ -4866,7 +5000,7 @@
           ]
         },
         {
-          "name": "Setup - Book It for Today",
+          "name": "Setup - Book Room for Today",
           "request": {
             "method": "POST",
             "header": [
@@ -4896,7 +5030,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Books that room for tonight and saves `notReadyReservationId`.\n\n**Auth:** Guest 2 token."
           },
           "event": [
             {
@@ -4942,7 +5077,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Pays the booking in full so only the room status blocks check-in.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -4958,7 +5094,7 @@
           ]
         },
         {
-          "name": "Setup - Manager Marks Room CLEANING",
+          "name": "Setup - Mark Room Cleaning",
           "request": {
             "method": "PATCH",
             "header": [
@@ -4989,7 +5125,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Sets the room to CLEANING so it is not ready.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -5004,7 +5141,7 @@
           ]
         },
         {
-          "name": "Check-in With Room Not Ready → 409",
+          "name": "Check In Room Not Ready → 409",
           "request": {
             "method": "PATCH",
             "header": [
@@ -5023,7 +5160,8 @@
                 "{{notReadyReservationId}}",
                 "check-in"
               ]
-            }
+            },
+            "description": "Shows that check-in is refused while the room is being cleaned.\n\n**Auth:** Guest 2 token."
           },
           "event": [
             {
@@ -5039,7 +5177,7 @@
           ]
         },
         {
-          "name": "Cleanup - Room Back to AVAILABLE",
+          "name": "Cleanup - Mark Room Available",
           "request": {
             "method": "PATCH",
             "header": [
@@ -5070,7 +5208,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Sets the room back to AVAILABLE.\n\n**Auth:** Manager only."
           },
           "event": [
             {
@@ -5085,7 +5224,7 @@
           ]
         },
         {
-          "name": "Cleanup - Cancel Reservation (refundDue reported)",
+          "name": "Cleanup - Cancel Paid Reservation",
           "request": {
             "method": "DELETE",
             "header": [
@@ -5103,7 +5242,8 @@
                 "reservations",
                 "{{notReadyReservationId}}"
               ]
-            }
+            },
+            "description": "Cancels the paid booking and checks that the refund due is reported.\n\n**Auth:** Guest 2 token."
           },
           "event": [
             {
@@ -5119,7 +5259,7 @@
           ]
         },
         {
-          "name": "Cleanup - Refund Payment (Front Desk)",
+          "name": "Cleanup - Refund Payment",
           "request": {
             "method": "PATCH",
             "header": [
@@ -5150,7 +5290,8 @@
                   "language": "json"
                 }
               }
-            }
+            },
+            "description": "Marks the payment as REFUNDED.\n\n**Auth:** Front Desk token (Manager is also allowed)."
           },
           "event": [
             {
@@ -5183,7 +5324,8 @@
                 "reservations",
                 "{{secReservationId}}"
               ]
-            }
+            },
+            "description": "Cancels the room 101 booking made earlier.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -5198,7 +5340,7 @@
           ]
         },
         {
-          "name": "Housekeeping Cannot View Payments → 403",
+          "name": "Housekeeping Views Payments → 403",
           "request": {
             "method": "GET",
             "header": [
@@ -5215,7 +5357,8 @@
               "path": [
                 "payments"
               ]
-            }
+            },
+            "description": "Shows that housekeeping staff cannot see payments.\n\n**Auth:** Housekeeping token."
           },
           "event": [
             {
@@ -5230,7 +5373,7 @@
           ]
         },
         {
-          "name": "Non-numeric Identifier → 400",
+          "name": "Non-numeric ID → 400",
           "request": {
             "method": "GET",
             "header": [
@@ -5248,7 +5391,8 @@
                 "reservations",
                 "abc"
               ]
-            }
+            },
+            "description": "Uses a non-numeric ID in the URL.\n\n**Auth:** Guest token."
           },
           "event": [
             {
@@ -5263,7 +5407,7 @@
           ]
         },
         {
-          "name": "Login Rate Limit → 429 (run last)",
+          "name": "Login Rate Limit → 429",
           "request": {
             "method": "POST",
             "header": [
@@ -5282,7 +5426,7 @@
                 "login"
               ]
             },
-            "description": "Sends 12 failed logins. Attempts beyond 10 within one minute are is rejected with 429 Too Many Requests. Logins from your IP are blocked for ~60 s afterwards.",
+            "description": "Sends 12 failed logins; after 10 in one minute the API answers 429.\n\n**Auth:** Public, no token needed.\n\nRun it last: logins from your IP are blocked for about 60 seconds.",
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"juan.delacruz@example.com\",\n  \"password\": \"WrongPassword1\"\n}",

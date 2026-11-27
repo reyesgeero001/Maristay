@@ -30,7 +30,7 @@ This file is a script and checklist only. The video has **not** been recorded.
 4. **Postman:**
    * Two environments, each with `demoPassword` set and **saved** (Ctrl+S): *MariStay Local* (port 3000) and *MariStay Postman 3001* (create it with `npm run postman:env`, then import from `postman/tmp/`).
    * Select **MariStay Local**.
-   * Open these tabs: *1. Authentication → Login - Manager*, and from *3. Rooms*: *Create Room (Manager)*, *Get Room*, *Update Room - PATCH*, *Delete Room*, *Get Deleted Room → 404*.
+   * Open these tabs: *1. Authentication → Login Manager*, and from *3. Rooms*: *Create Room*, *Get Room*, *Update Room*, *Delete Room*, *Get Deleted Room → 404*.
 5. **VS Code tabs:** `backend/src/rooms/rooms.controller.ts`, `backend/src/rooms/rooms.service.ts`, `backend/src/rooms/entities/room.entity.ts`, `backend/src/database/database.config.ts`.
 6. **Browser tab:** phpMyAdmin at `http://localhost/phpmyadmin` → `maristay_db` → `rooms`.
 7. **Privacy:** never open `.env` on screen, and turn off notifications. In Postman, keep `demoPassword` hidden: it is a *secret*-type value.
@@ -54,7 +54,7 @@ This file is a script and checklist only. The video has **not** been recorded.
 
 ## Part 2 — Log in and receive a JWT (1:00–1:40)
 
-**Do:** Postman → *Login - Manager* → **Send**. Point at `200 OK` and the `accessToken`, then open the **Test Results** tab (3 passed).
+**Do:** Postman → *Login Manager* → **Send**. Point at `200 OK` and the `accessToken`, then open the **Test Results** tab (3 passed).
 
 **Say:** "I log in as the manager. The server compares my password with the bcrypt hash in the database and checks that the account is active. Then it returns a signed JWT that carries my user id and role and expires in one hour. Postman saves the token, and the next requests send it as a Bearer token."
 
@@ -62,9 +62,9 @@ This file is a script and checklist only. The video has **not** been recorded.
 
 | Step | Click | Expected result to point at |
 |---|---|---|
-| Create | *Create Room (Manager)* → Send | **201 Created**, new `roomId`, `roomStatus: "AVAILABLE"` |
+| Create | *Create Room* → Send | **201 Created**, new `roomId`, `roomStatus: "AVAILABLE"` |
 | Read | *Get Room* → Send | **200 OK**, the same room |
-| Update | *Update Room - PATCH* → Send | **200 OK**, `pricePerNight` is now **2800** |
+| Update | *Update Room* → Send | **200 OK**, `pricePerNight` is now **2800** |
 | Delete | *Delete Room* → Send | **204 No Content** |
 | Confirm | *Get Deleted Room → 404* → Send | **404 Not Found** |
 
@@ -87,7 +87,7 @@ Trace **PATCH /api/v1/rooms/:id**, the update you just ran:
 
 ## Part 5 — Protected route without a token (5:20–5:55)
 
-**Do:** Open *Create Room (Manager)* → **Authorization** tab → choose **No Auth**, or untick the `Authorization` header → **Send** → **401 Unauthorized**, "Invalid or missing access token". Then restore the header.
+**Do:** Open *Create Room* → **Authorization** tab → choose **No Auth**, or untick the `Authorization` header → **Send** → **401 Unauthorized**, "Invalid or missing access token". Then restore the header.
 
 **Say:** "Now the same protected route without a token. The global JwtAuthGuard rejects it with 401 before it reaches the controller, so nothing is changed."
 
@@ -108,7 +108,7 @@ This part runs on the **separate test database** (port 3001), so the demo data s
 **Do:**
 1. Postman: switch the environment to **MariStay Postman 3001**.
 2. Click the collection → **Run**. In the Runner, deselect all, then select only folders **1. Authentication** and **10. Integrated Workflow**. Click **Run**. All tests pass. (Checked with Newman: these 25 requests pass all 43 assertions on a freshly reset database.)
-3. Point at three results only: *05 Check-in Without Payment → 409*, *08 Open Room Door* → `accessGranted: true`, and *15 Key No Longer Works → 403*.
+3. Point at three results only: *05 Check In Without Payment → 409*, *08 Validate Digital Key* → `accessGranted: true`, and *15 Validate Revoked Key → 403*.
 
 **Say:** "This is the whole hotel workflow in one run. Check-in without payment is refused with 409. After the front desk records the payment, digital check-in issues a key and the simulated smart lock opens the door. The guest orders coffee, and check-out is blocked until that charge is paid. After check-out the key stops working, and the room goes to housekeeping until the cleaning is completed. Payment, check-in, check-out and cleaning each run as a single database transaction."
 
@@ -132,4 +132,4 @@ This part runs on the **separate test database** (port 3001), so the demo data s
 - [ ] Open the link in an **incognito window** to confirm it plays.
 - [ ] Paste the link on the cover of `docs/MariStay_Final_Project_Documentation.docx`, then export the PDF from Word.
 - [ ] Stop the port-3001 server (Ctrl+C). Run `npm run postman:reset` before using that database again.
-- [ ] Check part A for a readable digital key code (the *Open Room Door* request body and the check-in response contain one). If one is readable for more than a moment, blur it. That key belongs to the isolated database and is revoked at check-out.
+- [ ] Check part A for a readable digital key code (the *08 Validate Digital Key* request body and the check-in response contain one). If one is readable for more than a moment, blur it. That key belongs to the isolated database and is revoked at check-out.
