@@ -13,7 +13,7 @@
 | Databases | `maristay_db`: demo data; migrated and seeded; contains the accidental-run records, cancelled or deactivated (E9). `maristay_test_db`: recreated by every `npm run test:e2e`. `maristay_postman_db`: full Postman/Newman runs on port 3001; rebuilt by `npm run postman:reset`. Other XAMPP databases are untouched. |
 | Local secrets | `.env` (git-ignored) holds the DB settings, a `JWT_SECRET` (rotated 2026-11-26) and a strong random `SEED_DEMO_PASSWORD` (22 characters, never committed). Read them from `.env`; never print or commit them. |
 | Doc tooling | `npm run docs:build` (marked + local mermaid + headless Edge → PDF). |
-| Slide tooling | `node scripts/build-presentation.js` needs `npm install --no-save pptxgenjs`. PowerPoint 16 is installed and was used to render the slides for checking. |
+| Slide tooling | `node backend/scripts/build-presentation.js` needs `npm install --no-save pptxgenjs`. PowerPoint 16 is installed and was used to render the slides for checking. |
 | Collection runner | `npm run postman:newman` needs `npm install --no-save newman`. Install it together with pptxgenjs, because each `--no-save` install removes the other. |
 
 ## Completed tasks
@@ -22,12 +22,12 @@
 - **Phase 3:** unified login, JWT, global guards (Throttler → JWT → Roles), ownership checks, Guests module.
 - **Phase 4:** Rooms (full CRUD, filters, date availability); Reservations (row-locked READ COMMITTED booking, update, confirm, cancel).
 - **Phase 5:** Payments and BillingService; StayService check-in/check-out; Digital Keys; Housekeeping; Staff; Service Orders; simulated notifications.
-- **Phase 6:** 33 unit and 46 e2e tests, all passing. Postman collection (11 folders, 122 requests) and environment. `exports/maristay.sql` produced by mysqldump; re-import verified.
+- **Phase 6:** 33 unit and 46 e2e tests, all passing. Postman collection (11 folders, 122 requests) and environment. `database/maristay.sql` produced by mysqldump; re-import verified.
 - **Phase 7:** README, SYSTEM_ARCHITECTURE, DATABASE_DESIGN, API_DOCUMENTATION, AUTHENTICATION_SECURITY, TESTING_REPORT; final documentation sources in `docs/final/`, assembled into `FINAL_DOCUMENTATION.md` and `MariStay_Final_Documentation.pdf`.
 - **Phase 8:** PRESENTATION_GUIDE, VIDEO_DEMO_SCRIPT, DEFENSE_QUESTIONS (34 Q&A).
 - **Phase 9 (2026-11-26), finalization:**
   - **Postman:**
-    - Isolated Postman environment (`maristay_postman_db`, port 3001, `scripts/postman-instance.js`).
+    - Isolated Postman environment (`maristay_postman_db`, port 3001, `backend/scripts/postman-instance.js`).
     - Collection bugs found by real runs and fixed (B6, B7).
     - Three Newman runs: 122/122 requests, 177/177 assertions each.
     - Folders 1 + 10 (the video workflow) verified on their own: 25 requests, 43/43 assertions.
@@ -55,7 +55,7 @@
   - Reuses the existing public `POST /guests`. **No backend change was needed.** The endpoint was already public, always creates a `GUEST` account and hashes with bcrypt. It returns 409 for an email used by any guest or staff account, and 400 for `role` or any other extra field (`forbidNonWhitelisted`). Staff are still created only by a manager.
   - The frontend now has 15 screens and uses 36 of the 44 endpoints.
   - **Verified on 2026-11-27** on a freshly reset `maristay_postman_db` (API port 3101, Vite port 5181): browser UI test **37/37**, including 7 new sign-up checks; API and database checks **49/49**; `npm run build` passed. Backend tests were not re-run because no backend code changed. `maristay_db` was not touched.
-  - The 49 checks are saved as `scripts/verify-guest-registration.js` (`npm run verify:registration`). It refuses to run against the demo database and prints no secrets.
+  - The 49 checks are saved as `backend/scripts/verify-guest-registration.js` (`npm run verify:registration`). It refuses to run against the demo database and prints no secrets.
 - **Scope decision (2026-11-27):** the student considered removing Digital Keys and the simulated smart lock, then decided to keep them, because they are part of the approved Lab 03 proposal (keyless room access, smart locks, information flow) and the Lab 04 ERD (Table 5). Functional scope is frozen: 44 endpoints, 8 tables, 9 API modules, 4 roles, 15 frontend screens, 36 frontend-integrated endpoints.
 - **Phase 11 (2026-11-27), final verification** (no feature or code change; nothing committed):
   - Regression on isolated databases: backend build ✔, frontend build ✔, unit **33/33**, e2e **46/46**, Newman **177/177**, browser UI **37/37**, registration **49/49**, security/RBAC matrix **126/126** (Testing §8.9).
@@ -135,7 +135,7 @@ None known.
 | E8 | Weak local demo password would be brute-forceable from hashes in the committed SQL | Rotated to a strong random password before the SQL was ever committed; the 6 demo accounts were re-hashed |
 | E9 | First full Postman run, accidentally against `maristay_db` on port 3000: 71 of 176 assertions failed | 32 request bodies quoted numeric placeholders, so the API rejected them (400). Fixed in the collection; validation unchanged. `maristay_db` was backed up first (git-ignored `exports/tmp/`). Through the API, leftover PENDING bookings #5 and #7 were cancelled and guest #4 was deactivated; nothing was deleted |
 | E10 | Postman desktop run on port 3001: 138 failures, all protected requests 401 | All six logins failed because `demoPassword` did not reach the requests (Newman reproduced the pattern only with an empty or wrong value). Login - Manager now has a pre-request guard with a clear message |
-| E11 | `exports/maristay.sql` starts with `CREATE DATABASE IF NOT EXISTS maristay_db; USE maristay_db;`, so importing it on this machine targets the existing demo database | No change to the file (correct for a fresh server). An accidental import here stopped at the first `CREATE TABLE` with no changes (verified). Import guidance added to README, Appendix A and Database Design §4.9; verification now uses a scratch copy without those two lines |
+| E11 | `database/maristay.sql` starts with `CREATE DATABASE IF NOT EXISTS maristay_db; USE maristay_db;`, so importing it on this machine targets the existing demo database | No change to the file (correct for a fresh server). An accidental import here stopped at the first `CREATE TABLE` with no changes (verified). Import guidance added to README, Appendix A and Database Design §4.9; verification now uses a scratch copy without those two lines |
 
 ## Architectural decisions
 - **AD1** NestJS 11.2 + TypeORM 0.3.31 (mature, officially compatible) instead of NestJS 12 / TypeORM 1.x.
@@ -149,9 +149,9 @@ None known.
 - **AD9** Digital key = 32 random bytes, stored as a SHA-256 hash.
 - **AD10** A CONFIRMED reservation is never auto-downgraded; check-in requires full payment regardless.
 - **AD11** DATETIMEs use the server's local time zone (`timezone: 'local'`), matching MySQL `CURRENT_TIMESTAMP`. DATE columns are `YYYY-MM-DD` strings.
-- **AD12** Final documentation is generated from chapter files by `scripts/build-docs.js`, so the PDF and the docs stay consistent.
+- **AD12** Final documentation is generated from chapter files by `backend/scripts/build-docs.js`, so the PDF and the docs stay consistent.
 - **AD13** The full Postman collection runs only against `maristay_postman_db` (port 3001, reset before every run), never against the demo database.
-- **AD14** `exports/MariStay.postman_collection.json` (v2.1) is the single committed collection; Newman runs exactly this file. The Postman desktop app's file-sync copies (`.postman/`, `postman/`, `exports/MariStay API/`, `exports/*.environment.yaml`) are git-ignored. After editing in Postman, export v2.1 again over the committed file.
+- **AD14** `postman/MariStay.postman_collection.json` (v2.1) is the single committed collection; Newman runs exactly this file. The Postman desktop app's file-sync copies (`.postman/`, everything in `postman/` except the two exported JSON files, `*.environment.yaml`) are git-ignored. After editing in Postman, export v2.1 again over the committed file.
 
 ## Deviations from the laboratory designs
 See `docs/PROJECT_REQUIREMENTS.md` §8 (D1–D15).

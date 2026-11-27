@@ -2,7 +2,7 @@
  * Builds the defense slides: docs/MariStay_Presentation.pptx
  *
  *   npm install --no-save pptxgenjs     (once; not a project dependency)
- *   node scripts/build-presentation.js
+ *   node backend/scripts/build-presentation.js
  *
  * Every number on the slides comes from verified results (docs/TESTING_REPORT.md).
  * Diagrams are native, editable PowerPoint shapes.

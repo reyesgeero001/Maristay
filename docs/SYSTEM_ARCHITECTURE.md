@@ -63,8 +63,8 @@ flowchart TB
 | StaffModule | Employee accounts (manager only) | `staff.service.ts` |
 | ServiceOrdersModule | Food/amenity/service orders with server-side catalog pricing | `service-orders.service.ts`, `service-catalog.ts` |
 | NotificationsModule | Simulated SMS/e-mail adapter | `notifications.service.ts` |
-| common/ | Enums, decorators (`@Public`, `@Roles`, `@CurrentUser`), RolesGuard, exception filter, pipes, validators, utilities | `src/common/**` |
-| database/ | Connection options, migration, seed, data source for the CLI | `src/database/**` |
+| common/ | Enums, decorators (`@Public`, `@Roles`, `@CurrentUser`), RolesGuard, exception filter, pipes, validators, utilities | `backend/src/common/**` |
+| database/ | Connection options, migration, seed, data source for the CLI | `backend/src/database/**` |
 
 ## 3.3 Layered architecture
 
@@ -77,8 +77,8 @@ flowchart LR
     D -->|rows| R -->|entities| S -->|result object| CT -->|JSON + status code| C
 ```
 
-* **Controller layer** — receives the request, reads path/query parameters, receives the already-validated DTO, calls one service method and returns its result. Controllers contain no business logic (e.g. [`rooms.controller.ts`](../src/rooms/rooms.controller.ts)).
-* **Service layer** — enforces business rules (availability, ownership, status transitions, payment rules) and opens database transactions when several rows must change together (e.g. [`stay.service.ts`](../src/reservations/stay.service.ts)).
+* **Controller layer** — receives the request, reads path/query parameters, receives the already-validated DTO, calls one service method and returns its result. Controllers contain no business logic (e.g. [`rooms.controller.ts`](../backend/src/rooms/rooms.controller.ts)).
+* **Service layer** — enforces business rules (availability, ownership, status transitions, payment rules) and opens database transactions when several rows must change together (e.g. [`stay.service.ts`](../backend/src/reservations/stay.service.ts)).
 * **Repository layer** — TypeORM `Repository<Entity>` or the transaction's `EntityManager` turns entities into parameterised SQL.
 * **Database layer** — MySQL stores the data and enforces primary keys, foreign keys (`ON DELETE RESTRICT`), unique indexes and CHECK constraints.
 

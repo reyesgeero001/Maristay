@@ -1,6 +1,6 @@
 # Database Design
 
-Database: **`maristay_db`** (MySQL, InnoDB, `utf8mb4_unicode_ci`). Schema created by the TypeORM migration [`1764086400000-InitialSchema.ts`](../src/database/migrations/1764086400000-InitialSchema.ts); exported in [`exports/maristay.sql`](../exports/maristay.sql).
+Database: **`maristay_db`** (MySQL, InnoDB, `utf8mb4_unicode_ci`). Schema created by the TypeORM migration [`1764086400000-InitialSchema.ts`](../backend/src/database/migrations/1764086400000-InitialSchema.ts); exported in [`database/maristay.sql`](../database/maristay.sql).
 
 ## 4.1 Entity relationship diagram
 
@@ -102,14 +102,14 @@ erDiagram
 
 | # | Table | Purpose (Lab 04) | Entity class |
 |---|---|---|---|
-| 1 | `guests` | Registered hotel guest information and authentication details | [`Guest`](../src/guests/entities/guest.entity.ts) |
-| 2 | `rooms` | Hotel room information, pricing and availability status | [`Room`](../src/rooms/entities/room.entity.ts) |
-| 3 | `reservations` | Guest room reservations and check-in/check-out schedule | [`Reservation`](../src/reservations/entities/reservation.entity.ts) |
-| 4 | `payments` | Payments associated with reservations | [`Payment`](../src/payments/entities/payment.entity.ts) |
-| 5 | `digital_keys` | Digital room access credentials issued to checked-in guests | [`DigitalKey`](../src/digital-keys/entities/digital-key.entity.ts) |
-| 6 | `housekeeping` | Room cleaning tasks and assigned housekeeping staff | [`Housekeeping`](../src/housekeeping/entities/housekeeping.entity.ts) |
-| 7 | `staff` | Hotel employees and their roles | [`Staff`](../src/staff/entities/staff.entity.ts) |
-| 8 | `service_orders` | Guest requests for food, amenities and other services | [`ServiceOrder`](../src/service-orders/entities/service-order.entity.ts) |
+| 1 | `guests` | Registered hotel guest information and authentication details | [`Guest`](../backend/src/guests/entities/guest.entity.ts) |
+| 2 | `rooms` | Hotel room information, pricing and availability status | [`Room`](../backend/src/rooms/entities/room.entity.ts) |
+| 3 | `reservations` | Guest room reservations and check-in/check-out schedule | [`Reservation`](../backend/src/reservations/entities/reservation.entity.ts) |
+| 4 | `payments` | Payments associated with reservations | [`Payment`](../backend/src/payments/entities/payment.entity.ts) |
+| 5 | `digital_keys` | Digital room access credentials issued to checked-in guests | [`DigitalKey`](../backend/src/digital-keys/entities/digital-key.entity.ts) |
+| 6 | `housekeeping` | Room cleaning tasks and assigned housekeeping staff | [`Housekeeping`](../backend/src/housekeeping/entities/housekeeping.entity.ts) |
+| 7 | `staff` | Hotel employees and their roles | [`Staff`](../backend/src/staff/entities/staff.entity.ts) |
+| 8 | `service_orders` | Guest requests for food, amenities and other services | [`ServiceOrder`](../backend/src/service-orders/entities/service-order.entity.ts) |
 
 A ninth table, `migrations`, is created automatically by TypeORM to record which migrations have run.
 
@@ -291,4 +291,4 @@ Seed data (fictional): 1 manager, 1 front desk, 2 housekeeping staff, 2 guests, 
   * `maristay_postman_db`, recreated before each full Postman/Newman run.
 
   The tools never create, change or drop any other database. The e2e and Postman reset commands refuse to touch a database with a different name.
-* **SQL export:** `exports/maristay.sql` was produced by `mysqldump` from the migrated and seeded `maristay_db`. It contains the 8 tables, the `migrations` table, 7 foreign keys, 17 CHECK constraints, 23 indexes and the demonstration records. It begins with `CREATE DATABASE IF NOT EXISTS maristay_db; USE maristay_db;` and contains no `DROP TABLE` statements. It is meant for a server **without** an existing `maristay_db`. If one already exists with tables, the import stops at the first `CREATE TABLE` and changes nothing. Re-import was verified on 2026-11-26 into a scratch database: all objects were created without errors. On 2026-11-27 a copy without the `CREATE DATABASE`/`USE` lines was also imported into Oracle MySQL 8.4.11 LTS. Only deprecation warnings appeared, and the FK, CHECK and UNIQUE constraints were enforced. Foreign keys imported from this MariaDB dump show `ON DELETE NO ACTION`, which InnoDB treats exactly like `RESTRICT`.
+* **SQL export:** `database/maristay.sql` was produced by `mysqldump` from the migrated and seeded `maristay_db`. It contains the 8 tables, the `migrations` table, 7 foreign keys, 17 CHECK constraints, 23 indexes and the demonstration records. It begins with `CREATE DATABASE IF NOT EXISTS maristay_db; USE maristay_db;` and contains no `DROP TABLE` statements. It is meant for a server **without** an existing `maristay_db`. If one already exists with tables, the import stops at the first `CREATE TABLE` and changes nothing. Re-import was verified on 2026-11-26 into a scratch database: all objects were created without errors. On 2026-11-27 a copy without the `CREATE DATABASE`/`USE` lines was also imported into Oracle MySQL 8.4.11 LTS. Only deprecation warnings appeared, and the FK, CHECK and UNIQUE constraints were enforced. Foreign keys imported from this MariaDB dump show `ON DELETE NO ACTION`, which InnoDB treats exactly like `RESTRICT`.

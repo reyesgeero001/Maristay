@@ -23,14 +23,15 @@ This file is a script and checklist only. The video has **not** been recorded.
 2. **Stop anything on port 3000**, so you can start the backend on camera. The VS Code terminal should be empty.
 3. **Prepare the isolated workflow database** (for part A) in a second terminal, *not* shown on camera:
    ```bash
+   cd backend
    npm run postman:reset
    npm run postman:start      # leave running: http://localhost:3001/api/v1
    ```
 4. **Postman:**
-   * Two environments, each with `demoPassword` set and **saved** (Ctrl+S): *MariStay Local* (port 3000) and *MariStay Postman 3001* (create it with `npm run postman:env`, then import from `exports/tmp/`).
+   * Two environments, each with `demoPassword` set and **saved** (Ctrl+S): *MariStay Local* (port 3000) and *MariStay Postman 3001* (create it with `npm run postman:env`, then import from `postman/tmp/`).
    * Select **MariStay Local**.
    * Open these tabs: *1. Authentication → Login - Manager*, and from *3. Rooms*: *Create Room (Manager)*, *Get Room*, *Update Room - PATCH*, *Delete Room*, *Get Deleted Room → 404*.
-5. **VS Code tabs:** `src/rooms/rooms.controller.ts`, `src/rooms/rooms.service.ts`, `src/rooms/entities/room.entity.ts`, `src/database/database.config.ts`.
+5. **VS Code tabs:** `backend/src/rooms/rooms.controller.ts`, `backend/src/rooms/rooms.service.ts`, `backend/src/rooms/entities/room.entity.ts`, `backend/src/database/database.config.ts`.
 6. **Browser tab:** phpMyAdmin at `http://localhost/phpmyadmin` → `maristay_db` → `rooms`.
 7. **Privacy:** never open `.env` on screen, and turn off notifications. In Postman, keep `demoPassword` hidden: it is a *secret*-type value.
 8. **Ports and other projects:** MariStay needs ports 3000 (demo API) and 3001 (isolated API for part A). Stop any other local project that uses them before recording, and keep only one MariStay instance per port.
@@ -47,7 +48,7 @@ This file is a script and checklist only. The video has **not** been recorded.
 
 ## Part 1 — Start the backend (0:20–1:00)
 
-**Do:** In the VS Code terminal, type `npm run start:dev` and press Enter. Wait for `Found 0 errors`, the `Mapped {…}` route lines, and `MariStay API running at http://localhost:3000/api/v1`. Scroll the route list briefly.
+**Do:** In the VS Code terminal, in the `backend` folder, type `npm run start:dev` and press Enter. Wait for `Found 0 errors`, the `Mapped {…}` route lines, and `MariStay API running at http://localhost:3000/api/v1`. Scroll the route list briefly.
 
 **Say:** "I start the backend with npm run start:dev. It compiles with zero errors, connects to MySQL, and maps all 44 routes under /api/v1. It is connected to the maristay_db database on XAMPP."
 

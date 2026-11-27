@@ -1,16 +1,16 @@
 # Presentation Guide — 10–15 Minute Defense
 
-**Slides:** [`docs/MariStay_Presentation.pptx`](MariStay_Presentation.pptx). There are 16 editable slides in 16:9, and every slide has speaker notes (in PowerPoint: View → Notes). To regenerate the deck after editing the generator: run `npm install --no-save pptxgenjs`, then `node scripts/build-presentation.js`.
+**Slides:** [`docs/MariStay_Presentation.pptx`](MariStay_Presentation.pptx). There are 16 editable slides in 16:9, and every slide has speaker notes (in PowerPoint: View → Notes). To regenerate the deck after editing the generator: run `npm install --no-save pptxgenjs`, then `node backend/scripts/build-presentation.js`.
 
 The deck follows the instructor's presentation flow (guidelines §6): overview → architecture → database → REST API → security → backend demonstration → API testing → conclusion → Q&A. Every number on the slides comes from verified results in `docs/TESTING_REPORT.md`. Speak in your own words; the notes are a guide, not a script to read.
 
 ## Before you present
 
 - [ ] XAMPP Control Panel: **MySQL** and **Apache** running.
-- [ ] `npm run start:dev` already started on port 3000 with no errors (the guidelines ask for the backend to be "already confirmed running").
+- [ ] `npm run start:dev` (in `backend/`) already started on port 3000 with no errors (the guidelines ask for the backend to be "already confirmed running").
 - [ ] Postman open on the **MariStay Local** environment, with `demoPassword` set and **saved**.
 - [ ] phpMyAdmin open on `maristay_db` → `rooms`.
-- [ ] VS Code open at `src/rooms/rooms.controller.ts`, `rooms.service.ts` and `entities/room.entity.ts`.
+- [ ] VS Code open at `backend/src/rooms/rooms.controller.ts`, `rooms.service.ts` and `entities/room.entity.ts`.
 - [ ] The slides in Presenter View. Notifications are off, and `.env` is not visible.
 - [ ] Optional frontend (slide 14): in a second terminal run `cd frontend` and `npm run dev`, then open `http://localhost:5173` in a separate browser window. It uses the same API on port 3000. If port 5173 is taken, stop the other program first: the backend's `CORS_ORIGIN` allows only `http://localhost:5173`.
 - [ ] Fallback ready: the recorded video and a terminal with the `npm run test:e2e` output.

@@ -10,7 +10,7 @@ All results in this report were produced by actually running the tests on the de
 |---|---|---|---|
 | Unit tests | Jest + ts-jest (`npm run test`) | none (mocks) | Pure logic: dates, money, id validation, ownership, RolesGuard, login rules, env validation |
 | End-to-end (integration) tests | Jest + Supertest (`npm run test:e2e`) | real MySQL, isolated `maristay_test_db` — dropped, migrated and seeded at the start of every run | The whole stack (guards → pipes → controllers → services → TypeORM → MySQL) and the integrated workflow |
-| Collection testing | Postman collection (`exports/MariStay.postman_collection.json`), run with Newman (`npm run postman:newman`) or the Postman Runner | isolated `maristay_postman_db` on port 3001, reset before every run | All 122 requests in order, with 177 assertions: the integrated workflow, security and negative cases |
+| Collection testing | Postman collection (`postman/MariStay.postman_collection.json`), run with Newman (`npm run postman:newman`) or the Postman Runner | isolated `maristay_postman_db` on port 3001, reset before every run | All 122 requests in order, with 177 assertions: the integrated workflow, security and negative cases |
 | Manual API testing / live demo | Individual Postman requests | local `maristay_db` on port 3000 | Live demonstration (Login and room CRUD only, not the full collection); request/response inspection |
 | Manual smoke scripts | Node `fetch` scripts during development | `maristay_test_db` | Every endpoint, positive and negative cases, while building each module |
 | Database checks | `mysql` CLI | both | CHECK / FK constraints reject bad data; SQL export re-imports cleanly |
@@ -117,7 +117,7 @@ Tests:       46 passed, 46 total
 | CHECK constraints (MariaDB) | ✔ negative price → `CONSTRAINT CHK_rooms_pricePerNight failed`; checkOut = checkIn → `CHK_reservations_dates failed` |
 | FK RESTRICT | ✔ deleting a room with history → error 1451 |
 | Seed idempotency | ✔ second run creates 0 records |
-| SQL export | ✔ `exports/maristay.sql` re-imported into a scratch database: 8 tables + migrations, 7 FKs, all rows |
+| SQL export | ✔ `database/maristay.sql` re-imported into a scratch database: 8 tables + migrations, 7 FKs, all rows |
 | Secret scan of every file to be committed | ✔ JWT secret and demo password found in 0 files; `.env` and `references/` ignored |
 
 ## 8.4 Error handling verification
@@ -142,13 +142,13 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
 
 ## 8.6 Postman collection
 
-* **Files:** `exports/MariStay.postman_collection.json` (Postman v2.1, the submitted collection) and `exports/MariStay.postman_environment.json` (no passwords or tokens; `demoPassword` is left empty).
+* **Files:** `postman/MariStay.postman_collection.json` (Postman v2.1, the submitted collection) and `postman/MariStay.postman_environment.json` (no passwords or tokens; `demoPassword` is left empty).
 * **Content:** 11 folders and **122 requests**. Each request has test assertions (status codes and business rules). Scripts save tokens and ids into environment variables. Every `{{variable}}` used is defined in the environment or set by an earlier request.
 * **Isolated run target:** the full collection creates guests, staff, rooms, reservations and payments, so it runs against a separate database, `maristay_postman_db`, served by a second instance on port 3001 (`baseUrl` = `http://localhost:3001/api/v1`). `maristay_db` is never touched.
   * `npm run postman:setup` creates and seeds the database.
   * `npm run postman:reset` rebuilds only that database.
   * `npm run postman:start` serves it.
-  * `npm run postman:env` writes a matching Postman environment to the git-ignored `exports/tmp/`.
+  * `npm run postman:env` writes a matching Postman environment to the git-ignored `postman/tmp/`.
 * **Preconditions:** a freshly seeded database (room ids 1, 2, 3 and 5 = rooms 101, 102, 103 and 201; room 302 is the only available Family room). A freshly started server, because the login limit of 10/min is kept in memory: the run makes 8 logins before the final rate-limit request sends 12.
 * **Collection fixes found by running it** (see 8.5 B6 and B7):
   * 32 numeric placeholders were unquoted.
@@ -156,7 +156,7 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
   * The deliberately invalid token in *Protected Route With Invalid Token → 401* is built at run time, so Postman's secret scanner no longer rewrites it. It still sends `Bearer invalid.token.value` and expects 401.
 
   No assertion, validation rule or security control was weakened.
-* **Newman command:** `npm install --no-save newman` once, then `npm run postman:newman` while the port-3001 server runs. It runs `exports/MariStay.postman_collection.json` and passes the demo password from `.env` in memory, so it never appears on a command line, in a file or in the report. It writes a token-free summary to `exports/tmp/newman-summary.json`.
+* **Newman command:** `npm install --no-save newman` once, then `npm run postman:newman` while the port-3001 server runs. It runs `postman/MariStay.postman_collection.json` and passes the demo password from `.env` in memory, so it never appears on a command line, in a file or in the report. It writes a token-free summary to `postman/tmp/newman-summary.json`.
 
 **Newman results.** Actual runs on 2026-11-26 with Newman 6.2.3 on port 3001. Before each run, `maristay_postman_db` was reset and the server restarted:
 
@@ -164,7 +164,7 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
 |---|---|---|---|---|---|---|
 | 1 | Collection (converted from the Postman YAML copy) | 122 / 137 | 177 / 177 | 0 | 0 | 16.9 s |
 | 2 | Same, repeated | 122 / 137 | 177 / 177 | 0 | 0 | 16.2 s |
-| 3 | `exports/MariStay.postman_collection.json`, after rotating the JWT secret | 122 / 137 | 177 / 177 | 0 | 0 | 14.8 s |
+| 3 | `postman/MariStay.postman_collection.json`, after rotating the JWT secret | 122 / 137 | 177 / 177 | 0 | 0 | 14.8 s |
 
 The 137 HTTP requests include 15 sent by `pm.sendRequest`: 4 concurrent bookings and 11 rate-limit logins. HTTP status mix in each run: 200 ×64, 201 ×24, 204 ×3, 400 ×7, 401 ×5, 403 ×10, 404 ×1, 409 ×13, 429 ×10. Every 4xx response is the expected result of a negative test. The Newman output contained no tokens or passwords.
 
@@ -310,6 +310,8 @@ The last request, *Login Rate Limit → 429*, displays its own response, a 401 c
 
 ## 8.8 How to reproduce
 
+Run these in `backend/`:
+
 ```bash
 npm run test            # unit tests (no database needed)
 npm run test:e2e        # real MySQL-compatible test database (TEST_DB_DATABASE, default maristay_test_db)
@@ -362,7 +364,7 @@ A temporary, portable MySQL Community Server 8.4.11 LTS ran on `127.0.0.1:3307`,
 | Schema vs MariaDB `maristay_db` (`information_schema`) | ✔ identical: 9 tables, 67 columns (64 application), 7 FKs, 17 CHECKs, 13 unique indexes |
 | `npm run test:e2e` → `maristay_mysql8_test` | ✔ **46/46**, 19.8 s |
 | Newman, API on port 3001 backed by MySQL → `maristay_mysql8_postman` | ✔ **177/177** assertions, 137 requests, 19.7 s, avg 47 ms |
-| `exports/maristay.sql` import (copy without `CREATE DATABASE`/`USE`) → `maristay_mysql8_import` | ✔ imported; deprecation warnings only |
+| `database/maristay.sql` import (copy without `CREATE DATABASE`/`USE`) → `maristay_mysql8_import` | ✔ imported; deprecation warnings only |
 | Constraints on imported data | ✔ FK 1451/1452, CHECK 3819, UNIQUE 1062 enforced |
 
 The only difference is cosmetic: foreign keys imported from the MariaDB dump show `ON DELETE NO ACTION` instead of `RESTRICT`, which InnoDB treats identically (Compliance Checklist §6).
@@ -379,8 +381,8 @@ The only difference is cosmetic: foreign keys imported from the MariaDB dump sho
 ### Reproduce the additional checks
 
 ```bash
-npm run verify:registration                         # isolated API on port 3001 (postman:start)
-cd frontend && node --env-file=../.env tests/ui-e2e.mjs
+cd backend && npm run verify:registration           # isolated API on port 3001 (postman:start)
+cd ../frontend && node --env-file=../backend/.env tests/ui-e2e.mjs
 ```
 
 ## 8.10 Frontend verification after the UI redesign (2026-11-27)

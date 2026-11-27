@@ -33,12 +33,12 @@ Differences from the Lab 06 diagram: the "Users table" is two tables (`guests`, 
 |---|---|
 | Library | `@nestjs/jwt` (signing) + `passport-jwt` via `@nestjs/passport` (verification) |
 | Algorithm | HS256 only (other algorithms, including `none`, are rejected) |
-| Secret | `JWT_SECRET` environment variable, min 32 chars; the app refuses to start without it or with the placeholder — there is **no fallback secret** ([`env.validation.ts`](../src/config/env.validation.ts)) |
+| Secret | `JWT_SECRET` environment variable, min 32 chars; the app refuses to start without it or with the placeholder — there is **no fallback secret** ([`env.validation.ts`](../backend/src/config/env.validation.ts)) |
 | Expiry | `JWT_EXPIRES_IN` (default `1h`); expired tokens → 401 "Access token has expired" |
 | Issuer | `maristay-api` (verified) |
 | Payload | `{ sub, accountType: GUEST|STAFF, role, email, iat, exp, iss }` — no password or personal data beyond email |
 | Transport | `Authorization: Bearer <token>` header |
-| Per-request check | [`JwtStrategy.validate()`](../src/auth/strategies/jwt.strategy.ts) reloads the account; INACTIVE or deleted → 401; the role is taken from the database, so role changes apply immediately |
+| Per-request check | [`JwtStrategy.validate()`](../backend/src/auth/strategies/jwt.strategy.ts) reloads the account; INACTIVE or deleted → 401; the role is taken from the database, so role changes apply immediately |
 
 ## 6.3 Password hashing
 
@@ -54,11 +54,11 @@ Differences from the Lab 06 diagram: the "Users table" is two tables (`guests`, 
 
 ## 6.5 Role-based access control (RBAC)
 
-Roles: `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER`. Controllers declare who may call each route with `@Roles(...)`; the global [`RolesGuard`](../src/common/guards/roles.guard.ts) returns **403** when an authenticated user's role is not listed. Public registration can only create `GUEST` accounts (unknown properties such as `role` are rejected with 400); staff accounts are created only by a manager.
+Roles: `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER`. Controllers declare who may call each route with `@Roles(...)`; the global [`RolesGuard`](../backend/src/common/guards/roles.guard.ts) returns **403** when an authenticated user's role is not listed. Public registration can only create `GUEST` accounts (unknown properties such as `role` are rejected with 400); staff accounts are created only by a manager.
 
 ## 6.6 Ownership verification
 
-Role checks are not enough — a guest must not see *another guest's* data. Services call [`assertGuestOwnerOrStaff()`](../src/common/utilities/ownership.util.ts) after loading a record:
+Role checks are not enough — a guest must not see *another guest's* data. Services call [`assertGuestOwnerOrStaff()`](../backend/src/common/utilities/ownership.util.ts) after loading a record:
 
 | Resource | Rule |
 |---|---|
@@ -89,7 +89,7 @@ Violations return **403 Forbidden**. Housekeeping staff cannot read payments, re
 | Measure | Where |
 |---|---|
 | No hardcoded secrets | DB credentials, JWT secret and demo password come only from `.env` (git-ignored); `.env.example` has placeholders |
-| Environment validation at startup | [`env.validation.ts`](../src/config/env.validation.ts) |
+| Environment validation at startup | [`env.validation.ts`](../backend/src/config/env.validation.ts) |
 | Password hashes never returned | `select: false` + `@Exclude()` |
 | Digital key credentials | 256-bit random `MSK-…` code; only its SHA-256 hash is stored (unique index); plaintext returned once at issue; never logged; notifications do not contain it |
 | SQL injection | All queries go through TypeORM with bound parameters (`:param`); no string-concatenated SQL with user input; ids validated as integers |

@@ -13,8 +13,10 @@
 | Security | `helmet` 8, `@nestjs/throttler` 6 |
 | Tests | Jest 29, Supertest 7, Postman / Newman |
 
+The repository root has five folders: `backend/` (the NestJS application below, with its `package.json`, tests and utility scripts), `database/` (`maristay.sql`), `postman/` (collection and environment), `frontend/` (optional React client) and `docs/`.
+
 ```text
-src/
+backend/src/
 ├── auth/            login, JWT strategy, JwtAuthGuard, IdentityService, rate-limit config
 ├── guests/          GuestsModule (controller, service, entity, DTOs)
 ├── rooms/           RoomsModule
@@ -31,9 +33,8 @@ src/
 ├── app.module.ts    root module (imports + global guards)
 ├── app.setup.ts     global HTTP pipeline (prefix, Helmet, CORS, validation, serializer, filter)
 └── main.ts          bootstrap
-test/                e2e tests (Supertest) + isolated test-database setup
-exports/             maristay.sql, Postman collection and environment
-docs/                documentation
+backend/test/        e2e tests (Supertest) + isolated test-database setup
+backend/scripts/     Postman instance, registration check, documentation and slide builders
 ```
 
 ## 7.2 NestJS modules
@@ -54,7 +55,7 @@ Each functional module follows the same pattern — **module** (wiring), **contr
 
 ## 7.3 Controller layer
 
-Controllers only translate HTTP into a service call. Example — the room endpoints used in the video demo ([`rooms.controller.ts`](../../src/rooms/rooms.controller.ts)):
+Controllers only translate HTTP into a service call. Example — the room endpoints used in the video demo ([`rooms.controller.ts`](../../backend/src/rooms/rooms.controller.ts)):
 
 ```typescript
 @Controller('rooms')
@@ -84,7 +85,7 @@ export class RoomsController {
 
 ## 7.4 Service layer
 
-Services hold the rules. Example ([`rooms.service.ts`](../../src/rooms/rooms.service.ts)):
+Services hold the rules. Example ([`rooms.service.ts`](../../backend/src/rooms/rooms.service.ts)):
 
 ```typescript
 async update(roomId: number, dto: UpdateRoomDto): Promise<Room> {
@@ -129,7 +130,7 @@ Inside workflows the service uses the transaction's `EntityManager` (`em`) so th
 
 ## 7.6 Entity implementation
 
-Entities map classes to tables. Example — `Reservation` with both sides of its relationships ([`reservation.entity.ts`](../../src/reservations/entities/reservation.entity.ts)):
+Entities map classes to tables. Example — `Reservation` with both sides of its relationships ([`reservation.entity.ts`](../../backend/src/reservations/entities/reservation.entity.ts)):
 
 ```typescript
 @Entity({ name: 'reservations' })
@@ -172,7 +173,7 @@ passwordHash!: string;
 
 ## 7.7 Database connection
 
-One function builds the connection options from environment variables and is shared by the app, the TypeORM CLI, the seed script and the tests ([`database.config.ts`](../../src/database/database.config.ts)):
+One function builds the connection options from environment variables and is shared by the app, the TypeORM CLI, the seed script and the tests ([`database.config.ts`](../../backend/src/database/database.config.ts)):
 
 ```typescript
 export function buildDataSourceOptions(env = process.env, databaseOverride?: string): DataSourceOptions {
@@ -198,7 +199,7 @@ export function buildDataSourceOptions(env = process.env, databaseOverride?: str
 
 ## 7.8 Important business logic
 
-### Preventing double bookings ([`reservations.service.ts`](../../src/reservations/reservations.service.ts))
+### Preventing double bookings ([`reservations.service.ts`](../../backend/src/reservations/reservations.service.ts))
 
 ```typescript
 const reservationId = await this.dataSource.transaction('READ COMMITTED', async (em) => {
@@ -220,7 +221,7 @@ const reservationId = await this.dataSource.transaction('READ COMMITTED', async 
 ```
 Why it works: both competing requests try to lock the same room row; the second waits until the first commits, then (because of `READ COMMITTED`) its overlap query sees the new reservation and returns 409. Verified with 6 simultaneous requests: one 201, five 409.
 
-### Digital check-in ([`stay.service.ts`](../../src/reservations/stay.service.ts))
+### Digital check-in ([`stay.service.ts`](../../backend/src/reservations/stay.service.ts))
 
 ```typescript
 const issued = await this.dataSource.transaction(BOOKING_ISOLATION, async (em) => {
@@ -267,4 +268,4 @@ DECIMAL values are converted to numbers by a column transformer, and all arithme
 | Errors | `AllExceptionsFilter` — consistent JSON, DB error translation |
 | Configuration | `ConfigModule` + `validateEnv()` |
 | Documentation | Endpoint reference in Chapter 5; each controller method has a one-line summary comment |
-| Migrations / seed | `src/database/migrations`, `src/database/seeds` (idempotent) |
+| Migrations / seed | `backend/src/database/migrations`, `backend/src/database/seeds` (idempotent) |

@@ -20,7 +20,7 @@ The frontend lives in `frontend/` with its own `package.json` and `node_modules`
 
 The UI was restyled after the functional scope was frozen. Only the presentation changed: no route, API call, permission or business rule was added or removed.
 
-* **Design tokens** live in one place: the `@theme` block of `src/index.css` (Tailwind CSS 4). The palette is midnight navy `#14253E` for the primary colour and text, champagne gold `#C6A15B` as an accent only, warm white `#F8F7F4` for the background, white cards, `#64748B` for secondary text and `#E2E8F0` for borders. The status colours are Tailwind's green-600, amber-600, red-600 and blue-600. The same file defines the card radius and shadows, plus one visible gold keyboard-focus outline for every control.
+* **Design tokens** live in one place: the `@theme` block of `frontend/src/index.css` (Tailwind CSS 4). The palette is midnight navy `#14253E` for the primary colour and text, champagne gold `#C6A15B` as an accent only, warm white `#F8F7F4` for the background, white cards, `#64748B` for secondary text and `#E2E8F0` for borders. The status colours are Tailwind's green-600, amber-600, red-600 and blue-600. The same file defines the card radius and shadows, plus one visible gold keyboard-focus outline for every control.
 * **Typography:** Inter if installed, otherwise the system UI sans-serif, for content. A local serif (Palatino Linotype / Georgia) is used for the MariStay wordmark and the sign-in, sign-up and guest-portal headings. No web fonts are downloaded.
 * **Brand:** a gold hotel icon with a serif "MariStay" wordmark and the subtitle "Hotel Management and Digital Guest Services System", the same on the login, sign-up and app layouts. The favicon uses the same colours.
 * **Screens:**
@@ -93,7 +93,7 @@ frontend/
 
 ## 3a. Guest self-registration (Sign up)
 
-`/register` (`src/pages/RegisterPage.tsx`) lets a visitor create a **guest** account. It reuses the existing public endpoint `POST /guests`; no backend code, endpoint or table was added.
+`/register` (`frontend/src/pages/RegisterPage.tsx`) lets a visitor create a **guest** account. It reuses the existing public endpoint `POST /guests`; no backend code, endpoint or table was added.
 
 - **Fields:** first name and last name (the "full name", split to match `CreateGuestDto`), email address, phone number, password and confirm password. The password fields have show/hide buttons.
 - **Validation in the browser** uses the same rules as `CreateGuestDto`: names up to 50 characters (letters, spaces, `.`, `'`, `-`), a valid email, 7–15 digits with an optional `+` (spaces and dashes are removed), and a password of 8–72 characters with at least one letter and one number. Confirm password must match. It is checked only in the browser and is **not sent**, because the API rejects unknown properties.
@@ -143,7 +143,7 @@ The frontend never sets these states directly. For example, OCCUPIED is not offe
 
 ## 6. Known limitations
 
-- **No catalog endpoint for service items.** The item list in `src/lib/serviceCatalog.ts` mirrors `src/service-orders/service-catalog.ts`. Only `itemCode` and `quantity` are sent, and the server sets the price. If the backend catalog changes, update the mirror.
+- **No catalog endpoint for service items.** The item list in `frontend/src/lib/serviceCatalog.ts` mirrors `backend/src/service-orders/service-catalog.ts`. Only `itemCode` and `quantity` are sent, and the server sets the price. If the backend catalog changes, update the mirror.
 - **Room-number search is done in the browser.** `GET /rooms` has no search parameter, so the Rooms page loads up to 100 rooms and filters them locally.
 - **Sign-up has no email verification or CAPTCHA.** The backend has neither. `POST /guests` is covered only by the general API rate limit (300 requests per minute per IP), not the stricter login limit.
 - **No profile or password-change page.**
@@ -152,7 +152,8 @@ The frontend never sets these states directly. For example, OCCUPIED is not offe
 ## 7. Running
 
 ```bash
-# backend (repository root)
+# backend
+cd backend
 npm run start:dev                     # API on http://localhost:3000/api/v1
 
 # frontend
@@ -186,7 +187,8 @@ The backend's `CORS_ORIGIN` already allows `http://localhost:5173`. No backend c
 Run it **only against the isolated database** (`maristay_postman_db`), because it creates records:
 
 ```bash
-npm run postman:reset                 # (repository root) fresh maristay_postman_db
+cd backend
+npm run postman:reset                 # fresh maristay_postman_db
 npm run postman:start                 # API on port 3001 (CORS must allow the frontend origin)
 cd frontend
 VITE_API_BASE_URL=http://localhost:3001/api/v1 npm run dev
@@ -208,7 +210,7 @@ No backend file changed, so the backend results below still apply.
 | Check | Result |
 |---|---|
 | Frontend UI e2e (including 7 new sign-up checks) | **37/37** passed on a freshly reset `maristay_postman_db` |
-| API and database checks for `POST /guests` (`scripts/verify-guest-registration.js`, `npm run verify:registration`) | **49/49** passed (details below); re-run 49/49 with the saved script |
+| API and database checks for `POST /guests` (`backend/scripts/verify-guest-registration.js`, `npm run verify:registration`) | **49/49** passed (details below); re-run 49/49 with the saved script |
 | Production build | `npm run build` (tsc + vite) passed |
 | Backend regression | Not re-run: no backend file was changed for sign-up |
 
@@ -257,8 +259,9 @@ They were recaptured with the approved Modern Luxury Minimalist UI on 2026-11-27
 To capture them again (isolated stack only; the script registers a guest and creates records):
 
 ```bash
+cd backend
 npm run postman:reset
 DB_DATABASE=maristay_postman_db PORT=3001 LOGIN_RATE_LIMIT=100 node dist-postman/main.js
-cd frontend && VITE_API_BASE_URL=http://localhost:3001/api/v1 npm run dev
-node --env-file=../.env tests/capture-screenshots.cjs ../docs/screenshots/frontend
+cd ../frontend && VITE_API_BASE_URL=http://localhost:3001/api/v1 npm run dev
+node --env-file=../backend/.env tests/capture-screenshots.cjs ../docs/screenshots/frontend
 ```

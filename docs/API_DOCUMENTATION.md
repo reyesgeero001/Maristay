@@ -1,6 +1,6 @@
 # REST API Design and Documentation
 
-Base URL (local): `http://localhost:3000/api/v1` · Postman: [`exports/MariStay.postman_collection.json`](../exports/MariStay.postman_collection.json)
+Base URL (local): `http://localhost:3000/api/v1` · Postman: [`postman/MariStay.postman_collection.json`](../postman/MariStay.postman_collection.json)
 
 ## 5.1 API conventions (Lab 05 Part B)
 
