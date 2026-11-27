@@ -136,8 +136,13 @@ postman/    Postman collection and environment
 
 ## Documentation
 
+- [Project Requirements](docs/PROJECT_REQUIREMENTS.md)
+- [System Architecture](docs/SYSTEM_ARCHITECTURE.md)
 - [API Documentation](docs/API_DOCUMENTATION.md)
 - [Database Design](docs/DATABASE_DESIGN.md)
+- [Authentication and Security](docs/AUTHENTICATION_SECURITY.md)
+- [Frontend](docs/FRONTEND.md)
+- [Presentation Slides](docs/MariStay_Presentation.pptx)
 - [Postman Collection](postman/MariStay.postman_collection.json)
 - [SQL Database Export](database/maristay.sql)
 
