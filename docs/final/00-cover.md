@@ -2,7 +2,9 @@
 
 # MariStay: Hotel Management and Digital Guest Services System
 
-### Technical Documentation — Systems Integration Backend Prototype
+### Technical Reference — Systems Integration Backend Prototype
+
+Archived detailed report. The official submitted documentation is `docs/MariStay_Final_Project_Documentation.pdf`.
 
 | | |
 |---|---|

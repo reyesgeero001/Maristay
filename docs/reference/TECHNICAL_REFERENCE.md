@@ -4,7 +4,9 @@
 
 # MariStay: Hotel Management and Digital Guest Services System
 
-### Technical Documentation — Systems Integration Backend Prototype
+### Technical Reference — Systems Integration Backend Prototype
+
+Archived detailed report. The official submitted documentation is `docs/MariStay_Final_Project_Documentation.pdf`.
 
 | | |
 |---|---|
@@ -391,8 +393,8 @@ flowchart LR
     D -->|rows| R -->|entities| S -->|result object| CT -->|JSON + status code| C
 ```
 
-* **Controller layer** — receives the request, reads path/query parameters, receives the already-validated DTO, calls one service method and returns its result. Controllers contain no business logic (e.g. [`rooms.controller.ts`](../backend/src/rooms/rooms.controller.ts)).
-* **Service layer** — enforces business rules (availability, ownership, status transitions, payment rules) and opens database transactions when several rows must change together (e.g. [`stay.service.ts`](../backend/src/reservations/stay.service.ts)).
+* **Controller layer** — receives the request, reads path/query parameters, receives the already-validated DTO, calls one service method and returns its result. Controllers contain no business logic (e.g. [`rooms.controller.ts`](../../backend/src/rooms/rooms.controller.ts)).
+* **Service layer** — enforces business rules (availability, ownership, status transitions, payment rules) and opens database transactions when several rows must change together (e.g. [`stay.service.ts`](../../backend/src/reservations/stay.service.ts)).
 * **Repository layer** — TypeORM `Repository<Entity>` or the transaction's `EntityManager` turns entities into parameterised SQL.
 * **Database layer** — MySQL stores the data and enforces primary keys, foreign keys (`ON DELETE RESTRICT`), unique indexes and CHECK constraints.
 
@@ -506,7 +508,7 @@ The local demonstration runs on plain **HTTP** at `http://localhost:3000`. Lab 0
 
 # Chapter 4 — Database Design
 
-Database: **`maristay_db`** (MySQL, InnoDB, `utf8mb4_unicode_ci`). Schema created by the TypeORM migration [`1764086400000-InitialSchema.ts`](../backend/src/database/migrations/1764086400000-InitialSchema.ts); exported in [`database/maristay.sql`](../database/maristay.sql).
+Database: **`maristay_db`** (MySQL, InnoDB, `utf8mb4_unicode_ci`). Schema created by the TypeORM migration [`1764086400000-InitialSchema.ts`](../../backend/src/database/migrations/1764086400000-InitialSchema.ts); exported in [`database/maristay.sql`](../../database/maristay.sql).
 
 ## 4.1 Entity relationship diagram
 
@@ -608,14 +610,14 @@ erDiagram
 
 | # | Table | Purpose (Lab 04) | Entity class |
 |---|---|---|---|
-| 1 | `guests` | Registered hotel guest information and authentication details | [`Guest`](../backend/src/guests/entities/guest.entity.ts) |
-| 2 | `rooms` | Hotel room information, pricing and availability status | [`Room`](../backend/src/rooms/entities/room.entity.ts) |
-| 3 | `reservations` | Guest room reservations and check-in/check-out schedule | [`Reservation`](../backend/src/reservations/entities/reservation.entity.ts) |
-| 4 | `payments` | Payments associated with reservations | [`Payment`](../backend/src/payments/entities/payment.entity.ts) |
-| 5 | `digital_keys` | Digital room access credentials issued to checked-in guests | [`DigitalKey`](../backend/src/digital-keys/entities/digital-key.entity.ts) |
-| 6 | `housekeeping` | Room cleaning tasks and assigned housekeeping staff | [`Housekeeping`](../backend/src/housekeeping/entities/housekeeping.entity.ts) |
-| 7 | `staff` | Hotel employees and their roles | [`Staff`](../backend/src/staff/entities/staff.entity.ts) |
-| 8 | `service_orders` | Guest requests for food, amenities and other services | [`ServiceOrder`](../backend/src/service-orders/entities/service-order.entity.ts) |
+| 1 | `guests` | Registered hotel guest information and authentication details | [`Guest`](../../backend/src/guests/entities/guest.entity.ts) |
+| 2 | `rooms` | Hotel room information, pricing and availability status | [`Room`](../../backend/src/rooms/entities/room.entity.ts) |
+| 3 | `reservations` | Guest room reservations and check-in/check-out schedule | [`Reservation`](../../backend/src/reservations/entities/reservation.entity.ts) |
+| 4 | `payments` | Payments associated with reservations | [`Payment`](../../backend/src/payments/entities/payment.entity.ts) |
+| 5 | `digital_keys` | Digital room access credentials issued to checked-in guests | [`DigitalKey`](../../backend/src/digital-keys/entities/digital-key.entity.ts) |
+| 6 | `housekeeping` | Room cleaning tasks and assigned housekeeping staff | [`Housekeeping`](../../backend/src/housekeeping/entities/housekeeping.entity.ts) |
+| 7 | `staff` | Hotel employees and their roles | [`Staff`](../../backend/src/staff/entities/staff.entity.ts) |
+| 8 | `service_orders` | Guest requests for food, amenities and other services | [`ServiceOrder`](../../backend/src/service-orders/entities/service-order.entity.ts) |
 
 A ninth table, `migrations`, is created automatically by TypeORM to record which migrations have run.
 
@@ -803,7 +805,7 @@ Seed data (fictional): 1 manager, 1 front desk, 2 housekeeping staff, 2 guests, 
 
 # Chapter 5 — REST API Design
 
-Base URL (local): `http://localhost:3000/api/v1` · Postman: [`postman/MariStay.postman_collection.json`](../postman/MariStay.postman_collection.json)
+Base URL (local): `http://localhost:3000/api/v1` · Postman: [`postman/MariStay.postman_collection.json`](../../postman/MariStay.postman_collection.json)
 
 ## 5.1 API conventions (Lab 05 Part B)
 
@@ -1134,12 +1136,12 @@ Differences from the Lab 06 diagram: the "Users table" is two tables (`guests`, 
 |---|---|
 | Library | `@nestjs/jwt` (signing) + `passport-jwt` via `@nestjs/passport` (verification) |
 | Algorithm | HS256 only (other algorithms, including `none`, are rejected) |
-| Secret | `JWT_SECRET` environment variable, min 32 chars; the app refuses to start without it or with the placeholder — there is **no fallback secret** ([`env.validation.ts`](../backend/src/config/env.validation.ts)) |
+| Secret | `JWT_SECRET` environment variable, min 32 chars; the app refuses to start without it or with the placeholder — there is **no fallback secret** ([`env.validation.ts`](../../backend/src/config/env.validation.ts)) |
 | Expiry | `JWT_EXPIRES_IN` (default `1h`); expired tokens → 401 "Access token has expired" |
 | Issuer | `maristay-api` (verified) |
 | Payload | `{ sub, accountType: GUEST|STAFF, role, email, iat, exp, iss }` — no password or personal data beyond email |
 | Transport | `Authorization: Bearer <token>` header |
-| Per-request check | [`JwtStrategy.validate()`](../backend/src/auth/strategies/jwt.strategy.ts) reloads the account; INACTIVE or deleted → 401; the role is taken from the database, so role changes apply immediately |
+| Per-request check | [`JwtStrategy.validate()`](../../backend/src/auth/strategies/jwt.strategy.ts) reloads the account; INACTIVE or deleted → 401; the role is taken from the database, so role changes apply immediately |
 
 ## 6.3 Password hashing
 
@@ -1155,11 +1157,11 @@ Differences from the Lab 06 diagram: the "Users table" is two tables (`guests`, 
 
 ## 6.5 Role-based access control (RBAC)
 
-Roles: `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER`. Controllers declare who may call each route with `@Roles(...)`; the global [`RolesGuard`](../backend/src/common/guards/roles.guard.ts) returns **403** when an authenticated user's role is not listed. Public registration can only create `GUEST` accounts (unknown properties such as `role` are rejected with 400); staff accounts are created only by a manager.
+Roles: `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER`. Controllers declare who may call each route with `@Roles(...)`; the global [`RolesGuard`](../../backend/src/common/guards/roles.guard.ts) returns **403** when an authenticated user's role is not listed. Public registration can only create `GUEST` accounts (unknown properties such as `role` are rejected with 400); staff accounts are created only by a manager.
 
 ## 6.6 Ownership verification
 
-Role checks are not enough — a guest must not see *another guest's* data. Services call [`assertGuestOwnerOrStaff()`](../backend/src/common/utilities/ownership.util.ts) after loading a record:
+Role checks are not enough — a guest must not see *another guest's* data. Services call [`assertGuestOwnerOrStaff()`](../../backend/src/common/utilities/ownership.util.ts) after loading a record:
 
 | Resource | Rule |
 |---|---|
@@ -1190,7 +1192,7 @@ Violations return **403 Forbidden**. Housekeeping staff cannot read payments, re
 | Measure | Where |
 |---|---|
 | No hardcoded secrets | DB credentials, JWT secret and demo password come only from `.env` (git-ignored); `.env.example` has placeholders |
-| Environment validation at startup | [`env.validation.ts`](../backend/src/config/env.validation.ts) |
+| Environment validation at startup | [`env.validation.ts`](../../backend/src/config/env.validation.ts) |
 | Password hashes never returned | `select: false` + `@Exclude()` |
 | Digital key credentials | 256-bit random `MSK-…` code; only its SHA-256 hash is stored (unique index); plaintext returned once at issue; never logged; notifications do not contain it |
 | SQL injection | All queries go through TypeORM with bound parameters (`:param`); no string-concatenated SQL with user input; ids validated as integers |
@@ -1300,7 +1302,7 @@ Each functional module follows the same pattern — **module** (wiring), **contr
 
 ## 7.3 Controller layer
 
-Controllers only translate HTTP into a service call. Example — the room endpoints used in the video demo ([`rooms.controller.ts`](../backend/src/rooms/rooms.controller.ts)):
+Controllers only translate HTTP into a service call. Example — the room endpoints used in the video demo ([`rooms.controller.ts`](../../backend/src/rooms/rooms.controller.ts)):
 
 ```typescript
 @Controller('rooms')
@@ -1330,7 +1332,7 @@ export class RoomsController {
 
 ## 7.4 Service layer
 
-Services hold the rules. Example ([`rooms.service.ts`](../backend/src/rooms/rooms.service.ts)):
+Services hold the rules. Example ([`rooms.service.ts`](../../backend/src/rooms/rooms.service.ts)):
 
 ```typescript
 async update(roomId: number, dto: UpdateRoomDto): Promise<Room> {
@@ -1375,7 +1377,7 @@ Inside workflows the service uses the transaction's `EntityManager` (`em`) so th
 
 ## 7.6 Entity implementation
 
-Entities map classes to tables. Example — `Reservation` with both sides of its relationships ([`reservation.entity.ts`](../backend/src/reservations/entities/reservation.entity.ts)):
+Entities map classes to tables. Example — `Reservation` with both sides of its relationships ([`reservation.entity.ts`](../../backend/src/reservations/entities/reservation.entity.ts)):
 
 ```typescript
 @Entity({ name: 'reservations' })
@@ -1418,7 +1420,7 @@ passwordHash!: string;
 
 ## 7.7 Database connection
 
-One function builds the connection options from environment variables and is shared by the app, the TypeORM CLI, the seed script and the tests ([`database.config.ts`](../backend/src/database/database.config.ts)):
+One function builds the connection options from environment variables and is shared by the app, the TypeORM CLI, the seed script and the tests ([`database.config.ts`](../../backend/src/database/database.config.ts)):
 
 ```typescript
 export function buildDataSourceOptions(env = process.env, databaseOverride?: string): DataSourceOptions {
@@ -1440,11 +1442,11 @@ export function buildDataSourceOptions(env = process.env, databaseOverride?: str
 
 `AppModule` registers it with `TypeOrmModule.forRootAsync(...)`, and the app refuses to start if any required variable is missing or the JWT secret is weak.
 
-![Server start-up log](screenshots/01-server-startup.png)**Figure 7.1.** Part of the `npm run start:dev` log on 2026-11-26 (process 24636, 11:32:44 AM). NestJS's `RoutesResolver` and `RouterExplorer` map the *Rooms*, *Reservations* and *Payments* routes under `/api/v1`, including PATCH/PUT/DELETE `/rooms/:id` and the reservation `confirm`, `check-in` and `check-out` actions. The routes are mapped only after the database connection succeeds. The whole log maps 44 routes; the 0-error compile is recorded in §8.3.
+![Server start-up log](../screenshots/01-server-startup.png)**Figure 7.1.** Part of the `npm run start:dev` log on 2026-11-26 (process 24636, 11:32:44 AM). NestJS's `RoutesResolver` and `RouterExplorer` map the *Rooms*, *Reservations* and *Payments* routes under `/api/v1`, including PATCH/PUT/DELETE `/rooms/:id` and the reservation `confirm`, `check-in` and `check-out` actions. The routes are mapped only after the database connection succeeds. The whole log maps 44 routes; the 0-error compile is recorded in §8.3.
 
 ## 7.8 Important business logic
 
-### Preventing double bookings ([`reservations.service.ts`](../backend/src/reservations/reservations.service.ts))
+### Preventing double bookings ([`reservations.service.ts`](../../backend/src/reservations/reservations.service.ts))
 
 ```typescript
 const reservationId = await this.dataSource.transaction('READ COMMITTED', async (em) => {
@@ -1466,7 +1468,7 @@ const reservationId = await this.dataSource.transaction('READ COMMITTED', async 
 ```
 Why it works: both competing requests try to lock the same room row; the second waits until the first commits, then (because of `READ COMMITTED`) its overlap query sees the new reservation and returns 409. Verified with 6 simultaneous requests: one 201, five 409.
 
-### Digital check-in ([`stay.service.ts`](../backend/src/reservations/stay.service.ts))
+### Digital check-in ([`stay.service.ts`](../../backend/src/reservations/stay.service.ts))
 
 ```typescript
 const issued = await this.dataSource.transaction(BOOKING_ISOLATION, async (em) => {
@@ -1739,12 +1741,12 @@ Nothing else was edited. The server start-up is Figure 7.1 (Chapter 7). The Swag
 
 ### 8.7.1 Authentication
 
-![Manager login in Postman](screenshots/02-manager-login.png)\
+![Manager login in Postman](../screenshots/02-manager-login.png)\
 **Figure 8.1.** *Login - Manager* (`POST /auth/login`) on port 3000 returns **200 OK** with an access token (JWT payload and signature redacted).
 
 The response gives `tokenType: "Bearer"` and `expiresIn: "1h"`, and the user's role is `MANAGER`. The password hash is not part of the response. All three test assertions passed (Test Results 3/3).
 
-![Guest login in Postman](screenshots/04d-guest-login.png)\
+![Guest login in Postman](../screenshots/04d-guest-login.png)\
 **Figure 8.2.** *Login - Guest (Juan)* returns **200 OK** with an access token for the fictional demo guest, whose role is `GUEST` (token redacted).
 
 This token is used for the 403 check in Figure 8.11.
@@ -1753,43 +1755,43 @@ This token is used for the 403 check in Figure 8.11.
 
 Figures 8.3 to 8.8 follow one test room, **Room ID 13** (room number `T91562`, generated by the collection). It was created, read, updated, and is shown to be gone. The **204 response in Figure 8.9 belongs to a second, temporary room, Room ID 14**. That room was created the same way, only to capture a clean DELETE screenshot, because the DELETE response for Room 13 was not captured. Neither room still exists. A read-only query of `maristay_db` on 2026-11-26 found no room with an ID of 10 or higher and `AUTO_INCREMENT = 15`, which confirms that rooms 13 and 14 were both created and then deleted.
 
-![Create room](screenshots/03a-create-room.png)\
+![Create room](../screenshots/03a-create-room.png)\
 **Figure 8.3.** *Create Room (Manager)* returns **201 Created**. The new room has `roomId: 13`, type Deluxe, `pricePerNight: 2500` and `roomStatus: "AVAILABLE"`.
 
-![Get room](screenshots/03b-get-room.png)\
+![Get room](../screenshots/03b-get-room.png)\
 **Figure 8.4.** *Get Room* (`GET /rooms/{{roomId}}`) returns **200 OK** with the same record, Room ID 13. The test script shown checks both the status and the room number.
 
-![Update room with PATCH](screenshots/03c-update-room.png)\
+![Update room with PATCH](../screenshots/03c-update-room.png)\
 **Figure 8.5.** *Update Room - PATCH* returns **200 OK**. `pricePerNight` changes from **2500 to 2800**, and `updatedAt` advances while `createdAt` stays the same.
 
-![rooms table after the update](screenshots/08a-database-room-updated.png)\
+![rooms table after the update](../screenshots/08a-database-room-updated.png)\
 **Figure 8.6.** phpMyAdmin, `maristay_db.rooms`, after the PATCH. Room 13 (`T91562`) is stored with **2800.00**, and the nine other rooms are not affected by these requests.
 
-![Deleted room returns 404](screenshots/03e-get-deleted-room.png)\
+![Deleted room returns 404](../screenshots/03e-get-deleted-room.png)\
 **Figure 8.7.** *Get Deleted Room → 404* returns **404 Not Found** for `/api/v1/rooms/13`, with the standard error body ("Room not found"). The purple bar is Postman's built-in AI suggestion and is not part of the API response.
 
-![rooms table after deletion](screenshots/08b-database-room-deleted.png)\
+![rooms table after deletion](../screenshots/08b-database-room-deleted.png)\
 **Figure 8.8.** phpMyAdmin, `maristay_db.rooms`, after Room 13 was deleted. Nine rows remain: the seeded rooms 101–303, none affected by these requests.
 
-![Delete room returns 204](screenshots/03d-delete-room.png)\
+![Delete room returns 204](../screenshots/03d-delete-room.png)\
 **Figure 8.9.** *Delete Room (Manager)* returns **204 No Content**, and the test "Status is 204" passed (1/1). This request deleted the **temporary Room ID 14**, not Room 13 (see the note above).
 
 ### 8.7.3 Authorization: 401 and 403
 
-![Protected route without a token](screenshots/04a-protected-route-no-token.png)\
+![Protected route without a token](../screenshots/04a-protected-route-no-token.png)\
 **Figure 8.10.** *Protected Route Without Token → 401*: `GET /reservations` with Auth type **No Auth** returns **401 Unauthorized** ("Invalid or missing access token"). The global `JwtAuthGuard` rejects the request before any controller runs.
 
-![Guest calls a manager-only route](screenshots/04c-forbidden-guest.png)\
+![Guest calls a manager-only route](../screenshots/04c-forbidden-guest.png)\
 **Figure 8.11.** *Guest Calls Manager-only Route → 403*: the guest's valid token on `POST /rooms` returns **403 Forbidden** ("You do not have permission to perform this action"). Authentication succeeded, but `RolesGuard` refused the role. No room was created.
 
 ### 8.7.4 Postman desktop Collection Runner (port 3001)
 
-![Collection Runner summary](screenshots/07-collection-runner.png)\
+![Collection Runner summary](../screenshots/07-collection-runner.png)\
 **Figure 8.12.** Run summary of the Collection Runner, environment *MariStay Postman 3001*: **177 tests, 177 passed, 0 failed, 0 skipped, 0 errors**; duration 17 s 347 ms; average response 13 ms. The list shows the final security tests.
 
 The last request, *Login Rate Limit → 429*, displays its own response, a 401 caused by a deliberately wrong password. Its test script then sends 11 more logins and asserts that a **429 Too Many Requests** is returned, and that assertion passed.
 
-![Digital check-in and smart lock in the Runner](screenshots/05a-digital-check-in-runner.png)\
+![Digital check-in and smart lock in the Runner](../screenshots/05a-digital-check-in-runner.png)\
 **Figure 8.13.** The *6. Digital Keys* results from the same run:
 
 * *Setup - Digital Check-in (Guest)* → **200**, "Key issued".
@@ -1797,10 +1799,10 @@ The last request, *Login Rate Limit → 429*, displays its own response, a 401 c
 * *Get Key Metadata* → "No hash or code exposed".
 * *Reissue Key* → **201**.
 
-![Digital check-in response](screenshots/05b-digital-key-response.png)\
+![Digital check-in response](../screenshots/05b-digital-key-response.png)\
 **Figure 8.14.** The digital check-in response, opened from the Runner. Reservation 6 is `CHECKED_IN`, room 101 is `OCCUPIED`, and a `digitalKey` with `status: "ACTIVE"` expires at 12:00 on the check-out date. The plain key code, returned once at issue, is redacted here. The database stores only its SHA-256 hash.
 
-![Overlapping reservation in the Runner](screenshots/06-overlapping-reservation.png)\
+![Overlapping reservation in the Runner](../screenshots/06-overlapping-reservation.png)\
 **Figure 8.15.** *11. Security and Negative Testing* results from the same run:
 
 * *Overlapping Reservation* → **409 Conflict**.
@@ -1810,15 +1812,15 @@ The last request, *Login Rate Limit → 429*, displays its own response, a 401 c
 
 ### 8.7.5 Database state of the demonstration database
 
-![reservations table](screenshots/08c-database-reservations.png)\
+![reservations table](../screenshots/08c-database-reservations.png)\
 **Figure 8.16.** phpMyAdmin, `maristay_db.reservations`. It holds the same seven rows as after the approved clean-up at 01:24:47. Rows 4–7 are cancelled test bookings from that clean-up, and no row was added afterwards. This confirms that the manual port-3000 requests in Figures 8.1–8.11 created no reservations. The overlapping-reservation test ran only on the isolated port-3001 database.
 
 ### 8.7.6 Automated test runs
 
-![Unit test results](screenshots/09a-unit-testing.png)\
+![Unit test results](../screenshots/09a-unit-testing.png)\
 **Figure 8.17.** `npm run test`: **4 of 4 suites, 33 of 33 tests passed** in 37.441 s.
 
-![End-to-end test results](screenshots/09b-e2e-testing.png)\
+![End-to-end test results](../screenshots/09b-e2e-testing.png)\
 **Figure 8.18.** `npm run test:e2e`: **46 of 46 tests passed** in 13.62 s against the isolated `maristay_test_db`. The visible part shows the integrated guest workflow, staff management and login rate-limiting tests.
 
 **Not captured as screenshots:**
@@ -1840,6 +1842,7 @@ npm run postman:reset   # rebuild maristay_postman_db only
 npm run postman:start   # terminal 1: API on http://localhost:3001/api/v1
 npm install --no-save newman
 npm run postman:newman  # terminal 2
+npm run security:check  # terminal 2: 126 security and role-access checks
 ```
 
 ## 8.9 Final regression and Oracle MySQL verification (2026-11-27)
@@ -1963,7 +1966,7 @@ The repository was reorganized into `backend/` (NestJS source, tests, scripts an
 | Frontend production build | ✔ |
 | Browser integration test (fresh database) | ✔ **37/37** |
 | `npm run verify:registration` (fresh database) | ✔ **49/49** |
-| Security and RBAC matrix | ✔ **126/126** |
+| Security and RBAC matrix (`npm run security:check`) | ✔ **126/126** |
 | Fresh clone following the README (new `.env` from `.env.example`, new scratch database) | ✔ `npm ci`, `db:setup`, build, start-up with 44 routes, unit 33/33, e2e 46/46, frontend `npm ci` and build |
 | Git ignore and credentials | ✔ `backend/.env`, `postman/tmp/` and Postman workspace files ignored; no `.env` value, JWT or key code in the 240 tracked files |
 
@@ -2138,28 +2141,28 @@ See `docs/PROJECT_REQUIREMENTS.md` §8 (D1–D15) — e.g. `roomNo` instead of `
 
 A React 19 + Vite + TypeScript web client in `frontend/` uses the same REST API: 15 screens, all four roles, and 36 of the 44 endpoints. Its design, endpoint mapping and tests are described in `docs/FRONTEND.md`. The screenshots were captured automatically on the isolated test database (`maristay_postman_db`) on 2026-11-27. Digital key codes are masked. The full set of 37 images is in `docs/screenshots/frontend/`.
 
-![Guest sign-up](screenshots/frontend/02a-register-form.png)\
+![Guest sign-up](../screenshots/frontend/02a-register-form.png)\
 **Figure G.1.** Guest self-registration. There is no role field: every public sign-up becomes a Guest account, enforced by the API.
 
-![Manager dashboard](screenshots/frontend/05-manager-dashboard.png)\
+![Manager dashboard](../screenshots/frontend/05-manager-dashboard.png)\
 **Figure G.2.** Manager dashboard with live counts from the API.
 
-![Room create dialog](screenshots/frontend/06b-room-create.png)\
+![Room create dialog](../screenshots/frontend/06b-room-create.png)\
 **Figure G.3.** Room CRUD: the manager's Add room dialog.
 
-![Record payment](screenshots/frontend/12a-record-payment.png)\
+![Record payment](../screenshots/frontend/12a-record-payment.png)\
 **Figure G.4.** Front desk records a simulated payment. Full payment confirms the reservation automatically.
 
-![Digital key issued](screenshots/frontend/13b-digital-key-issued.png)\
+![Digital key issued](../screenshots/frontend/13b-digital-key-issued.png)\
 **Figure G.5.** Digital check-in: the room becomes occupied and a one-time digital key is issued (key code masked).
 
-![Smart lock granted](screenshots/frontend/14a-smart-lock-granted.png)\
+![Smart lock granted](../screenshots/frontend/14a-smart-lock-granted.png)\
 **Figure G.6.** Simulated smart lock: access granted for the booked room.
 
-![Check-out summary](screenshots/frontend/17b-checkout-summary.png)\
+![Check-out summary](../screenshots/frontend/17b-checkout-summary.png)\
 **Figure G.7.** Digital check-out: balance settled, keys revoked, room sent to housekeeping.
 
-![Access denied](screenshots/frontend/04-access-denied-guest.png)\
+![Access denied](../screenshots/frontend/04-access-denied-guest.png)\
 **Figure G.8.** Access control: a guest opening a manager-only page. The API also rejects the request with 403.
 
 <div class="page-break"></div>
@@ -2180,7 +2183,7 @@ Status key:
 | 1 | Complete NestJS project that builds and runs | NestJS 11 modular monolith, 9 feature modules | `npm run build`: 0 errors. `npm run start:dev`: "Found 0 errors", 44 routes mapped | Complete |
 | 2 | Authentication module: login, JWT, protected routes, password hashing, input validation | `backend/src/auth/` (AuthService, JwtStrategy, global JwtAuthGuard, RolesGuard), bcrypt cost 10, global `ValidationPipe` (whitelist, forbid unknown fields) | e2e tests 1–12; Newman folders 1 and 11 | Complete |
 | 3 | At least 2 additional CRUD modules | **Rooms** (POST, GET, PATCH, PUT, DELETE) and **Staff** (POST, GET, PATCH, DELETE = deactivate). Guests and Reservations also cover all four operations | e2e 15–21 and 44; Newman folders 3 and 8 | Complete |
-| 4 | At least 20 REST endpoints | **44 endpoints** in 9 resources | Start-up log maps 44 routes (`npm run start:dev`, 2026-11-27); [API documentation](API_DOCUMENTATION.md) §5.3 | Complete |
+| 4 | At least 20 REST endpoints | **44 endpoints** in 9 resources | Start-up log maps 44 routes (`npm run start:dev`, 2026-11-27); [API documentation](../API_DOCUMENTATION.md) §5.3 | Complete |
 | 5 | GET, POST, PUT or PATCH, DELETE | GET 18 · POST 10 · PATCH 11 · PUT 1 · DELETE 4 | §5.3 endpoint table | Complete |
 | 6 | Correct HTTP status codes | 200, 201, 204, 400, 401, 403, 404, 409, 429, 500 with one error format | §5.5; Newman status mix (8.6) | Complete |
 | 7 | Database connection works | TypeORM + `mysql2`, settings only from `.env` | Server start log; e2e suite against a real database | Complete |
@@ -2222,8 +2225,8 @@ Status key:
 | 23 | README describing the project, tech stack and how to run it | `README.md` | All npm commands it mentions exist in `backend/package.json`; a fresh clone was installed and started by following it (2026-11-28) | Complete |
 | 24 | `.gitignore` excluding `node_modules` and `.env` | `.gitignore` also excludes `dist/`, backups, `postman/tmp/` and Postman workspace files (only the two exported Postman JSON files in `postman/` are tracked) | `git check-ignore` | Complete |
 | 25 | At least 5 separate, meaningful commits | More than 20 incremental commits on `main` (25–27 Nov 2026) | `git log`; GitHub commit history | Complete |
-| 26 | Documentation PDF with all required chapters | `docs/MariStay_Final_Documentation.pdf`, built from the chapter files | Rebuilt 2026-11-27: cover, table of contents, Chapters 1–9, References, Appendix A–G (with the final frontend screenshots) and the compliance checklist; every page rendered and checked visually | Complete (video link and date pending) |
-| 27 | GitHub link and video link on the cover page | `docs/final/00-cover.md` | GitHub link added; video link and submission date still placeholders | Student action (video link, date) |
+| 26 | Documentation PDF with all required chapters | Official: `docs/MariStay_Final_Project_Documentation.pdf` (25 pages, from the `.docx`, 2026-11-28). Detailed technical reference: `docs/reference/MariStay_Technical_Reference.pdf`, built from the chapter files | Rebuilt 2026-11-27: cover, table of contents, Chapters 1–9, References, Appendix A–G (with the final frontend screenshots) and the compliance checklist; every page rendered and checked visually | Complete (video link and date pending) |
+| 27 | GitHub link and video link on the cover page | Cover of `docs/MariStay_Final_Project_Documentation.docx` | GitHub link added; video link and submission date still placeholders | Student action (video link, date) |
 | 28 | Video 5–10 min with narration, in the required order | `docs/VIDEO_DEMO_SCRIPT.md` | Not recorded | Student action |
 | 29 | Presentation slides (10–15 min) | `docs/MariStay_Presentation.pptx`: 16 editable slides with speaker notes, including one bonus frontend slide; `docs/PRESENTATION_GUIDE.md` | Rebuilt 2026-11-27; every slide rendered and checked visually | Complete (rehearsal by the student) |
 | 30 | Documentation matches the implementation | Generated from the same sources; counts re-checked | This checklist | Complete |

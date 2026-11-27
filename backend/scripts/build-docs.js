@@ -1,8 +1,11 @@
 /**
  * Builds the final technical documentation from the chapter sources:
- *   docs/FINAL_DOCUMENTATION.md          (editable, assembled Markdown)
+ *   docs/reference/TECHNICAL_REFERENCE.md         (assembled Markdown)
  *   docs/build/final-documentation.html  (print-ready HTML, Mermaid diagrams rendered in the browser)
- *   docs/MariStay_Final_Documentation.pdf (if Microsoft Edge or Google Chrome is installed)
+ *   docs/reference/MariStay_Technical_Reference.pdf (if Microsoft Edge or Google Chrome is installed)
+ *
+ * This is the archived detailed technical reference. The official submitted
+ * documentation is docs/MariStay_Final_Project_Documentation.docx / .pdf.
  *
  * Usage: npm run docs:build
  */
@@ -15,6 +18,7 @@ const BACKEND = path.resolve(__dirname, '..');
 const ROOT = path.resolve(BACKEND, '..');
 const DOCS = path.join(ROOT, 'docs');
 const BUILD = path.join(DOCS, 'build');
+const REFERENCE = path.join(DOCS, 'reference');
 
 // Chapter order required by the Final Project guidelines (§3.7).
 const CHAPTERS = [
@@ -58,8 +62,11 @@ const markdown = [
   '<div class="page-break"></div>\n\n# Table of Contents\n\n' + toc.join('\n'),
   ...bodies.map((b) => '<div class="page-break"></div>\n\n' + b),
 ].join('\n\n') + '\n';
-fs.writeFileSync(path.join(DOCS, 'FINAL_DOCUMENTATION.md'), markdown);
-console.log('✔ docs/FINAL_DOCUMENTATION.md');
+// The assembled file lives in docs/reference/, so its relative links need one more '../'.
+const referenceMarkdown = markdown.replace(/\]\((?!https?:|mailto:|#|data:|\/)([^)\s]+)\)/g, '](../$1)');
+fs.mkdirSync(REFERENCE, { recursive: true });
+fs.writeFileSync(path.join(REFERENCE, 'TECHNICAL_REFERENCE.md'), referenceMarkdown);
+console.log('✔ docs/reference/TECHNICAL_REFERENCE.md');
 
 // ---------- 2. Render HTML ----------
 const escapeHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -134,7 +141,7 @@ if (!browser) {
   console.log('ℹ No Edge/Chrome found — open docs/build/final-documentation.html and print it to PDF manually.');
   process.exit(0);
 }
-const pdf = path.join(DOCS, 'MariStay_Final_Documentation.pdf');
+const pdf = path.join(REFERENCE, 'MariStay_Technical_Reference.pdf');
 execFileSync(browser, [
   '--headless=new',
   '--disable-gpu',
@@ -144,4 +151,4 @@ execFileSync(browser, [
   `--print-to-pdf=${pdf}`,
   'file:///' + htmlFile.replace(/\\/g, '/'),
 ], { stdio: 'ignore', timeout: 120000 });
-console.log(`✔ docs/MariStay_Final_Documentation.pdf (${Math.round(fs.statSync(pdf).size / 1024)} KB)`);
+console.log(`✔ docs/reference/MariStay_Technical_Reference.pdf (${Math.round(fs.statSync(pdf).size / 1024)} KB)`);
