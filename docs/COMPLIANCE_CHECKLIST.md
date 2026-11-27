@@ -1,6 +1,6 @@
 # Requirements Compliance Checklist
 
-Audit of every mandatory requirement in the ITEC 116 Final Project guidelines (§3 Requirements, §4 Deliverables, §7 Submission Checklist), checked against the implemented system on 2026-11-26.
+Audit of every mandatory requirement in the ITEC 116 Final Project guidelines (§3 Requirements, §4 Deliverables, §7 Submission Checklist), checked against the implemented system on 2026-11-26. Final regression and Oracle MySQL 8.4 verification on 2026-11-27 (Testing §8.9).
 
 Status key:
 - **Complete:** implemented and verified by the evidence listed.
@@ -23,11 +23,11 @@ Status key:
 
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
-| 8 | MySQL database created and working | `maristay_db` on the XAMPP "MySQL" server, which is **MariaDB 10.4.32** (see §6 below) | Migration and seed run; 46 e2e tests and 3 Newman runs against it | Note: verified on MariaDB, not on Oracle MySQL |
+| 8 | MySQL database created and working | `maristay_db` on the XAMPP "MySQL" server, which is **MariaDB 10.4.32**; also verified on **Oracle MySQL 8.4.11 LTS** (see §6 below) | MariaDB: migration, seed, 46 e2e, Newman 177/177. Oracle MySQL 8.4.11: migration, seed, `schema:check` up to date, 46/46 e2e, Newman 177/177, SQL export imported (2026-11-27) | Complete |
 | 9 | TypeORM entities for every table | 8 entities: Guest, Room, Reservation, Payment, DigitalKey, Housekeeping, Staff, ServiceOrder | `src/*/entities/*.entity.ts` | Complete |
 | 10 | Entity relationships configured | `@ManyToOne` / `@OneToMany` for all 7 relationships | Database Design §4.5 | Complete |
 | 11 | Primary keys, foreign keys, normalization | 8 auto-increment PKs, 7 FKs (`ON DELETE RESTRICT`), 3NF, 17 CHECK constraints, unique indexes | §4.4–4.7; constraint tests (Testing §8.3) | Complete |
-| 12 | SQL export (`.sql`) | `exports/maristay.sql`, produced by `mysqldump` from the live database | Re-imported into a scratch database on 2026-11-26: 8 tables + `migrations`, 7 FKs, 17 CHECKs, 23 indexes | Complete |
+| 12 | SQL export (`.sql`) | `exports/maristay.sql`, produced by `mysqldump` from the live database | Re-imported into a scratch database on 2026-11-26: 8 tables + `migrations`, 7 FKs, 17 CHECKs, 23 indexes. 2026-11-27: also imported into Oracle MySQL 8.4.11 (8 tables, 64 columns, 7 FKs, 17 CHECKs enforced) | Complete |
 
 ## 3. Authentication and security
 
@@ -43,40 +43,43 @@ Status key:
 
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
-| 18 | All endpoints tested | Jest unit tests, Supertest e2e tests, Postman collection | 33/33 unit, 46/46 e2e | Complete |
-| 19 | Postman collection exported (`.json`) | `exports/MariStay.postman_collection.json` (v2.1): 11 folders, 122 requests | 3 Newman runs: 122/122 requests, 177/177 assertions | Complete |
-| 20 | Postman testing in the Postman app | Same collection in the Postman desktop app | Not yet passed in the desktop app (earlier attempts failed because of environment setup) | Student action |
-| 21 | Representative API screenshots in the documentation | List in Testing §8.7 | None captured yet | Student action |
+| 18 | All endpoints tested | Jest unit tests, Supertest e2e tests, Postman collection | 33/33 unit, 46/46 e2e (Figures 8.17–8.18); final regression 2026-11-27: 33/33 unit, 46/46 e2e on MariaDB and 46/46 on Oracle MySQL 8.4 (Testing §8.9) | Complete |
+| 19 | Postman collection exported (`.json`) | `exports/MariStay.postman_collection.json` (v2.1): 11 folders, 122 requests | 5 Newman runs, each 177/177 assertions: 3 on 2026-11-26, and on 2026-11-27 one on MariaDB and one on Oracle MySQL 8.4 | Complete |
+| 20 | Postman testing in the Postman app | Same collection in the Postman desktop Collection Runner, environment *MariStay Postman 3001* (port 3001) | 2026-11-26: 177/177 assertions passed, 0 failed, 0 errors, 17.347 s, average response 13 ms (Testing §8.6, Figure 8.12) | Complete |
+| 21 | Representative API screenshots in the documentation | 20 screenshots in `docs/screenshots/` (tokens and key code redacted), with captions: Figure 5.1, Figure 7.1 and Figures 8.1–8.18 | Login 200, room CRUD 201/200/200/204/404, 401, 403, overlap 409, digital check-in and smart lock, phpMyAdmin tables, test runs | Complete |
 
 ## 5. Repository, documentation, video and presentation
 
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
-| 22 | Repository under the student's own GitHub account, public or private with the instructor as collaborator | Local Git repository ready | Not published | Student action |
+| 22 | Repository under the student's own GitHub account, public or private with the instructor as collaborator | https://github.com/reyesgeero001/Maristay (remote `origin`) | 2026-11-27: the repository exists, is **public** and is still empty. Git's author identity for this repository is set to `Reyesgeero001`, the same as the 12 existing commits. Pushing needs Git signed in as `reyesgeero001` | Student action (sign in, approve the commits, push) |
 | 23 | README describing the project, tech stack and how to run it | `README.md` | All npm commands it mentions exist in `package.json` | Complete |
 | 24 | `.gitignore` excluding `node_modules` and `.env` | `.gitignore` also excludes `dist/`, backups, `exports/tmp/` and Postman workspace files | `git check-ignore` | Complete |
-| 25 | At least 5 separate, meaningful commits | 9 incremental commits | `git log` | Complete (final changes still to be committed) |
-| 26 | Documentation PDF with all required chapters | `docs/MariStay_Final_Documentation.pdf`, built from the chapter files | Cover, table of contents, Chapters 1–9, References, Appendix | Complete (links and screenshots pending) |
-| 27 | GitHub link and video link on the cover page | Placeholders in `docs/final/00-cover.md` | — | Student action |
+| 25 | At least 5 separate, meaningful commits | 12 incremental commits | `git log` | Complete (frontend, screenshots and final documentation still to be committed) |
+| 26 | Documentation PDF with all required chapters | `docs/MariStay_Final_Documentation.pdf`, built from the chapter files | Rebuilt 2026-11-27: cover, table of contents, Chapters 1–9, References, Appendix A–G (with the final frontend screenshots) and the compliance checklist; every page rendered and checked visually | Complete (video link and date pending) |
+| 27 | GitHub link and video link on the cover page | `docs/final/00-cover.md` | GitHub link added; video link and submission date still placeholders | Student action (video link, date) |
 | 28 | Video 5–10 min with narration, in the required order | `docs/VIDEO_DEMO_SCRIPT.md` | Not recorded | Student action |
-| 29 | Presentation slides (10–15 min) | `docs/MariStay_Presentation.pptx` (15 slides with speaker notes) and `docs/PRESENTATION_GUIDE.md` | — | Complete (rehearsal by the student) |
+| 29 | Presentation slides (10–15 min) | `docs/MariStay_Presentation.pptx`: 16 editable slides with speaker notes, including one bonus frontend slide; `docs/PRESENTATION_GUIDE.md` | Rebuilt 2026-11-27; every slide rendered and checked visually | Complete (rehearsal by the student) |
 | 30 | Documentation matches the implementation | Generated from the same sources; counts re-checked | This checklist | Complete |
-| — | Optional React front-end | Not built (optional bonus only) | — | Not implemented by choice |
+| — | Optional React front-end (bonus) | `frontend/` (React 19, Vite, TypeScript, Tailwind CSS); all four roles; 15 screens; 36 of 44 endpoints; approved Modern Luxury Minimalist design; see `docs/FRONTEND.md` | 2026-11-27, after the UI redesign: browser UI test 37/37 and registration 49/49 on a freshly reset isolated database; production build passed; responsive audit 331 checks with 0 findings. 37 screenshots recaptured with the final UI (`docs/screenshots/frontend/`, key codes masked; Figures G.1–G.8) | Complete (not yet committed) |
+| — | Guest self-registration page (front-end) | `/register` → existing public `POST /api/v1/guests`; no role field; `GUEST` role enforced by the backend (guests table; `forbidNonWhitelisted` rejects `role`); staff created only by a manager | 2026-11-27 on `maristay_postman_db`: 7 browser checks and 49 API/database checks passed (201 without hash, bcrypt `$2b$10$`, login as GUEST, duplicate 409, invalid input 400, `role` MANAGER/FRONT_DESK/HOUSEKEEPING rejected with 400, new guest 403 on staff routes, four demo roles still log in) | Complete (not yet committed) |
 
-## 6. MySQL requirement: MariaDB compatibility and Oracle MySQL verification
+## 6. MySQL requirement: MariaDB and Oracle MySQL verification
 
-* **What was used:** XAMPP's bundled database server, which phpMyAdmin and the XAMPP Control Panel label "MySQL". It is actually **MariaDB 10.4.32** (`SELECT VERSION()` → `10.4.32-MariaDB`).
-* **Why it satisfies the course requirement in practice:** MariaDB is a fork of MySQL that keeps the MySQL client protocol, SQL dialect and tools. MariStay connects through the MySQL driver (`mysql2`, TypeORM `type: 'mysql'`). The schema, the `mysqldump` export and the phpMyAdmin demonstration are all standard MySQL tooling.
-* **What is verified:** every automated test, the SQL export and all three Newman runs, on MariaDB 10.4.32 only.
-* **What is not verified:** no test has been run on **Oracle MySQL** (for example MySQL 8.0 or 8.4). The code uses only features both servers support:
-  * row locks (`SELECT … FOR UPDATE`) and `READ COMMITTED` isolation,
-  * CHECK constraints (enforced by MySQL from 8.0.16),
-  * `utf8mb4_unicode_ci`, `DATETIME(6)` and `DECIMAL`.
+* **Development server:** XAMPP's bundled database server, which phpMyAdmin and the XAMPP Control Panel label "MySQL". It is actually **MariaDB 10.4.32** (`SELECT VERSION()` → `10.4.32-MariaDB`). MariStay connects through the MySQL driver (`mysql2`, TypeORM `type: 'mysql'`).
+* **Oracle MySQL verification (2026-11-27):** the official **MySQL Community Server 8.4.11 LTS** ZIP archive (binaries signed by Oracle America, Inc.) ran as a separate, temporary server on `127.0.0.1:3307` with its own data folder. XAMPP MariaDB, its databases and other local projects were not touched. Only environment variables were changed (`DB_HOST`, `DB_PORT`, `DB_DATABASE`, `TEST_DB_DATABASE`); no code was changed.
 
-  One MariaDB-specific problem was already found and removed (TypeORM's `FOR SHARE` lock, bug B1). Compatibility with Oracle MySQL is therefore **expected, not proven**.
-* **Optional verification (student, about 15 minutes):** this does not touch XAMPP.
-  1. Download the MySQL Community Server "ZIP Archive" (no installer).
-  2. Initialise a separate data folder with `bin\mysqld --initialize-insecure --datadir=<folder>`.
-  3. Start it on another port with `bin\mysqld --datadir=<folder> --port=3307 --console`.
-  4. Run the e2e suite against it from PowerShell: `$env:DB_PORT='3307'; npm run test:e2e`. The variable lasts only for that terminal, and the suite uses only the `_test` database.
-  5. Record the result in Testing §8.
+  | Check on Oracle MySQL 8.4.11 | Result |
+  |---|---|
+  | Connection (`STRICT_TRANS_TABLES` and `ONLY_FULL_GROUP_BY` enabled by default) | ✔ |
+  | `npm run db:setup`: create database, run the TypeORM migration, seed | ✔ |
+  | `npm run schema:check` (entities vs schema) | ✔ "Your schema is up to date" |
+  | Schema compared with MariaDB `maristay_db` via `information_schema` | ✔ identical: 8 tables + `migrations`, 64 application columns, 7 FKs (`ON DELETE RESTRICT ON UPDATE CASCADE`), 17 CHECK constraints, 13 unique indexes |
+  | Seed data | ✔ 4 staff, 2 guests, 9 rooms, 3 reservations, 2 payments, 2 housekeeping tasks, 1 service order |
+  | Backend e2e suite (`npm run test:e2e`, `maristay_mysql8_test`) | ✔ **46/46** |
+  | Postman collection with Newman (API on port 3001 backed by MySQL 8.4) | ✔ **177/177** assertions, 137 requests, 0 failures |
+  | `exports/maristay.sql` imported (copy without the `CREATE DATABASE`/`USE` lines) | ✔ imported; only deprecation warnings (`utf8` alias, integer display width) from the MariaDB dump header |
+  | Constraint enforcement on the imported data | ✔ FK (1451, 1452), CHECK (3819) and UNIQUE (1062) violations rejected |
+
+* **One cosmetic difference, no functional impact:** MariaDB's `mysqldump` omits `ON DELETE RESTRICT` because it is the default, so a MySQL import of the dump shows the foreign keys as `ON DELETE NO ACTION`. In InnoDB, `NO ACTION` and `RESTRICT` behave identically: the delete is rejected immediately (verified above). Databases created through the TypeORM migration, which is the documented setup, show `RESTRICT` on both servers.
+* **Conclusion:** MariStay runs unchanged on both MariaDB 10.4.32 and Oracle MySQL 8.4.11 LTS.

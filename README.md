@@ -29,7 +29,7 @@ MariStay is a NestJS + TypeORM + MySQL REST API that unifies hotel room reservat
 ## Prerequisites
 
 - Node.js 20 or newer and npm.
-- A MySQL-compatible server. Tested: XAMPP's "MySQL", which is MariaDB 10.4.32. Oracle MySQL 8.0.16+ is expected to work but has not been tested. Start MySQL from the XAMPP Control Panel.
+- A MySQL server. Developed on XAMPP's "MySQL", which is MariaDB 10.4.32, and also verified on Oracle MySQL 8.4.11 LTS (migrations, seed, e2e and Postman tests). Start MySQL from the XAMPP Control Panel.
   - On Windows with XAMPP, the `mysql` command is in `C:\xampp\mysql\bin`, which is not on PATH by default. Use the full path or add that folder to PATH.
 - Git and Postman.
 
@@ -107,6 +107,24 @@ npm run start:prod    # run the compiled build (after npm run build)
 - API base URL: `http://localhost:3000/api/v1`
 - Swagger / OpenAPI: `http://localhost:3000/api/docs`. Log in, click **Authorize**, then paste the `accessToken`.
 
+## Optional React frontend
+
+An optional web interface for all four roles lives in [`frontend/`](frontend/) (React, Vite, TypeScript, Tailwind CSS). It has its own dependencies and uses only the REST API. Postman and Swagger remain the main ways to test the API.
+
+```bash
+npm run start:dev          # 1. backend on http://localhost:3000/api/v1 (repository root)
+cd frontend
+npm install                # 2. first time only
+npm run dev                # 3. open http://localhost:5173 and log in (or Sign up as a new guest)
+npm run build              # optional: type-check and production build
+```
+
+The API URL comes from `VITE_API_BASE_URL` (default `http://localhost:3000/api/v1`; see `frontend/.env.example`). The backend's default `CORS_ORIGIN` already allows `http://localhost:5173`. Architecture, API mapping and test results are in [`docs/FRONTEND.md`](docs/FRONTEND.md).
+
+**Design:** a Modern Luxury Minimalist theme (midnight navy, champagne gold accents, warm white), defined once in `frontend/src/index.css`; see `docs/FRONTEND.md` §1a.
+
+**Guest sign-up:** the login page links to `/register`, which creates a guest account through the existing public `POST /api/v1/guests` endpoint. There is no role choice: the backend always creates a `GUEST` account and rejects extra fields such as `role` with 400. Staff accounts can only be created by a manager. Verified on 2026-11-27: 37/37 browser checks and 49/49 API and database checks (`npm run verify:registration`) on the isolated `maristay_postman_db`.
+
 ## Demo accounts
 
 Created by `npm run seed`. All of them are fictional and use `SEED_DEMO_PASSWORD` from your `.env`.
@@ -157,7 +175,14 @@ npm run test:e2e      # end-to-end tests against a real, isolated MySQL test dat
 npm run test:cov      # unit test coverage report
 ```
 
-The e2e suite drops and recreates `TEST_DB_DATABASE` (default `maristay_test_db`), runs the migrations, seeds it, and exercises the full API. It refuses to run against a database whose name does not end with `_test` or `_test_db`. Latest results: **33/33 unit** and **46/46 e2e** tests passed. The full Postman collection passed in Newman in three runs: **122/122 requests, 177/177 assertions** (see [`docs/TESTING_REPORT.md`](docs/TESTING_REPORT.md)).
+The e2e suite drops and recreates `TEST_DB_DATABASE` (default `maristay_test_db`), runs the migrations, seeds it, and exercises the full API. It refuses to run against a database whose name does not end with `_test` or `_test_db`. Latest results:
+
+* **Unit tests:** 33/33 passed in 4/4 suites.
+* **End-to-end tests:** 46/46 passed.
+* **Postman Collection Runner** (desktop app, port 3001): **177/177 assertions**, 0 failed, 0 errors.
+* **Newman:** the same collection passed in three runs, **122/122 requests and 177/177 assertions** each time.
+
+All of these ran on MariaDB 10.4.32. Results and annotated screenshots are in [`docs/TESTING_REPORT.md`](docs/TESTING_REPORT.md) §8.7.
 
 ## Documentation
 
@@ -169,7 +194,7 @@ The e2e suite drops and recreates `TEST_DB_DATABASE` (default `maristay_test_db`
 | [`docs/DATABASE_DESIGN.md`](docs/DATABASE_DESIGN.md) | ERD, data dictionary, keys, normalization |
 | [`docs/API_DOCUMENTATION.md`](docs/API_DOCUMENTATION.md) | All 44 endpoints with examples and status codes |
 | [`docs/AUTHENTICATION_SECURITY.md`](docs/AUTHENTICATION_SECURITY.md) | Login flow, JWT, RBAC, validation, rate limiting |
-| [`docs/TESTING_REPORT.md`](docs/TESTING_REPORT.md) | Actual test results |
+| [`docs/TESTING_REPORT.md`](docs/TESTING_REPORT.md) | Actual test results, with screenshot evidence in §8.7 (images in [`docs/screenshots/`](docs/screenshots/)) |
 | [`docs/MariStay_Presentation.pptx`](docs/MariStay_Presentation.pptx) | Editable defense slides with speaker notes |
 | [`docs/PRESENTATION_GUIDE.md`](docs/PRESENTATION_GUIDE.md), [`docs/VIDEO_DEMO_SCRIPT.md`](docs/VIDEO_DEMO_SCRIPT.md), [`docs/DEFENSE_QUESTIONS.md`](docs/DEFENSE_QUESTIONS.md) | Presentation, video, and Q&A preparation |
 | [`docs/COMPLIANCE_CHECKLIST.md`](docs/COMPLIANCE_CHECKLIST.md) | Every mandatory requirement with its evidence and status |
@@ -186,8 +211,9 @@ src/
   database/      connection config, migrations/, seeds/, data-source.ts
   app.module.ts  app.setup.ts  main.ts
 test/            e2e tests (Supertest) and test-database setup
+frontend/        optional React frontend (own package.json; see docs/FRONTEND.md)
 exports/         maristay.sql, Postman collection (v2.1) and environment
-docs/            documentation (final/ holds chapter sources for the PDF)
+docs/            documentation (final/ holds chapter sources for the PDF, screenshots/ the evidence images)
 scripts/         build-docs.js (documentation PDF), postman-instance.js (isolated Postman/Newman runs),
                  build-presentation.js (slides)
 ```
@@ -198,5 +224,5 @@ scripts/         build-docs.js (documentation PDF), postman-instance.js (isolate
 - **SMS and e-mail (simulated):** `NotificationsService` logs masked messages instead of sending them. Key codes are never included.
 - **Smart lock (simulated):** `POST /api/v1/digital-keys/validate` returns an access decision. No physical door is opened.
 - **HTTP only:** the local demo runs over plain HTTP. HTTPS must be provided by a reverse proxy in deployment.
-- **No front-end:** use Postman or Swagger UI.
-- **Database tested:** only MariaDB 10.4.32 (XAMPP's MySQL-compatible server). Oracle MySQL 8 is expected to work but has not been tested; see [`docs/COMPLIANCE_CHECKLIST.md`](docs/COMPLIANCE_CHECKLIST.md) §6.
+- **Front-end is optional and basic:** the React app in `frontend/` covers the main workflows for each role. 36 of the 44 endpoints have a screen, including guest sign-up. Use Postman or Swagger UI for the rest (for example `PUT /rooms/:id`). Sign-up has no email verification. See [`docs/FRONTEND.md`](docs/FRONTEND.md) §6.
+- **Databases tested:** MariaDB 10.4.32 (XAMPP) and Oracle MySQL 8.4.11 LTS; see [`docs/COMPLIANCE_CHECKLIST.md`](docs/COMPLIANCE_CHECKLIST.md) §6.

@@ -7,7 +7,7 @@
 | Runtime | Node.js 24, TypeScript 5.8 |
 | Framework | NestJS 11.2 (`@nestjs/common`, `core`, `platform-express`) |
 | ORM / driver | TypeORM 0.3.31 + `mysql2` 3 (`@nestjs/typeorm` 11) |
-| Database | MySQL protocol — XAMPP MariaDB 10.4.32 locally |
+| Database | MySQL protocol — XAMPP MariaDB 10.4.32 locally; also verified on Oracle MySQL 8.4.11 LTS |
 | Auth | `@nestjs/jwt` 11, `@nestjs/passport` 11, `passport-jwt` 4, `bcrypt` 6 |
 | Validation | `class-validator` 0.14, `class-transformer` 0.5 |
 | Security | `helmet` 8, `@nestjs/throttler` 6 |
@@ -196,6 +196,8 @@ export function buildDataSourceOptions(env = process.env, databaseOverride?: str
 ```
 
 `AppModule` registers it with `TypeOrmModule.forRootAsync(...)`, and the app refuses to start if any required variable is missing or the JWT secret is weak.
+
+![Server start-up log](../screenshots/01-server-startup.png)**Figure 7.1.** Part of the `npm run start:dev` log on 2026-11-26 (process 24636, 11:32:44 AM). NestJS's `RoutesResolver` and `RouterExplorer` map the *Rooms*, *Reservations* and *Payments* routes under `/api/v1`, including PATCH/PUT/DELETE `/rooms/:id` and the reservation `confirm`, `check-in` and `check-out` actions. The routes are mapped only after the database connection succeeds. The whole log maps 44 routes; the 0-error compile is recorded in §8.3.
 
 ## 7.8 Important business logic
 

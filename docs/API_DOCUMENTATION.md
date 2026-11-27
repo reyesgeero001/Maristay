@@ -112,6 +112,8 @@ HTTP methods used: **GET** (read), **POST** (create / actions that create someth
 | `GET /staff` | `role`, `accountStatus`, `search`, `page`, `limit` |
 | `GET /service-orders` | `status`, `serviceType`, `reservationId`, `page`, `limit` |
 
+![Swagger UI](screenshots/11-swagger-ui.png)**Figure 5.1.** Swagger UI at `http://localhost:3000/api/docs` (OpenAPI 3.0, API version 1.0.0), generated from the controllers and DTOs. It shows the *Authentication* and *Digital Keys* groups. Lock icons mark routes that need a Bearer token; the **Authorize** button accepts the `accessToken` returned by `POST /api/v1/auth/login`.
+
 ## 5.4 Request and response examples
 
 All examples below were captured from the running API (tokens and key codes shortened).

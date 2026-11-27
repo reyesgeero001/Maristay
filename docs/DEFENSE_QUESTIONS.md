@@ -115,3 +115,27 @@ Running real requests against MariaDB showed that TypeORM's shared lock produces
 
 **34. Is HTTPS implemented?**
 Not locally. The demo uses HTTP on localhost. In production, HTTPS would be handled by a reverse proxy in front of the API. I documented this instead of claiming it.
+
+### Final additions
+
+**35. Can someone sign up as a manager through the registration page?**
+No. Public sign-up (`POST /guests`) always writes to the `guests` table, and accounts from that table always get the `GUEST` role at login (`AuthService`). Staff roles exist only in the `staff` table, which only a manager can write to (`POST /staff`, `@Roles(MANAGER)`). The global `ValidationPipe` uses `forbidNonWhitelisted`, so a request that adds `role: "MANAGER"` is rejected with 400 and nothing is created. This is tested by `npm run verify:registration`.
+
+**36. XAMPP runs MariaDB. How do you know MariStay works on MySQL?**
+I tested it. A portable Oracle MySQL 8.4.11 LTS server ran on another port, separate from XAMPP. The migration, the seed, all 46 e2e tests and all 177 Postman assertions passed on it, and the schema was identical to MariaDB's. The SQL export imported too. The only difference was cosmetic: a dump from MariaDB shows foreign keys as `NO ACTION` instead of `RESTRICT`, and InnoDB treats those the same.
+
+**37. How does your project follow your laboratory activities?**
+Lab 03 gave the system purpose (reservations, digital check-in/out, keyless room access, room service), the users and the simulated external services. Lab 04 gave the 8 tables, the ERD and the data dictionary, which are implemented as TypeORM entities and one migration. Lab 05's resources and endpoints are part of the 44 REST endpoints. Lab 06's login flow (verify the bcrypt hash and account status, issue a JWT with id and role, check role and ownership) is the AuthModule plus the guards.
+
+**38. The React app hides pages from some roles. Isn't that enough security?**
+No. Hiding pages only helps usability. Every request still passes `JwtAuthGuard`, `RolesGuard` and the ownership checks on the server. Calling the API directly with a guest token for a manager endpoint returns 403; this is in the e2e tests and in the 126-check security matrix.
+
+**39. Why do digital keys use SHA-256 but passwords use bcrypt?**
+A key code is 32 random bytes, so it can't be guessed. A fast hash is enough, and it lets the smart lock look the key up by its hash. Passwords are chosen by people and can be guessed, so they need a slow, salted hash: bcrypt with cost 10.
+
+**40. The project is backend-focused. Why is there a React frontend?**
+The guidelines list a React frontend as an optional bonus. It doesn't replace anything required: the 44 endpoints, Postman and Swagger are the main deliverables. The frontend calls the same REST API, 36 of the 44 endpoints, and adds no business logic of its own. It also shows that the API works for a real client, including roles, ownership and simulated payments, keys and the smart lock.
+
+**41. If I change a reservation's status from the browser's developer tools, what happens?**
+Nothing harmful. The UI never sets workflow states directly; it only calls workflow endpoints such as check-in and check-out. Extra fields like `reservationStatus` are rejected with 400, and the server checks the role, the ownership and the current state again for every request.
+

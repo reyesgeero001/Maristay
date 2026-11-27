@@ -18,7 +18,8 @@ try {
   process.exit(1);
 }
 
-const OUT = path.join(__dirname, '..', 'docs', 'MariStay_Presentation.pptx');
+// PPTX_OUT lets a preview be written elsewhere; the default is the submitted deck.
+const OUT = process.env.PPTX_OUT ?? path.join(__dirname, '..', 'docs', 'MariStay_Presentation.pptx');
 
 // ---------- Palette and type ----------
 const C = {
@@ -262,7 +263,7 @@ pres.addSection({ title: 'Design' });
   box(8.0, 2.65, 1.5, 'Controller', 'HTTP only');
   box(6.2, 2.65, 1.55, 'Service', 'Business rules');
   box(4.3, 2.65, 1.55, 'Repository', 'TypeORM');
-  box(2.4, 2.65, 1.55, 'MySQL', 'MariaDB 10.4', C.navy, C.white);
+  box(2.4, 2.65, 1.55, 'MySQL', 'MariaDB · MySQL 8.4', C.navy, C.white);
   arrow(s, 8.75, 2.07, 8.75, 2.65); arrow(s, 8.0, 3.06, 7.75, 3.06); arrow(s, 6.2, 3.06, 5.85, 3.06); arrow(s, 4.3, 3.06, 3.95, 3.06);
   text(s, '429 · 401 · 403 · 400 stop a request before it reaches the controller', { x: 0.5, y: 2.2, w: 1.75, h: 1.25, fontSize: 12, italic: true, color: C.muted, valign: 'top' });
   // Row 3: simulated external services
@@ -451,9 +452,9 @@ pres.addSection({ title: 'Results' });
   const s = content('Results', 'Testing results');
   const stats = [
     ['33 / 33', 'unit tests', 'Jest · all passed'],
-    ['46 / 46', 'end-to-end tests', 'Supertest · real database'],
-    ['122 / 122', 'Postman requests', 'Newman · isolated database'],
-    ['177 / 177', 'assertions passed', '3 runs · 0 failures'],
+    ['46 / 46', 'end-to-end tests', 'MariaDB and MySQL 8.4'],
+    ['122 / 122', 'Postman requests', 'Isolated database'],
+    ['177 / 177', 'assertions passed', '6 runs · 0 failures'],
   ];
   stats.forEach(([n, l, sub], i) => {
     const x = 0.5 + i * 2.29;
@@ -472,7 +473,7 @@ pres.addSection({ title: 'Results' });
     x: 0.5, y: 3.7, w: 9.0, h: 1.2, fontSize: 14, valign: 'top', paraSpaceAfter: 4,
   });
   s.addNotes(
-    "All 33 unit tests and all 46 end-to-end tests pass. The end-to-end tests run the real application against a real test database. The full Postman collection of 122 requests ran three times with Newman on a separate database, and all 177 assertions passed every time. Testing found real bugs: a lock statement MariaDB does not support, an eight-hour time-zone mismatch, and Postman requests that sent numbers as text. I fixed each one without relaxing any validation.",
+    "All 33 unit tests and all 46 end-to-end tests pass. The end-to-end tests run the real application against a real test database. The full Postman collection of 122 requests ran on a separate database six times, with Newman and in the Postman desktop Collection Runner, and all 177 assertions passed every time, with zero failures and zero errors. In the final check I also ran the end-to-end tests and the whole collection on Oracle MySQL 8.4, not only on XAMPP's MariaDB, and they passed there too. Testing found real bugs: a lock statement MariaDB does not support, an eight-hour time-zone mismatch, and Postman requests that sent numbers as text. I fixed each one without relaxing any validation.",
   );
 }
 
@@ -504,14 +505,37 @@ pres.addSection({ title: 'Results' });
 }
 
 // =====================================================================
+// 13b. Optional React frontend (bonus)
+// =====================================================================
+{
+  const s = content('Results', 'Optional React frontend (bonus)');
+  const shot = (file) => path.join(__dirname, '..', 'docs', 'screenshots', 'frontend', file);
+  [
+    ['02a-register-form.png', 'Guest sign-up: always a Guest account'],
+    ['14a-smart-lock-granted.png', 'Digital key and simulated smart lock'],
+  ].forEach(([file, caption], i) => {
+    const x = 0.5 + i * 4.6;
+    card(s, x, 1.15, 4.4, 2.75);
+    s.addImage({ path: shot(file), x: x + 0.1, y: 1.22, w: 4.2, h: 2.6, sizing: { type: 'contain', w: 4.2, h: 2.6 } });
+    text(s, caption, { x, y: 3.95, w: 4.4, h: 0.35, fontSize: 13, bold: true, color: C.navy, align: 'center' });
+  });
+  text(s, 'React 19 · Vite · TypeScript · 15 screens · all four roles · 36 of 44 endpoints · the API still enforces every permission', {
+    x: 0.5, y: 4.4, w: 9.0, h: 0.45, fontSize: 13, italic: true, color: C.muted, align: 'center', valign: 'middle',
+  });
+  s.addNotes(
+    "As an optional bonus I built a React frontend that uses the same REST API. Guests can sign up, but every public sign-up becomes a Guest account; the server rejects any attempt to choose a staff role. Each of the four roles gets its own screens, for example booking, payments, digital check-in with the simulated smart lock, service requests and housekeeping. Hiding pages is only for usability; the backend still checks every permission.",
+  );
+}
+
+// =====================================================================
 // 14. Conclusion
 // =====================================================================
 {
   const s = content('Results', 'Conclusion');
   const cols = [
-    ['Accomplished', ['Lab 03–06 designs now run as real software', '44 endpoints, 8 tables, 4 roles', 'Secure, transactional, fully tested']],
+    ['Accomplished', ['Lab 03–06 designs now run as real software', '44 endpoints, 8 tables, 4 roles', 'Tested on MariaDB and MySQL 8.4']],
     ['Lessons learned', ['Design first made building faster', 'Transactions make integration safe', 'Test on the real database and tools']],
-    ['Next steps', ['React front-end', 'Real payment, SMS and lock providers', 'HTTPS deployment; verify on MySQL 8']],
+    ['Next steps', ['Mobile app; e-mail verification', 'Real payment, SMS and lock providers', 'HTTPS deployment']],
   ];
   cols.forEach(([t, items], i) => {
     const x = 0.5 + i * 3.07;
@@ -523,7 +547,7 @@ pres.addSection({ title: 'Results' });
   });
   text(s, 'MariStay shows how separate hotel departments can share one secure, consistent backend.', { x: 0.5, y: 4.25, w: 9.0, h: 0.5, fontFace: HEAD, fontSize: 18, italic: true, color: C.navy, valign: 'middle' });
   s.addNotes(
-    "To conclude: my Lab 03 to 06 designs now run as real software, with 44 endpoints, eight tables and four roles, and it is secure, transactional and fully tested. My biggest lessons were that designing first makes building faster, that transactions are what make integration safe, and that you have to test against the real database and tools. Next steps would be a React front-end, real payment, SMS and smart-lock providers, and an HTTPS deployment, including a check on Oracle MySQL 8.",
+    "To conclude: my Lab 03 to 06 designs now run as real software, with 44 endpoints, eight tables and four roles, and it is secure, transactional and fully tested. My biggest lessons were that designing first makes building faster, that transactions are what make integration safe, and that you have to test against the real database and tools. As a bonus there is also a React web frontend for all four roles. Next steps would be a mobile app with e-mail verification for sign-up, real payment, SMS and smart-lock providers, and an HTTPS deployment.",
   );
 }
 

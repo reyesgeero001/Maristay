@@ -1,6 +1,6 @@
 # Presentation Guide — 10–15 Minute Defense
 
-**Slides:** [`docs/MariStay_Presentation.pptx`](MariStay_Presentation.pptx). There are 15 editable slides in 16:9, and every slide has speaker notes (in PowerPoint: View → Notes). To regenerate the deck after editing the generator: run `npm install --no-save pptxgenjs`, then `node scripts/build-presentation.js`.
+**Slides:** [`docs/MariStay_Presentation.pptx`](MariStay_Presentation.pptx). There are 16 editable slides in 16:9, and every slide has speaker notes (in PowerPoint: View → Notes). To regenerate the deck after editing the generator: run `npm install --no-save pptxgenjs`, then `node scripts/build-presentation.js`.
 
 The deck follows the instructor's presentation flow (guidelines §6): overview → architecture → database → REST API → security → backend demonstration → API testing → conclusion → Q&A. Every number on the slides comes from verified results in `docs/TESTING_REPORT.md`. Speak in your own words; the notes are a guide, not a script to read.
 
@@ -12,6 +12,7 @@ The deck follows the instructor's presentation flow (guidelines §6): overview �
 - [ ] phpMyAdmin open on `maristay_db` → `rooms`.
 - [ ] VS Code open at `src/rooms/rooms.controller.ts`, `rooms.service.ts` and `entities/room.entity.ts`.
 - [ ] The slides in Presenter View. Notifications are off, and `.env` is not visible.
+- [ ] Optional frontend (slide 14): in a second terminal run `cd frontend` and `npm run dev`, then open `http://localhost:5173` in a separate browser window. It uses the same API on port 3000. If port 5173 is taken, stop the other program first: the backend's `CORS_ORIGIN` allows only `http://localhost:5173`.
 - [ ] Fallback ready: the recorded video and a terminal with the `npm run test:e2e` output.
 
 ## Slide plan and timing
@@ -29,11 +30,12 @@ The deck follows the instructor's presentation flow (guidelines §6): overview �
 | 9 | REST API endpoints | 0:45 | 44 endpoints, all methods, Lab 05 conventions, consistent errors |
 | 10 | Authentication and security | 1:00 | Lab 06 login flow; 401 vs 403; ownership; rate limiting |
 | 11 | Integrated hotel workflow | 1:00 | Steps 5, 6, 9 and 10 are single transactions |
-| 12 | Testing results | 0:45 | 33/33, 46/46, 122/122 requests, 177/177 assertions; real bugs found |
+| 12 | Testing results | 0:45 | 33/33, 46/46, 122/122 requests, 177/177 assertions; also passed on Oracle MySQL 8.4; real bugs found |
 | 13 | System demonstration | 3:00 | Live demo (below) |
-| 14 | Conclusion | 0:45 | Accomplishments, lessons, next steps |
-| 15 | Questions and answers | — | Prepared answers: [`docs/DEFENSE_QUESTIONS.md`](DEFENSE_QUESTIONS.md) |
-| | **Total** | **≈ 13:15** | Within the 10–15 minute limit |
+| 14 | Optional React frontend (bonus) | 0:30 | Same API; sign-up always creates a Guest; the API still enforces every permission |
+| 15 | Conclusion | 0:45 | Accomplishments, lessons, next steps |
+| 16 | Questions and answers | — | Prepared answers: [`docs/DEFENSE_QUESTIONS.md`](DEFENSE_QUESTIONS.md) |
+| | **Total** | **≈ 13:45** | Within the 10–15 minute limit |
 
 If time is short, shorten slides 2, 4 and 8 to about 20 seconds each.
 
@@ -55,3 +57,24 @@ These are the guidelines' "Backend Demonstration" and "API Testing" steps, again
 Use only these single requests on `maristay_db`. **Do not run the whole collection there**: it creates test records. The full 122-request run uses the isolated port-3001 database (README → Postman).
 
 **If the demo fails:** say so calmly, then show the recorded video and the passing `npm run test:e2e` output.
+
+## Optional frontend (slide 14, about 30 seconds)
+
+Show this only if time allows. It is a bonus and replaces nothing above. On the live demo database, keep it **read-only**:
+
+1. On the login page, point at the **Sign up** link and say that public sign-up always creates a Guest account.
+2. Log in as the guest `juan.delacruz@example.com`. Show the dashboard, then **My Digital Keys** (the keycard design and the "Simulated Smart Lock" label).
+3. Log out and log in as the manager. Show the dashboard's live room counts, then try `/staff` as the guest in another window to show "Access denied".
+
+Do not book, pay or check in on `maristay_db` during the defense unless you accept the extra records. The full workflow is in the video (Part C) and in the screenshots in Appendix G.
+
+## Likely questions
+
+Prepared answers are in [`DEFENSE_QUESTIONS.md`](DEFENSE_QUESTIONS.md), questions 1–41. The ones most likely for this project:
+* 19–24: JWT, hashing, 401 vs 403, ownership.
+* 25–26: double booking, transactions.
+* 29–30: digital keys, simulations.
+* 35–36: sign-up can't create staff; MariaDB vs MySQL.
+* 37: how the code follows Labs 03–06.
+* 40: why a frontend.
+

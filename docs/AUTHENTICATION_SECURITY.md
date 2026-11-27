@@ -116,3 +116,27 @@ Violations return **403 Forbidden**. Housekeeping staff cannot read payments, re
 Threats from Lab 06 Part C and how MariStay addresses them: **SQL injection** → parameterised TypeORM queries; **XSS** → JSON-only API, Helmet CSP headers, no HTML rendering; **brute force** → login rate limit + bcrypt cost; **phishing / session hijacking** → short-lived signed tokens, HTTPS required in deployment, per-request account checks.
 
 **Authentication vs authorization** (Lab 06 Q5): authentication (`JwtAuthGuard`) answers *who are you?* and fails with 401; authorization (`RolesGuard` + ownership) answers *what may you do?* and fails with 403.
+
+## 6.11 Guest self-registration and the optional frontend
+
+* **Public sign-up cannot create staff.** `POST /guests` is public, but it always writes to the `guests` table, and accounts from that table always receive the `GUEST` role at login. Staff roles exist only in the `staff` table, which only a manager can write to (`POST /staff`, `@Roles(MANAGER)`). Because the global `ValidationPipe` uses `forbidNonWhitelisted`, a sign-up request that adds `role`, `accountType`, `accountStatus` or `guestId` is rejected with 400 and creates nothing.
+* **Duplicate e-mails** are rejected with 409 across both the guest and staff tables, in any letter case.
+* **The React frontend is not a security boundary.** It hides pages a role cannot use, but every request is still checked by `JwtAuthGuard`, `RolesGuard` and the ownership rules. The JWT is kept in `sessionStorage`, and the role is always re-read from the server (`GET /auth/me`). One-time digital key codes are kept only in memory for the current tab.
+
+## 6.12 Final security verification (2026-11-27)
+
+Run on the isolated database (Testing §8.9):
+
+* `npm run verify:registration`: **49/49** checks.
+  * 201 without any password field; a bcrypt `$2b$10$` hash in the database; login as GUEST.
+  * Duplicate e-mail → 409; invalid input and weak passwords → 400.
+  * `role` MANAGER / FRONT_DESK / HOUSEKEEPING → 400 with no account created.
+  * The new guest gets 403 on staff routes.
+* Security and RBAC matrix: **126/126** checks.
+  * 21 endpoints × no token and the four roles: 401/403 enforced.
+  * Rejected tokens: tampered, `alg: none`, expired, and signed with another secret.
+  * Ownership checks hold.
+  * No `passwordHash` or `keyCodeHash` in any response.
+  * SQL-injection text is treated as data, and mass assignment is rejected.
+  * Helmet headers are present, and CORS allows only the configured origin.
+

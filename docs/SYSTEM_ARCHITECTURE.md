@@ -8,7 +8,7 @@ MariStay is a **modular monolith**: one NestJS application, organised into nine 
 flowchart TB
     subgraph Clients["Clients"]
         PM["Postman / Swagger UI"]
-        FE["Web or mobile app (future)"]
+        FE["React web frontend (optional bonus, Vite, port 5173)"]
     end
 
     subgraph API["MariStay API — NestJS application server (Node.js, port 3000, prefix /api/v1)"]
@@ -28,7 +28,7 @@ flowchart TB
     PG["Payment gateway (SIMULATED: payments are recorded, no money moves)"]
 
     PM -->|HTTPS in production / HTTP locally · JSON · Bearer JWT| MW
-    FE --> MW
+    FE -->|Axios · JSON · Bearer JWT| MW
     MW --> G --> Modules
     Modules -->|TypeORM + mysql2, parameterised SQL| DB
     RES --> NOTIF
@@ -40,11 +40,11 @@ flowchart TB
 | Lab 03 component | MariStay implementation |
 |---|---|
 | Users: guests, front desk, housekeeping, management | Roles `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER` enforced by `RolesGuard` |
-| Client application (web/mobile) | Any HTTP client — Postman and Swagger UI for this prototype (React front-end is optional future work) |
+| Client application (web/mobile) | Postman and Swagger UI (the required testing tools), plus an optional React web frontend in `frontend/` for all four roles (15 screens, 36 of the 44 endpoints; see `docs/FRONTEND.md`). A mobile app is future work. |
 | API calls | REST/JSON under `/api/v1` (44 endpoints) |
 | Application / web server | NestJS 11 on Node.js 24 (Express platform) |
 | Auth service | `AuthModule` — bcrypt + JWT (HS256) + passport-jwt |
-| Database server | MySQL-compatible server (XAMPP MariaDB 10.4) accessed with TypeORM 0.3 and `mysql2` |
+| Database server | MySQL-compatible server accessed with TypeORM 0.3 and `mysql2`: XAMPP MariaDB 10.4.32 for development, also verified on Oracle MySQL 8.4.11 LTS (Testing §8.9) |
 | SMS / e-mail notification | `NotificationsService` — simulated adapter (logs masked messages) |
 | Payment gateway | Simulated: `PaymentsModule` records payments only |
 | Smart locks | Simulated: `POST /digital-keys/validate` returns an access decision |

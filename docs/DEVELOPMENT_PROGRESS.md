@@ -9,7 +9,7 @@
 | Tool | Status |
 |---|---|
 | Node.js / npm / Git | v24.21.0 / 11.19.0 / 2.49.0 |
-| MySQL | XAMPP install at `C:\xampp\mysql\bin` (**not on PATH**). The server is **MariaDB 10.4.32** (MySQL-compatible) on port 3306; `mysqldump.exe` is in the same folder. No Oracle MySQL server is installed, so Oracle MySQL compatibility is expected but not verified (Compliance Checklist §6). |
+| MySQL | XAMPP install at `C:\xampp\mysql\bin` (**not on PATH**). The server is **MariaDB 10.4.32** (MySQL-compatible) on port 3306; `mysqldump.exe` is in the same folder. Oracle MySQL is not installed; on 2026-11-27 compatibility was verified with a temporary, portable MySQL 8.4.11 LTS server on port 3307 (Compliance Checklist §6). |
 | Databases | `maristay_db`: demo data; migrated and seeded; contains the accidental-run records, cancelled or deactivated (E9). `maristay_test_db`: recreated by every `npm run test:e2e`. `maristay_postman_db`: full Postman/Newman runs on port 3001; rebuilt by `npm run postman:reset`. Other XAMPP databases are untouched. |
 | Local secrets | `.env` (git-ignored) holds the DB settings, a `JWT_SECRET` (rotated 2026-11-26) and a strong random `SEED_DEMO_PASSWORD` (22 characters, never committed). Read them from `.env`; never print or commit them. |
 | Doc tooling | `npm run docs:build` (marked + local mermaid + headless Edge → PDF). |
@@ -37,10 +37,37 @@
     - Postman workspace files git-ignored.
   - **Compliance checklist:** `docs/COMPLIANCE_CHECKLIST.md`, also added to the PDF.
   - **Documentation completed:** problem statement, technologies, database-server section, installation guide, evidence list, recommendations.
-  - **Slides:** editable deck `docs/MariStay_Presentation.pptx` (15 slides with speaker notes; validated and visually checked).
+  - **Slides:** editable deck `docs/MariStay_Presentation.pptx` (15 slides with speaker notes at the time; 16 since Phase 12).
   - **Video script:** rewritten for the required order plus the extra parts.
   - **SQL export:** re-verified.
-- Optional React front-end: **not implemented** (optional bonus; excluded by the student's instruction).
+- **Phase 10 (2026-11-27), optional React frontend** (branch `feature/frontend`, not yet committed):
+  - `frontend/`: React 19, Vite, TypeScript, Tailwind CSS, Axios, React Router, Lucide. Separate `package.json`; no backend dependency or code change.
+  - One login page for all four roles; JWT in `sessionStorage`; role read from the server (`GET /auth/me`); logout on 401 or token expiry; role-guarded routes.
+  - Manager: dashboard with live counts, room CRUD with search and filters, staff, guests, reservations, housekeeping assignment.
+  - Front desk: reservations, availability, payments, check-in/out, guests, service orders, digital keys.
+  - Guest: availability search and booking, own reservations and cancellation, digital check-in/out, digital key and simulated lock, service requests.
+  - Housekeeping: own tasks, start and complete cleaning (the room becomes available through the existing API workflow).
+  - 35 of the 44 endpoints had a screen at that point (36 after guest sign-up was added in Phase 10b). The unsupported items are listed in `docs/FRONTEND.md` §6.
+  - **Verified on 2026-11-27:** browser UI test 30/30 on a freshly reset `maristay_postman_db`; `npm run build` passed; backend regression 33/33 unit and 46/46 e2e.
+- **Phase 10b (2026-11-27), guest sign-up page** (`feature/frontend`, not yet committed):
+  - New `/register` page (`frontend/src/pages/RegisterPage.tsx`) and a **Sign up** link on the login page.
+  - Fields: first and last name, email, phone, password and confirm password, with show/hide buttons. Browser validation mirrors `CreateGuestDto`. The page has a loading state and server error messages, and redirects to login with a success message.
+  - Reuses the existing public `POST /guests`. **No backend change was needed.** The endpoint was already public, always creates a `GUEST` account and hashes with bcrypt. It returns 409 for an email used by any guest or staff account, and 400 for `role` or any other extra field (`forbidNonWhitelisted`). Staff are still created only by a manager.
+  - The frontend now has 15 screens and uses 36 of the 44 endpoints.
+  - **Verified on 2026-11-27** on a freshly reset `maristay_postman_db` (API port 3101, Vite port 5181): browser UI test **37/37**, including 7 new sign-up checks; API and database checks **49/49**; `npm run build` passed. Backend tests were not re-run because no backend code changed. `maristay_db` was not touched.
+  - The 49 checks are saved as `scripts/verify-guest-registration.js` (`npm run verify:registration`). It refuses to run against the demo database and prints no secrets.
+- **Scope decision (2026-11-27):** the student considered removing Digital Keys and the simulated smart lock, then decided to keep them, because they are part of the approved Lab 03 proposal (keyless room access, smart locks, information flow) and the Lab 04 ERD (Table 5). Functional scope is frozen: 44 endpoints, 8 tables, 9 API modules, 4 roles, 15 frontend screens, 36 frontend-integrated endpoints.
+- **Phase 11 (2026-11-27), final verification** (no feature or code change; nothing committed):
+  - Regression on isolated databases: backend build ✔, frontend build ✔, unit **33/33**, e2e **46/46**, Newman **177/177**, browser UI **37/37**, registration **49/49**, security/RBAC matrix **126/126** (Testing §8.9).
+  - Oracle MySQL 8.4.11 LTS (portable, port 3307, removed afterwards): migration, seed, `schema:check`, e2e **46/46**, Newman **177/177**, SQL export import and constraint enforcement ✔ (Compliance Checklist §6).
+  - ERD in `DATABASE_DESIGN.md` checked against `information_schema`: 8 tables, 64 columns, types, PK/FK/UK and 7 relationships match exactly. API documentation covers all 44 Swagger operations (9 tags).
+  - 37 frontend screenshots captured on the isolated database into `docs/screenshots/frontend/` with `frontend/tests/capture-screenshots.cjs` (key codes masked). They were recaptured in Phase 12 with the final UI.
+- **Phase 12 (2026-11-27), UI redesign and finalization** (approved by the student; nothing committed):
+  - **Modern Luxury Minimalist UI.** Design tokens are in `frontend/src/index.css`. Login and sign-up share a new `AuthLayout`; the sidebar, keycards and guest banner were restyled. No route, API call, permission or test assertion changed. The previous UI is backed up in the git-ignored `exports/tmp/frontend-ui-backup-2026-11-27/`.
+  - **Verified on a freshly reset `maristay_postman_db`:** browser UI test **37/37**, registration **49/49**, production build ✔, responsive/accessibility audit **331** checks with 0 findings (Testing §8.10). The main frontend (port 5180 at the time) was confirmed read-only against the API on port 3000 and `maristay_db`.
+  - **Screenshots:** all 37 frontend screenshots recaptured with the final UI. The 20 backend screenshots are unchanged. The UI review images were moved out of `docs/` (to the git-ignored `exports/tmp/ui-review-2026-11-27/`).
+  - **Video dry-run** of Parts B and C exactly as scripted (`npm run postman:start`, login limit 10/min): Runner folders 1 + 10 → 25/25 requests, 43/43 assertions; then frontend check-in and "Access granted".
+  - **Final artifacts rebuilt:** `docs/MariStay_Final_Documentation.pdf` (tall diagrams now scale to fit one page) and `docs/MariStay_Presentation.pptx` (16 slides). Every PDF page and every slide was rendered and checked visually.
 
 ## Implemented endpoints (44)
 
@@ -63,7 +90,21 @@ All 44 endpoints were exercised by the e2e suite and the Postman collection, wit
 
 The full collection passes in Newman against `maristay_postman_db` on port 3001: 122/122 requests, 177/177 assertions, 0 failures. There were three runs on 2026-11-26; the last used the submitted v2.1 file and the rotated JWT secret.
 
-**Not yet passed in the Postman desktop app.** The two earlier desktop attempts failed for collection and environment reasons (E9, E10), both since resolved.
+**Passed in the Postman desktop app** on 2026-11-26 (Collection Runner, environment *MariStay Postman 3001*): 177/177 assertions, 0 failed, 0 errors, 17.347 s, average response 13 ms. The two earlier desktop attempts had failed for collection and environment reasons (E9, E10), both since resolved.
+
+## Screenshot evidence
+The student captured 21 screenshots on 2026-11-26. 20 are used in the documentation:
+
+* **Where they appear:** Figure 5.1, Figure 7.1 and Figures 8.1–8.18; Testing §8.7 has the captions and the summary table.
+* **Preparation:**
+  * The JWTs in the two login responses and the digital key code were redacted.
+  * Each image was cropped to the relevant pane.
+  * The phpMyAdmin database list, which showed unrelated database names, was cropped out.
+  * The files were saved as real PNGs; the captured files had been JPEG data with a `.png` extension.
+* **Not used:** one capture duplicated the no-token 401 request. It showed a later environment label but the same response timestamp.
+* **Renamed:** `04b-unauthorized-invalid-token.png` showed the *no-token* request, not the invalid-token one, so it was renamed `04a-protected-route-no-token.png`.
+
+The invalid-token 401 case has no screenshot; it is covered by the Runner, Newman and e2e test 7.
 
 ## Database implementation status
 Complete. `npm run db:setup` = create → migrate → seed. `npm run schema:check` shows only 2 cosmetic MariaDB-specific no-op diffs. Timestamps use the server's local time zone.
@@ -98,7 +139,7 @@ None known.
 
 ## Architectural decisions
 - **AD1** NestJS 11.2 + TypeORM 0.3.31 (mature, officially compatible) instead of NestJS 12 / TypeORM 1.x.
-- **AD2** XAMPP MariaDB 10.4 is the MySQL server (driver `mysql2`, TypeORM `type: 'mysql'`). Not verified on Oracle MySQL.
+- **AD2** XAMPP MariaDB 10.4 is the MySQL server (driver `mysql2`, TypeORM `type: 'mysql'`). Also verified on Oracle MySQL 8.4.11 LTS on 2026-11-27.
 - **AD3** Global guard order: Throttler → JwtAuth (`@Public()` opt-out) → Roles (`@Roles()`). Ownership is checked in services.
 - **AD4** 3 moderate `npm audit` advisories in TypeORM 0.3's `glob`. The fix would require TypeORM 1.x. Risk accepted.
 - **AD5** No `users` table. One AuthService serves the guests and staff tables; email is unique across both.
@@ -130,18 +171,21 @@ See `docs/PROJECT_REQUIREMENTS.md` §8 (D1–D15).
 11. docs: add compliance checklist and complete final documentation
 12. docs: add presentation slides and video demonstration script
 
-Nothing has been pushed; publication waits for the student's approval.
+Remote `origin` = https://github.com/reyesgeero001/Maristay. On 2026-11-27 the repository was confirmed **public and empty**. The earlier "Repository not found" came from it not being public yet, while Git on this PC was signed in as a different account (`momonim24`). The MariStay repository now has a repo-local Git identity, `Reyesgeero001`, with the same e-mail as the 12 existing commits; the global identity is unchanged. Nothing has been pushed. Pushing requires Git Credential Manager to be signed in as `reyesgeero001`.
 
 ## Remaining mandatory requirements (student action needed)
 1. ~~Approve and commit the Phase 9 changes~~: done (commits 10–12).
-2. **GitHub:** create a repository under your account (public, or private with the instructor as collaborator). Then run `git remote add origin …` and `git push -u origin main`. Nothing has been pushed.
-3. **Postman desktop run:** reset and start port 3001, run all 122 requests in the Runner, and capture the summary (§8.6–8.7).
-4. **Screenshots:** capture the evidence list in `docs/TESTING_REPORT.md` §8.7 and add the images.
+2. **GitHub:** the repository exists and is configured as `origin`. Approve and commit the screenshot integration, then `git push -u origin main`. If the repository is private, add the instructor as a collaborator. Nothing has been pushed.
+3. ~~Postman desktop run~~: done, 177/177 (§8.6).
+4. ~~Screenshots~~: done and integrated (§8.7).
 5. **Video:** record with your own narration using `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
-6. **Cover page:** put the GitHub and video links and the date in `docs/final/00-cover.md`, then run `npm run docs:build`.
+6. **Cover page:** the GitHub link is in. Add the video link and the submission date to `docs/final/00-cover.md`, then run `npm run docs:build`.
 7. **Slides:** review and rehearse `docs/MariStay_Presentation.pptx` (about 13 minutes).
 8. ~~Decide about `MASTER_PROMPT.md`~~: done. It was removed from the tracked files and added to `.gitignore`, and the local copy is kept. It still exists in the first commits, because history was deliberately not rewritten; it contains no secrets.
-9. Optional: verify on Oracle MySQL 8 (Compliance Checklist §6).
+9. ~~Optional: verify on Oracle MySQL 8~~: done, MySQL 8.4.11 LTS (Compliance Checklist §6).
 
 ## Next recommended action
-Approve publication and push to GitHub. Then run the collection once in Postman desktop, take the screenshots, record the video, add both links to the cover page, and rebuild the PDF.
+1. **GitHub:** sign Git in as the account that owns the repository (or create/share `reyesgeero001/Maristay`), confirm the author identity for MariStay, then approve the commit plan.
+2. **Video:** record it with `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
+3. **Cover:** add the video link and the submission date to `docs/final/00-cover.md`, then run `npm run docs:build` once more and commit the updated PDF.
+4. Rehearse the defense with `docs/PRESENTATION_GUIDE.md` and `docs/DEFENSE_QUESTIONS.md`.

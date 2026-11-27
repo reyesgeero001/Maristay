@@ -1,6 +1,6 @@
-# Video Demonstration Script (target 9:30, limit 5–10 minutes)
+# Video Demonstration Script (target 9:35, limit 5–10 minutes)
 
-The video must show your screen with **your own spoken narration**. Parts 1–6 are required by the instructor **in this exact order** (Final Project guidelines §3.6). The extra parts (A–C) come after Part 6, so the required order is never broken. If you run over 10 minutes, shorten or drop part A first, then part C.
+The video must show your screen with **your own spoken narration**. Parts 1–6 are required by the instructor **in this exact order** (Final Project guidelines §3.6) and take about 6:35. The extra parts (A–D) come after Part 6, so the required order is never broken. If a rehearsal runs over 9:45, drop part A first, then shorten part D to one sentence. Never shorten Parts 1–6.
 
 This file is a script and checklist only. The video has **not** been recorded.
 
@@ -14,9 +14,10 @@ This file is a script and checklist only. The video has **not** been recorded.
 | 5:20 | 5. Protected route without a token | Required #5 |
 | 5:55 | 6. Database check in phpMyAdmin | Required #6 |
 | 6:35 | A. Swagger UI | Extra |
-| 7:05 | B. Integrated workflow: payments, keys, service orders, housekeeping, negative cases | Extra |
-| 8:35 | C. Automated test results | Extra |
-| 9:15 | Conclusion | — |
+| 7:00 | B. Integrated workflow in the Postman Runner | Extra |
+| 7:50 | C. Optional React frontend (sign-up page, digital check-in, smart lock) | Extra (bonus) |
+| 8:50 | D. Automated test results | Extra |
+| 9:20 | Conclusion | — |
 
 ## Preparation (before you press record)
 
@@ -34,7 +35,19 @@ This file is a script and checklist only. The video has **not** been recorded.
 5. **VS Code tabs:** `src/rooms/rooms.controller.ts`, `src/rooms/rooms.service.ts`, `src/rooms/entities/room.entity.ts`, `src/database/database.config.ts`.
 6. **Browser tabs:** phpMyAdmin at `http://localhost/phpmyadmin` → `maristay_db` → `rooms`; a blank tab for Swagger.
 7. **Privacy:** never open `.env` on screen, and turn off notifications. In Postman, keep `demoPassword` hidden: it is a *secret*-type value.
-8. **Recorder:** OBS Studio or Xbox Game Bar (Win + G). Test the microphone level first.
+8. **Frontend for part C** (not shown while you set it up). Use the isolated port-3001 API, so the demo database stays clean:
+   ```bash
+   cd frontend
+   # PowerShell:  $env:VITE_API_BASE_URL='http://localhost:3001/api/v1'; npm run dev
+   ```
+   Open `http://localhost:5173` in a separate browser window. Before recording, prepare one paid stay **for today's date**:
+   * log in as the guest (`juan.delacruz@example.com`) → **Book a Room** with the default dates (today → tomorrow) → **Confirm booking**;
+   * in a private window, log in as the front desk → open that reservation → **Record payment**. The status becomes CONFIRMED.
+   * Keep the guest window on **My Reservations** and log the front desk out.
+   * Check-in works only from the check-in date until the day before check-out. That is why the booking must start today.
+9. **Ports and other projects:** MariStay needs ports 3000 (demo API), 3001 (isolated API) and 5173 (frontend). The frontend must run on **5173**, because that is the only origin the API's `CORS_ORIGIN` allows; close any other Vite window (for example one on 5180) first. Stop any other local project that uses them before recording, and keep only one MariStay instance per port.
+10. **Login limit:** the API allows 10 logins per minute per computer (Lab 06 brute-force protection). Do not repeat failed logins on camera. If you see "Too many attempts", wait one minute.
+11. **Recorder:** OBS Studio or Xbox Game Bar (Win + G). Test the microphone level first.
 
 ---
 
@@ -99,41 +112,41 @@ Trace **PATCH /api/v1/rooms/:id**, the update you just ran:
 
 ---
 
-## A. Swagger UI (6:35–7:05) — extra
+## A. Swagger UI (6:35–7:00) — extra
 
 **Do:** Browser → `http://localhost:3000/api/docs`. Scroll through the groups (Authentication, Guests, Rooms, Reservations, Payments, Digital Keys, Housekeeping, Staff, Service Orders). Click **Authorize** to show where the Bearer token goes.
 
 **Say:** "All 44 endpoints are also documented in Swagger, generated from the code, with their request bodies, responses and required roles."
 
-## B. Integrated workflow (7:05–8:35) — extra
+## B. Integrated workflow in the Postman Runner (7:00–7:50) — extra
 
 This part runs on the **separate test database** (port 3001), so the demo data stays clean.
 
 **Do:**
 1. Postman: switch the environment to **MariStay Postman 3001**.
-2. Click the collection → **Run**. In the Runner, deselect all, then select only folders **1. Authentication** and **10. Integrated Workflow**.
-3. Click **Run**. It takes a few seconds; every test is green. (Checked with Newman on 2026-11-26 against a freshly reset database: these 25 requests passed all 43 assertions.)
-4. Click these results to show them:
-   * *05 Check-in Without Payment → 409*
-   * *06 Front Desk Records Payment* → 201
-   * *07 Digital Check-in* → 200 (point at `keyCode`)
-   * *08 Open Room Door* → 200 with `accessGranted: true`
-   * *09–11 Order Coffee → Delivered*
-   * *12 Check-out Blocked by Unpaid Order → 409*
-   * *14 Digital Check-out*
-   * *15 Key No Longer Works → 403*
-   * *16–17 Housekeeper Starts / Completes Cleaning*
-   * *18 Room Shows as Available*
+2. Click the collection → **Run**. In the Runner, deselect all, then select only folders **1. Authentication** and **10. Integrated Workflow**. Click **Run**. All tests pass. (Checked with Newman: these 25 requests pass all 43 assertions on a freshly reset database.)
+3. Point at three results only: *05 Check-in Without Payment → 409*, *08 Open Room Door* → `accessGranted: true`, and *15 Key No Longer Works → 403*.
 
-**Say:** "This is the whole hotel workflow in one run. Check-in without payment is refused with 409. After the front desk records full payment, digital check-in issues a key, and the simulated smart lock opens the door. The guest orders coffee, and check-out is blocked until that charge is paid. After check-out, the key stops working and the room goes to housekeeping. When the housekeeper completes the task, the room is available again. The payment, check-in, check-out and cleaning steps each run as a single database transaction."
+**Say:** "This is the whole hotel workflow in one run. Check-in without payment is refused with 409. After the front desk records the payment, digital check-in issues a key and the simulated smart lock opens the door. The guest orders coffee, and check-out is blocked until that charge is paid. After check-out the key stops working, and the room goes to housekeeping until the cleaning is completed. Payment, check-in, check-out and cleaning each run as a single database transaction."
 
-## C. Automated test results (8:35–9:15) — extra
+## C. Optional React frontend (7:50–8:50) — extra, bonus
 
-**Do:** In the VS Code terminal (stop the server with Ctrl+C first, or open a new terminal), run `npm run test` (about 10 s), then `npm run test:e2e` (about 15 s).
+This part shows the optional frontend. It does **not** replace any required part. Skip it if a rehearsal runs long.
 
-**Say:** "Finally, the automated tests: 33 unit tests and 46 end-to-end tests pass. The end-to-end tests run the real API against a separate test database. The full 122-request Postman collection also passes with Newman: 177 of 177 assertions."
+**Do:** Switch to the prepared browser window (`http://localhost:5173`, isolated port-3001 API; see Preparation step 8).
+1. Log out and click **Sign up** on the login page. Show the form for about 5 seconds without submitting it, then click **Sign in**.
+2. Log in as the guest. Open the prepared reservation and click **Check in**, then confirm. Show the "Digital room key issued" card, then **scroll past the key code quickly**.
+3. Open **My Digital Keys**, choose the room in **Room door**, click **Open door**: "Access granted (simulated smart lock)".
 
-## Conclusion (9:15–9:30)
+**Say:** "MariStay also has an optional React frontend that calls the same REST API. Guests can sign up here; every public sign-up becomes a Guest account, and the server rejects any attempt to choose a staff role. As the guest, I do a digital check-in. The room becomes occupied, a one-time digital key is issued, and the simulated smart lock opens the door. Each role sees its own menu, but the backend still checks every permission."
+
+## D. Automated test results (8:50–9:20) — extra
+
+**Do:** In the VS Code terminal (stop the server with Ctrl+C first, or open a new terminal), run `npm run test` (about 10 s). Point at "33 passed".
+
+**Say:** "The automated tests pass: 33 unit tests, and 46 end-to-end tests that run the real API against a separate test database. The full Postman collection passes 177 of 177 assertions. I also verified the system on Oracle MySQL 8.4, not only on XAMPP's MariaDB."
+
+## Conclusion (9:20–9:35)
 
 **Say:** "That's MariStay: a working NestJS backend with a MySQL database, JWT security and an integrated hotel workflow. Thank you for watching."
 
@@ -146,4 +159,5 @@ This part runs on the **separate test database** (port 3001), so the demo data s
 - [ ] Upload to Google Drive (Share → *Anyone with the link — Viewer*) or YouTube (*Unlisted*).
 - [ ] Open the link in an **incognito window** to confirm it plays.
 - [ ] Paste the link in `docs/final/00-cover.md`, then run `npm run docs:build`.
-- [ ] Stop the port-3001 server (Ctrl+C). Run `npm run postman:reset` before using that database again.
+- [ ] Stop the port-3001 server and the frontend (Ctrl+C). Run `npm run postman:reset` before using that database again.
+- [ ] Check the recording for a readable key code (part C). If one is readable for more than a moment, blur it or re-record part C. That key belongs to the isolated database and is revoked at check-out.

@@ -11,7 +11,7 @@
 | **Course** | ITEC 116 — IT Elective 4 (Systems Integration and Architecture 2) |
 | **Instructor** | John Vincent A. Dallego, MIT |
 | **Project type** | Individual Final Project |
-| **GitHub repository** | `[TO BE ADDED: https://github.com/<your-username>/maristay]` |
+| **GitHub repository** | [https://github.com/reyesgeero001/Maristay](https://github.com/reyesgeero001/Maristay) |
 | **Video demonstration** | `[TO BE ADDED: shareable Google Drive / YouTube (unlisted) link]` |
 | **Date** | `[TO BE ADDED: submission date]` |
 

@@ -58,12 +58,12 @@ How can one secure backend system integrate reservations, payments, room access,
 
 **Limitations**
 * **Simulated integrations:** no real payment gateway (payments are recorded by the front desk; no card data), no real SMS/e-mail (messages are logged), no physical smart lock (key validation only returns a decision).
-* **No front-end:** the API is used through Postman/Swagger. The optional React front-end was not built.
+* **Front-end is optional and basic:** the required testing tools are Postman and Swagger. An optional React web frontend (bonus) covers the main workflows of all four roles, including guest sign-up, and uses 36 of the 44 endpoints (Appendix G). There is no mobile app.
 * **HTTP only locally:** HTTPS must be provided by a reverse proxy in deployment.
 * **Single property, single currency (PHP)**, no taxes, discounts, invoices, or partial-night pricing; early check-out does not refund unused nights.
 * **Service catalog** prices are defined in code, not in a database table.
 * **Refresh tokens / logout blacklist** are not implemented; access tokens simply expire (1 h) and deactivation takes effect immediately.
-* **Database server:** developed and tested on XAMPP's "MySQL" server, which is MariaDB 10.4.32, a MySQL-compatible fork. It has not been tested on Oracle MySQL 8. Compatibility is expected but not proven (see the Requirements Compliance Checklist §6).
+* **Database server:** developed on XAMPP's "MySQL" server, which is MariaDB 10.4.32, a MySQL-compatible fork. It was also verified on Oracle MySQL 8.4.11 LTS: migration, seed, end-to-end tests and the full Postman collection all passed (§8.9 and the Requirements Compliance Checklist §6).
 
 ## 1.7 Technologies used
 

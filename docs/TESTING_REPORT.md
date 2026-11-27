@@ -1,8 +1,8 @@
 # API Testing and Validation Report
 
-**Test dates:** 2026-11-25 (development and full suite); 2026-11-26 (Newman runs, and unit + e2e regression after rotating the JWT secret: 33/33 and 46/46) · **Environment:** Windows 11, Node.js 24.21.0, NestJS 11.2, TypeORM 0.3.31, XAMPP MariaDB 10.4.32 (MySQL-compatible) on localhost:3306.
+**Test dates:** 2026-11-25 (development and full suite); 2026-11-26 (Newman runs; unit + e2e regression after rotating the JWT secret; Postman desktop Runner 177/177; screenshot evidence in §8.7); 2026-11-27 (final regression on MariaDB and Oracle MySQL 8.4.11 LTS, §8.9) · **Environment:** Windows 11, Node.js 24.21.0, NestJS 11.2, TypeORM 0.3.31, XAMPP MariaDB 10.4.32 (MySQL-compatible) on localhost:3306.
 
-All results in this report were produced by actually running the tests on the development machine. Nothing is estimated. Items that still need manual action are marked **⚠ TO DO**.
+All results in this report were produced by actually running the tests on the development machine. Nothing is estimated. The screenshots in §8.7 were captured by the student on the same machine; only redaction and cropping were applied.
 
 ## 8.1 Testing approach
 
@@ -19,7 +19,7 @@ The e2e database name must end with `_test` (or `_test_db`); the test refuses to
 
 ## 8.2 Automated test results
 
-### Unit tests — `npm run test` → **33 passed, 0 failed** (4 suites)
+### Unit tests — `npm run test` → **33 passed, 0 failed** (4 / 4 suites; latest run 37.441 s, Figure 8.17)
 
 | Suite | Tests |
 |---|---|
@@ -28,7 +28,7 @@ The e2e database name must end with `_test` (or `_test_db`); the test refuses to
 | `common/guards/roles.guard.spec.ts` | routes without @Roles allowed · public routes allowed · listed role allowed · wrong role → 403 (not 401) |
 | `auth/auth.service.spec.ts` | valid guest gets JWT with id/accountType/role and no hash · staff login carries staff role · wrong password → 401 · unknown email → same 401 message · INACTIVE account → 401 · deactivated account's token resolves to no user |
 
-### End-to-end tests — `npm run test:e2e` → **46 passed, 0 failed** (≈8 s)
+### End-to-end tests — `npm run test:e2e` → **46 passed, 0 failed** (latest run 13.62 s, Figure 8.18)
 
 | # | Scenario (test name) | Expected | Actual |
 |---|---|---|---|
@@ -168,35 +168,146 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
 
 The 137 HTTP requests include 15 sent by `pm.sendRequest`: 4 concurrent bookings and 11 rate-limit logins. HTTP status mix in each run: 200 ×64, 201 ×24, 204 ×3, 400 ×7, 401 ×5, 403 ×10, 404 ×1, 409 ×13, 429 ×10. Every 4xx response is the expected result of a negative test. The Newman output contained no tokens or passwords.
 
-* **Postman desktop app:** ⚠ **not yet passed.** Two earlier desktop runs failed for reasons outside the API (B6 and B7). The student must run it once more and record the Runner totals in §8.7. Steps:
+* **Postman desktop app:** ✔ **passed** on 2026-11-26 (Runner started 12:12:44 PM). The run used the *MariStay Postman 3001* environment against a freshly reset `maristay_postman_db` on port 3001.
+  * Totals reported by the Runner: 1 iteration, **177 tests, 177 passed, 0 failed, 0 skipped, 0 errors**.
+  * Duration **17 s 347 ms**; average response time **13 ms**.
+  * Evidence: Figures 8.12 to 8.15.
+
+  Two earlier desktop runs had failed for reasons outside the API (B6 and B7). Newman counts 177 assertions only when every request succeeds; failing runs count fewer, because a failed test stops before its later assertions. A total of 177 passed therefore means all 122 requests ran successfully. To repeat the run:
   1. Stop the port-3001 server, then run `npm run postman:reset` and `npm run postman:start`.
   2. Select the *MariStay Postman 3001* environment. Set `demoPassword` and **save** the environment.
   3. Run all 122 requests in their default order, sequentially.
 
-  Newman counts 177 assertions when every request succeeds. Failing runs count fewer, because a failed test stops before its later assertions.
-
 ## 8.7 Evidence and representative screenshots
 
-The text evidence in this report comes from real runs. Screenshots must come from the student's own screen, and none are fabricated here.
+All screenshots were captured by the student on 2026-11-26 on the development machine. They were then prepared for publication as follows:
 
-| # | Evidence | Where it comes from | Status |
+* **Redacted:**
+  * the JWT payload and signature in the two login responses (Figures 8.1 and 8.2);
+  * the plain digital key code in the check-in response (Figure 8.14).
+* **Cropped:** each image is cropped to the relevant part of the screen. This removed the Postman AI side panel and collection sidebar, and the phpMyAdmin database list, which showed database names unrelated to this project.
+
+Nothing else was edited. The Swagger UI is Figure 5.1 (Chapter 5) and the server start-up is Figure 7.1 (Chapter 7).
+
+**Environments used.** Two groups of screenshots use two different databases:
+
+* **Manual requests (Figures 8.1–8.11):** sent one at a time with the *MariStay Local* environment to the demonstration instance on port 3000 (`maristay_db`). Only login, room CRUD and the 401/403 checks were run there.
+* **Collection Runner (Figures 8.12–8.15):** the full collection, run on the isolated instance on port 3001 (`maristay_postman_db`). This keeps the demonstration data clean, as described in §8.6.
+
+### Summary of verified results
+
+| # | Evidence | Result | Figure |
 |---|---|---|---|
-| 1 | `npm run start:dev` with "Found 0 errors" and the mapped routes | Terminal | ⚠ Screenshot needed |
-| 2 | Login – Manager: 200 and `accessToken` | Postman | ⚠ Screenshot needed |
-| 3 | Create Room 201 → Get Room 200 → Update Room (PATCH) 200 → Delete Room 204 | Postman | ⚠ Screenshot needed |
-| 4 | Protected route without a token → 401; guest on a manager-only route → 403 | Postman | ⚠ Screenshot needed |
-| 5 | Digital check-in response with the issued key | Postman | ⚠ Screenshot needed |
-| 6 | Overlapping reservation → 409 | Postman | ⚠ Screenshot needed |
-| 7 | Collection Runner summary (all 122 requests) | Postman desktop | ⚠ Screenshot needed after a successful desktop run |
-| 8 | `rooms` and `reservations` tables matching the Postman actions | phpMyAdmin | ⚠ Screenshot needed |
-| 9 | `npm run test` (33 passed) and `npm run test:e2e` (46 passed) summaries | Terminal | Text results in 8.2; ⚠ screenshot recommended |
-| 10 | Newman summary table | Terminal | Text results above; ⚠ screenshot optional |
-| 11 | Swagger UI at `http://localhost:3000/api/docs` | Browser | ⚠ Screenshot needed |
+| 1 | Server start-up, routes mapped | ✔ | 7.1 |
+| 2 | Swagger UI at `http://localhost:3000/api/docs` | ✔ | 5.1 |
+| 3 | Manager login | ✔ 200 OK, JWT issued | 8.1 |
+| 4 | Guest login | ✔ 200 OK, JWT issued | 8.2 |
+| 5 | Create room | ✔ 201 Created (Room ID 13, 2500.00) | 8.3 |
+| 6 | Retrieve room | ✔ 200 OK (Room ID 13) | 8.4 |
+| 7 | Update room with PATCH | ✔ 200 OK, price 2500 → 2800 (Room ID 13) | 8.5, 8.6 |
+| 8 | Retrieve a deleted room | ✔ 404 Not Found (Room ID 13) | 8.7, 8.8 |
+| 9 | Delete room | ✔ 204 No Content (temporary Room ID 14, see note below) | 8.9 |
+| 10 | Protected route without a token | ✔ 401 Unauthorized | 8.10 |
+| 11 | Guest calls a manager-only route | ✔ 403 Forbidden | 8.11 |
+| 12 | Full collection in the Postman desktop Runner | ✔ 177 / 177 assertions, 0 failed, 0 errors, 17.347 s, avg 13 ms | 8.12 |
+| 13 | Digital check-in issues a key; simulated smart lock grants access | ✔ 200 OK, "Key issued", "Access granted" | 8.13, 8.14 |
+| 14 | Overlapping reservation | ✔ 409 Conflict | 8.15 |
+| 15 | `reservations` table unchanged by the manual requests | ✔ | 8.16 |
+| 16 | Unit tests | ✔ 33 / 33 passed, 4 / 4 suites, 37.441 s | 8.17 |
+| 17 | End-to-end tests | ✔ 46 / 46 passed, 1 / 1 suite, 13.62 s | 8.18 |
+| 18 | Newman (command-line runner) | ✔ 177 / 177 in three runs (table in §8.6) | text only |
 
-To add a screenshot:
-1. Save it as `docs/screenshots/NN-name.png`.
-2. Reference it here, e.g. `![Login – Manager](screenshots/02-login.png)`.
-3. Rebuild the PDF with `npm run docs:build`.
+**Protected route with an invalid token → 401.** This case has no separate screenshot. It is covered by the passing Runner assertion *Protected Route With Invalid Token → 401* (inside the 177 in Figure 8.12), by e2e test 7 (Figure 8.18), and by all three Newman runs.
+
+### 8.7.1 Authentication
+
+![Manager login in Postman](screenshots/02-manager-login.png)\
+**Figure 8.1.** *Login - Manager* (`POST /auth/login`) on port 3000 returns **200 OK** with an access token (JWT payload and signature redacted).
+
+The response gives `tokenType: "Bearer"` and `expiresIn: "1h"`, and the user's role is `MANAGER`. The password hash is not part of the response. All three test assertions passed (Test Results 3/3).
+
+![Guest login in Postman](screenshots/04d-guest-login.png)\
+**Figure 8.2.** *Login - Guest (Juan)* returns **200 OK** with an access token for the fictional demo guest, whose role is `GUEST` (token redacted).
+
+This token is used for the 403 check in Figure 8.11.
+
+### 8.7.2 Room management: full CRUD
+
+Figures 8.3 to 8.8 follow one test room, **Room ID 13** (room number `T91562`, generated by the collection). It was created, read, updated, and is shown to be gone. The **204 response in Figure 8.9 belongs to a second, temporary room, Room ID 14**. That room was created the same way, only to capture a clean DELETE screenshot, because the DELETE response for Room 13 was not captured. Neither room still exists. A read-only query of `maristay_db` on 2026-11-26 found no room with an ID of 10 or higher and `AUTO_INCREMENT = 15`, which confirms that rooms 13 and 14 were both created and then deleted.
+
+![Create room](screenshots/03a-create-room.png)\
+**Figure 8.3.** *Create Room (Manager)* returns **201 Created**. The new room has `roomId: 13`, type Deluxe, `pricePerNight: 2500` and `roomStatus: "AVAILABLE"`.
+
+![Get room](screenshots/03b-get-room.png)\
+**Figure 8.4.** *Get Room* (`GET /rooms/{{roomId}}`) returns **200 OK** with the same record, Room ID 13. The test script shown checks both the status and the room number.
+
+![Update room with PATCH](screenshots/03c-update-room.png)\
+**Figure 8.5.** *Update Room - PATCH* returns **200 OK**. `pricePerNight` changes from **2500 to 2800**, and `updatedAt` advances while `createdAt` stays the same.
+
+![rooms table after the update](screenshots/08a-database-room-updated.png)\
+**Figure 8.6.** phpMyAdmin, `maristay_db.rooms`, after the PATCH. Room 13 (`T91562`) is stored with **2800.00**, and the nine other rooms are not affected by these requests.
+
+![Deleted room returns 404](screenshots/03e-get-deleted-room.png)\
+**Figure 8.7.** *Get Deleted Room → 404* returns **404 Not Found** for `/api/v1/rooms/13`, with the standard error body ("Room not found"). The purple bar is Postman's built-in AI suggestion and is not part of the API response.
+
+![rooms table after deletion](screenshots/08b-database-room-deleted.png)\
+**Figure 8.8.** phpMyAdmin, `maristay_db.rooms`, after Room 13 was deleted. Nine rows remain: the seeded rooms 101–303, none affected by these requests.
+
+![Delete room returns 204](screenshots/03d-delete-room.png)\
+**Figure 8.9.** *Delete Room (Manager)* returns **204 No Content**, and the test "Status is 204" passed (1/1). This request deleted the **temporary Room ID 14**, not Room 13 (see the note above).
+
+### 8.7.3 Authorization: 401 and 403
+
+![Protected route without a token](screenshots/04a-protected-route-no-token.png)\
+**Figure 8.10.** *Protected Route Without Token → 401*: `GET /reservations` with Auth type **No Auth** returns **401 Unauthorized** ("Invalid or missing access token"). The global `JwtAuthGuard` rejects the request before any controller runs.
+
+![Guest calls a manager-only route](screenshots/04c-forbidden-guest.png)\
+**Figure 8.11.** *Guest Calls Manager-only Route → 403*: the guest's valid token on `POST /rooms` returns **403 Forbidden** ("You do not have permission to perform this action"). Authentication succeeded, but `RolesGuard` refused the role. No room was created.
+
+### 8.7.4 Postman desktop Collection Runner (port 3001)
+
+![Collection Runner summary](screenshots/07-collection-runner.png)\
+**Figure 8.12.** Run summary of the Collection Runner, environment *MariStay Postman 3001*: **177 tests, 177 passed, 0 failed, 0 skipped, 0 errors**; duration 17 s 347 ms; average response 13 ms. The list shows the final security tests.
+
+The last request, *Login Rate Limit → 429*, displays its own response, a 401 caused by a deliberately wrong password. Its test script then sends 11 more logins and asserts that a **429 Too Many Requests** is returned, and that assertion passed.
+
+![Digital check-in and smart lock in the Runner](screenshots/05a-digital-check-in-runner.png)\
+**Figure 8.13.** The *6. Digital Keys* results from the same run:
+
+* *Setup - Digital Check-in (Guest)* → **200**, "Key issued".
+* *Validate Digital Key (simulated smart lock)* → **200**, "Access granted".
+* *Get Key Metadata* → "No hash or code exposed".
+* *Reissue Key* → **201**.
+
+![Digital check-in response](screenshots/05b-digital-key-response.png)\
+**Figure 8.14.** The digital check-in response, opened from the Runner. Reservation 6 is `CHECKED_IN`, room 101 is `OCCUPIED`, and a `digitalKey` with `status: "ACTIVE"` expires at 12:00 on the check-out date. The plain key code, returned once at issue, is redacted here. The database stores only its SHA-256 hash.
+
+![Overlapping reservation in the Runner](screenshots/06-overlapping-reservation.png)\
+**Figure 8.15.** *11. Security and Negative Testing* results from the same run:
+
+* *Overlapping Reservation* → **409 Conflict**.
+* *Concurrent Conflicting Reservations*: exactly one of the concurrent bookings succeeded (201) and all the others were rejected (409).
+* Invalid reservation dates → 400.
+* Another guest's reservation → 403.
+
+### 8.7.5 Database state of the demonstration database
+
+![reservations table](screenshots/08c-database-reservations.png)\
+**Figure 8.16.** phpMyAdmin, `maristay_db.reservations`. It holds the same seven rows as after the approved clean-up at 01:24:47. Rows 4–7 are cancelled test bookings from that clean-up, and no row was added afterwards. This confirms that the manual port-3000 requests in Figures 8.1–8.11 created no reservations. The overlapping-reservation test ran only on the isolated port-3001 database.
+
+### 8.7.6 Automated test runs
+
+![Unit test results](screenshots/09a-unit-testing.png)\
+**Figure 8.17.** `npm run test`: **4 of 4 suites, 33 of 33 tests passed** in 37.441 s.
+
+![End-to-end test results](screenshots/09b-e2e-testing.png)\
+**Figure 8.18.** `npm run test:e2e`: **46 of 46 tests passed** in 13.62 s against the isolated `maristay_test_db`. The visible part shows the integrated guest workflow, staff management and login rate-limiting tests.
+
+**Not captured as screenshots:**
+
+* Newman: its results are given as text in §8.6.
+* The `Found 0 errors` line of `npm run start:dev`: Figure 7.1 shows the route-mapping part of the start-up log; the 0-error compile is recorded in §8.3.
+* The video demonstration: pending.
 
 ## 8.8 How to reproduce
 
@@ -210,3 +321,90 @@ npm run postman:start   # terminal 1: API on http://localhost:3001/api/v1
 npm install --no-save newman
 npm run postman:newman  # terminal 2
 ```
+
+## 8.9 Final regression and Oracle MySQL verification (2026-11-27)
+
+Run after the functional scope was frozen. Every run used an isolated database; `maristay_db` was only read (schema comparison), never written. No code was changed by this verification.
+
+### Final regression (MariaDB 10.4.32)
+
+| Check | Command / database | Result |
+|---|---|---|
+| Backend production build | `nest build -p tsconfig.postman.json` (same compiler options as `npm run build`, output `dist-postman/`) | ✔ 0 errors |
+| Frontend production build | `cd frontend && npm run build` (tsc + Vite) | ✔ |
+| Unit tests | `npm run test` | ✔ **33/33**, 4/4 suites, 10.1 s |
+| End-to-end tests | `npm run test:e2e` → `maristay_test_db` | ✔ **46/46**, 9.1 s |
+| Postman collection | `npm run postman:reset`, `postman:start`, `postman:newman` → `maristay_postman_db`, port 3001 | ✔ **177/177** assertions, 137 requests, 0 failures, 12 s, avg 10 ms |
+| Browser integration test | `frontend/tests/ui-e2e.mjs` (Microsoft Edge) → fresh `maristay_postman_db` | ✔ **37/37** |
+| Guest registration API + database | `npm run verify:registration` | ✔ **49/49** |
+| Security and RBAC matrix | one-off script, isolated API | ✔ **126/126** (below) |
+| Integrated hotel workflow | Newman folder 10, e2e steps 1–10, browser test | ✔ booking → payment → automatic confirmation → check-in with key → smart lock → service order → check-out blocked by balance → payment → check-out (keys revoked, cleaning task) → housekeeping completes → room available |
+
+**Security and RBAC matrix (126 checks).**
+* Each role's login returns a JWT carrying that role.
+* 21 representative endpoints × {no token, GUEST, FRONT_DESK, HOUSEKEEPING, MANAGER}: 401 without a token, 403 for roles that are not allowed, and the guard passes for allowed roles. Allowed write calls used invalid bodies (400) or nonexistent ids (404), so no data changed.
+* Tokens rejected with 401: a guest token with its role edited to MANAGER (bad signature), `alg: none`, a garbage token, a correctly signed but expired token, and a token signed with another secret.
+* Ownership: a guest cannot read another guest's profile (403), and a guest's reservation list contains only their own reservations.
+* No `passwordHash` or `keyCodeHash` in the staff, guest, key or `/auth/me` responses.
+* `' OR 1=1 -- ` in a search is treated as text (0 rows).
+* An extra `reservationStatus` field in a booking is rejected (400).
+* Helmet headers: `nosniff`, CSP, no `X-Powered-By`.
+* CORS allows only the configured origin.
+* Error bodies contain no stack trace.
+
+### Oracle MySQL 8.4.11 LTS
+
+A temporary, portable MySQL Community Server 8.4.11 LTS ran on `127.0.0.1:3307`, with its own data folder in a temporary directory. The binaries were verified as signed by Oracle America, Inc. It was stopped and removed afterwards. Only environment variables pointed MariStay at it.
+
+| Check | Result |
+|---|---|
+| `npm run db:setup` (create, migrate, seed) → `maristay_mysql8_db` | ✔ |
+| `npm run schema:check` | ✔ schema up to date |
+| Schema vs MariaDB `maristay_db` (`information_schema`) | ✔ identical: 9 tables, 67 columns (64 application), 7 FKs, 17 CHECKs, 13 unique indexes |
+| `npm run test:e2e` → `maristay_mysql8_test` | ✔ **46/46**, 19.8 s |
+| Newman, API on port 3001 backed by MySQL → `maristay_mysql8_postman` | ✔ **177/177** assertions, 137 requests, 19.7 s, avg 47 ms |
+| `exports/maristay.sql` import (copy without `CREATE DATABASE`/`USE`) → `maristay_mysql8_import` | ✔ imported; deprecation warnings only |
+| Constraints on imported data | ✔ FK 1451/1452, CHECK 3819, UNIQUE 1062 enforced |
+
+The only difference is cosmetic: foreign keys imported from the MariaDB dump show `ON DELETE NO ACTION` instead of `RESTRICT`, which InnoDB treats identically (Compliance Checklist §6).
+
+### Documentation checks
+
+* **ERD:** the Mermaid ERD in `DATABASE_DESIGN.md` was parsed and compared with `information_schema`. All 8 tables, 64 columns, data types, PK/FK/UK markers and 7 relationships match.
+* **API documentation:** the endpoint table covers all 44 operations reported by Swagger (`/api/docs-json`, 9 tags).
+
+### Frontend screenshots
+
+37 screenshots of all four roles were captured on the isolated database into `docs/screenshots/frontend/`, with key codes masked (`docs/FRONTEND.md` §9).
+
+### Reproduce the additional checks
+
+```bash
+npm run verify:registration                         # isolated API on port 3001 (postman:start)
+cd frontend && node --env-file=../.env tests/ui-e2e.mjs
+```
+
+## 8.10 Frontend verification after the UI redesign (2026-11-27)
+
+The React frontend was restyled (Modern Luxury Minimalist) after the functional scope was frozen. No backend file, route, API call or test assertion changed. Results on a freshly reset `maristay_postman_db` with the final UI:
+
+| Check | Result |
+|---|---|
+| Frontend production build (`npm run build`) | ✔ |
+| Browser integration test (`frontend/tests/ui-e2e.mjs`) | ✔ **37/37**. A first run had 32/37: a required-field asterisk had been placed inside the sign-up labels, which changed their text. The asterisk was moved outside the labels; the test was not changed |
+| `npm run verify:registration` | ✔ **49/49** |
+| Responsive and accessibility audit (Microsoft Edge, 1440 / 1280 / 768 / 390 px, every screen of all four roles, plus the Add room dialog) | ✔ **331** checks, 0 findings, 0 console errors |
+| Main configuration (read-only) | ✔ the main frontend calls the API on port 3000, which is connected to `maristay_db` (confirmed by comparing record timestamps); manager login shows live data |
+
+### Result history
+
+| Suite | Earlier | Latest (2026-11-27) |
+|---|---|---|
+| Unit tests | 33/33 (2026-11-25/26) | 33/33 (final regression, §8.9) |
+| E2E tests, MariaDB | 46/46 (2026-11-25/26) | 46/46 (§8.9) |
+| E2E tests, Oracle MySQL 8.4.11 | — | 46/46 (§8.9) |
+| Postman / Newman | 177/177 × 3 Newman + 1 desktop Runner (2026-11-26) | 177/177 on MariaDB and 177/177 on MySQL 8.4 (§8.9) |
+| Browser UI test | 30/30 (before sign-up) | 37/37 (after the UI redesign, §8.10) |
+| Registration checks | 49/49 (when sign-up was added) | 49/49 (after the UI redesign) |
+| Security / RBAC matrix | — | 126/126 (§8.9) |
+

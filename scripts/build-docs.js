@@ -41,7 +41,9 @@ const toc = [];
 const bodies = CHAPTERS.map((chapter) => {
   let text = read(chapter.file);
   // Links in docs/final/*.md are relative to docs/final; the assembled file lives in docs/.
-  if (chapter.file.startsWith('final/')) text = text.replace(/\]\(\.\.\/\.\.\//g, '](../');
+  if (chapter.file.startsWith('final/')) {
+    text = text.replace(/\]\(\.\.\/\.\.\//g, '](../').replace(/\]\(\.\.\/screenshots\//g, '](screenshots/');
+  }
   const heading = chapter.unnumbered ? chapter.title : `Chapter ${++chapterNo} — ${chapter.title}`;
   text = text.replace(/^# .*$/m, `# ${heading}`);
   toc.push(`- [${heading}](#${slug(heading)})`);
@@ -67,6 +69,11 @@ const marked = new Marked({
       if (lang === 'mermaid') return `<pre class="mermaid">${escapeHtml(text)}</pre>\n`;
       return `<pre><code class="language-${lang ?? 'text'}">${escapeHtml(text)}</code></pre>\n`;
     },
+    // Image paths in the Markdown are relative to docs/; the HTML is written to docs/build/.
+    image({ href, text }) {
+      const src = /^(https?:|data:|\/)/.test(href) ? href : '../' + href;
+      return `<img class="shot" src="${src}" alt="${escapeHtml(text)}">`;
+    },
     heading({ tokens, depth }) {
       const inner = this.parser.parseInline(tokens);
       return `<h${depth} id="${slug(inner)}">${inner}</h${depth}>\n`;
@@ -91,13 +98,17 @@ const html = `<!doctype html>
   pre { background: #f3f5f9; border: 1px solid #dde3ec; padding: 6px 8px; white-space: pre-wrap; word-break: break-word; font-size: 8.4pt; }
   pre code { background: none; padding: 0; }
   pre.mermaid { background: #fff; border: none; text-align: center; page-break-inside: avoid; }
+  /* Tall diagrams (e.g. the Lab 06 login flow) scale down to fit one A4 page instead of splitting. */
+  pre.mermaid svg { max-height: 225mm; }
   .page-break { page-break-before: always; }
   .cover { text-align: center; padding-top: 50mm; }
   .cover h1 { border: none; font-size: 26pt; }
   .cover table { width: 75%; margin: 18mm auto 0; font-size: 11pt; }
   .cover td { border: none; border-bottom: 1px solid #dde3ec; padding: 6px; }
   a { color: #1f4f8f; text-decoration: none; }
-</style></head>
+  /* Screenshot figures: image + caption in one paragraph, kept on one page */
+  p:has(> img.shot) { break-inside: avoid; page-break-inside: avoid; text-align: center; font-size: 9pt; color: #44506a; margin: 1em 0 .3em; }
+  img.shot { display: block; margin: 0 auto 4px; max-width: 100%; max-height: 100mm; border: 1px solid #b8c2d1; }</style></head>
 <body>
 ${marked.parse(markdown.replace(/^<!--.*-->\n/, ''))}
 <script src="${mermaidPath}"></script>

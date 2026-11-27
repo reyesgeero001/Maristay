@@ -76,3 +76,32 @@ See `docs/DEVELOPMENT_PROGRESS.md` for the full list of incremental commits.
 ## F. Deviations from the laboratory designs
 
 See `docs/PROJECT_REQUIREMENTS.md` §8 (D1–D15) — e.g. `roomNo` instead of `roomNumber`, required password at registration, server-controlled statuses and prices, staff password columns, reservation price snapshot, simulated external services, HTTPS as a deployment requirement.
+
+## G. Optional React frontend (bonus)
+
+A React 19 + Vite + TypeScript web client in `frontend/` uses the same REST API: 15 screens, all four roles, and 36 of the 44 endpoints. Its design, endpoint mapping and tests are described in `docs/FRONTEND.md`. The screenshots were captured automatically on the isolated test database (`maristay_postman_db`) on 2026-11-27. Digital key codes are masked. The full set of 37 images is in `docs/screenshots/frontend/`.
+
+![Guest sign-up](../screenshots/frontend/02a-register-form.png)\
+**Figure G.1.** Guest self-registration. There is no role field: every public sign-up becomes a Guest account, enforced by the API.
+
+![Manager dashboard](../screenshots/frontend/05-manager-dashboard.png)\
+**Figure G.2.** Manager dashboard with live counts from the API.
+
+![Room create dialog](../screenshots/frontend/06b-room-create.png)\
+**Figure G.3.** Room CRUD: the manager's Add room dialog.
+
+![Record payment](../screenshots/frontend/12a-record-payment.png)\
+**Figure G.4.** Front desk records a simulated payment. Full payment confirms the reservation automatically.
+
+![Digital key issued](../screenshots/frontend/13b-digital-key-issued.png)\
+**Figure G.5.** Digital check-in: the room becomes occupied and a one-time digital key is issued (key code masked).
+
+![Smart lock granted](../screenshots/frontend/14a-smart-lock-granted.png)\
+**Figure G.6.** Simulated smart lock: access granted for the booked room.
+
+![Check-out summary](../screenshots/frontend/17b-checkout-summary.png)\
+**Figure G.7.** Digital check-out: balance settled, keys revoked, room sent to housekeeping.
+
+![Access denied](../screenshots/frontend/04-access-denied-guest.png)\
+**Figure G.8.** Access control: a guest opening a manager-only page. The API also rejects the request with 403.
+
