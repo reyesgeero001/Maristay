@@ -1,6 +1,6 @@
 # Requirements Compliance Checklist
 
-Audit of every mandatory requirement in the ITEC 116 Final Project guidelines (§3 Requirements, §4 Deliverables, §7 Submission Checklist), checked against the implemented system on 2026-11-26. Final regression and Oracle MySQL 8.4 verification on 2026-11-27 (Testing §8.9).
+Audit of every mandatory requirement in the ITEC 116 Final Project guidelines (§3 Requirements, §4 Deliverables, §7 Submission Checklist), checked against the implemented system on 2026-11-26. Final regression and Oracle MySQL 8.4 verification on 2026-11-27 (Testing §8.9). Repository restructure regression on 2026-11-28 (Testing §8.12).
 
 Status key:
 - **Complete:** implemented and verified by the evidence listed.
@@ -53,7 +53,7 @@ Status key:
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
 | 22 | Repository under the student's own GitHub account, public or private with the instructor as collaborator | https://github.com/reyesgeero001/Maristay (public, remote `origin`) | 2026-11-27: `main` pushed and opens publicly. All commits are by `Reyesgeero001`; the history was rewritten once, with the student's approval, to remove automatic co-author trailers | Complete |
-| 23 | README describing the project, tech stack and how to run it | `README.md` | All npm commands it mentions exist in `package.json` | Complete |
+| 23 | README describing the project, tech stack and how to run it | `README.md` | All npm commands it mentions exist in `backend/package.json`; a fresh clone was installed and started by following it (2026-11-28) | Complete |
 | 24 | `.gitignore` excluding `node_modules` and `.env` | `.gitignore` also excludes `dist/`, backups, `postman/tmp/` and Postman workspace files (only the two exported Postman JSON files in `postman/` are tracked) | `git check-ignore` | Complete |
 | 25 | At least 5 separate, meaningful commits | More than 20 incremental commits on `main` (25–27 Nov 2026) | `git log`; GitHub commit history | Complete |
 | 26 | Documentation PDF with all required chapters | `docs/MariStay_Final_Documentation.pdf`, built from the chapter files | Rebuilt 2026-11-27: cover, table of contents, Chapters 1–9, References, Appendix A–G (with the final frontend screenshots) and the compliance checklist; every page rendered and checked visually | Complete (video link and date pending) |

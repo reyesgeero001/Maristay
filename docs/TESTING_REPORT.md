@@ -429,3 +429,23 @@ No endpoint, DTO rule, guard, role, business rule, database object or frontend f
 | `npm run verify:registration` | ✔ **49/49** |
 | Security and RBAC matrix | ✔ **126/126** (Helmet CSP, `nosniff`, no `X-Powered-By`, CORS) |
 
+
+## 8.12 Repository restructure and regression (2026-11-28)
+
+The repository was reorganized into `backend/` (NestJS source, tests, scripts and configuration), `database/` (`maristay.sql`), `postman/` (collection and environment), `frontend/` and `docs/`. Files were moved with `git mv`; every file in `backend/src/` and `backend/test/` is a pure rename with unchanged content, and the SQL export and Postman files are byte-identical. Only paths in scripts, documentation and the README changed. No endpoint, DTO rule, guard, role, business rule or frontend behaviour changed, and `maristay_db` was not written (table checksums identical before and after).
+
+| Check | Result |
+|---|---|
+| `npm run build` (in `backend/`) | ✔ 0 errors |
+| `npm run start:dev` | ✔ "Found 0 errors", **44 routes mapped**; `/api/docs` and `/api/docs-json` return 404 |
+| Unit tests | ✔ **33/33** |
+| End-to-end tests (`maristay_test_db`) | ✔ **46/46** |
+| Postman collection with Newman (fresh `maristay_postman_db`, port 3001) | ✔ **177/177** assertions, 137 requests, 0 failures; all 44 mapped routes are called |
+| Frontend production build | ✔ |
+| Browser integration test (fresh database) | ✔ **37/37** |
+| `npm run verify:registration` (fresh database) | ✔ **49/49** |
+| Security and RBAC matrix | ✔ **126/126** |
+| Fresh clone following the README (new `.env` from `.env.example`, new scratch database) | ✔ `npm ci`, `db:setup`, build, start-up with 44 routes, unit 33/33, e2e 46/46, frontend `npm ci` and build |
+| Git ignore and credentials | ✔ `backend/.env`, `postman/tmp/` and Postman workspace files ignored; no `.env` value, JWT or key code in the 240 tracked files |
+
+Total: **468/468** checks passed, the same as the previous baseline.

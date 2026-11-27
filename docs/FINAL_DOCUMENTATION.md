@@ -98,6 +98,7 @@
   - [8.9 Final regression and Oracle MySQL verification (2026-11-27)](#89-final-regression-and-oracle-mysql-verification-2026-11-27)
   - [8.10 Frontend verification after the UI redesign (2026-11-27)](#810-frontend-verification-after-the-ui-redesign-2026-11-27)
   - [8.11 Swagger UI removal and regression (2026-11-27)](#811-swagger-ui-removal-and-regression-2026-11-27)
+  - [8.12 Repository restructure and regression (2026-11-28)](#812-repository-restructure-and-regression-2026-11-28)
 - [Chapter 9 — Conclusion](#chapter-9-conclusion)
   - [9.1 Project accomplishments](#91-project-accomplishments)
   - [9.2 Challenges encountered](#92-challenges-encountered)
@@ -376,8 +377,8 @@ flowchart TB
 | StaffModule | Employee accounts (manager only) | `staff.service.ts` |
 | ServiceOrdersModule | Food/amenity/service orders with server-side catalog pricing | `service-orders.service.ts`, `service-catalog.ts` |
 | NotificationsModule | Simulated SMS/e-mail adapter | `notifications.service.ts` |
-| common/ | Enums, decorators (`@Public`, `@Roles`, `@CurrentUser`), RolesGuard, exception filter, pipes, validators, utilities | `src/common/**` |
-| database/ | Connection options, migration, seed, data source for the CLI | `src/database/**` |
+| common/ | Enums, decorators (`@Public`, `@Roles`, `@CurrentUser`), RolesGuard, exception filter, pipes, validators, utilities | `backend/src/common/**` |
+| database/ | Connection options, migration, seed, data source for the CLI | `backend/src/database/**` |
 
 ## 3.3 Layered architecture
 
@@ -390,8 +391,8 @@ flowchart LR
     D -->|rows| R -->|entities| S -->|result object| CT -->|JSON + status code| C
 ```
 
-* **Controller layer** — receives the request, reads path/query parameters, receives the already-validated DTO, calls one service method and returns its result. Controllers contain no business logic (e.g. [`rooms.controller.ts`](../src/rooms/rooms.controller.ts)).
-* **Service layer** — enforces business rules (availability, ownership, status transitions, payment rules) and opens database transactions when several rows must change together (e.g. [`stay.service.ts`](../src/reservations/stay.service.ts)).
+* **Controller layer** — receives the request, reads path/query parameters, receives the already-validated DTO, calls one service method and returns its result. Controllers contain no business logic (e.g. [`rooms.controller.ts`](../backend/src/rooms/rooms.controller.ts)).
+* **Service layer** — enforces business rules (availability, ownership, status transitions, payment rules) and opens database transactions when several rows must change together (e.g. [`stay.service.ts`](../backend/src/reservations/stay.service.ts)).
 * **Repository layer** — TypeORM `Repository<Entity>` or the transaction's `EntityManager` turns entities into parameterised SQL.
 * **Database layer** — MySQL stores the data and enforces primary keys, foreign keys (`ON DELETE RESTRICT`), unique indexes and CHECK constraints.
 
@@ -505,7 +506,7 @@ The local demonstration runs on plain **HTTP** at `http://localhost:3000`. Lab 0
 
 # Chapter 4 — Database Design
 
-Database: **`maristay_db`** (MySQL, InnoDB, `utf8mb4_unicode_ci`). Schema created by the TypeORM migration [`1764086400000-InitialSchema.ts`](../src/database/migrations/1764086400000-InitialSchema.ts); exported in [`exports/maristay.sql`](../exports/maristay.sql).
+Database: **`maristay_db`** (MySQL, InnoDB, `utf8mb4_unicode_ci`). Schema created by the TypeORM migration [`1764086400000-InitialSchema.ts`](../backend/src/database/migrations/1764086400000-InitialSchema.ts); exported in [`database/maristay.sql`](../database/maristay.sql).
 
 ## 4.1 Entity relationship diagram
 
@@ -607,14 +608,14 @@ erDiagram
 
 | # | Table | Purpose (Lab 04) | Entity class |
 |---|---|---|---|
-| 1 | `guests` | Registered hotel guest information and authentication details | [`Guest`](../src/guests/entities/guest.entity.ts) |
-| 2 | `rooms` | Hotel room information, pricing and availability status | [`Room`](../src/rooms/entities/room.entity.ts) |
-| 3 | `reservations` | Guest room reservations and check-in/check-out schedule | [`Reservation`](../src/reservations/entities/reservation.entity.ts) |
-| 4 | `payments` | Payments associated with reservations | [`Payment`](../src/payments/entities/payment.entity.ts) |
-| 5 | `digital_keys` | Digital room access credentials issued to checked-in guests | [`DigitalKey`](../src/digital-keys/entities/digital-key.entity.ts) |
-| 6 | `housekeeping` | Room cleaning tasks and assigned housekeeping staff | [`Housekeeping`](../src/housekeeping/entities/housekeeping.entity.ts) |
-| 7 | `staff` | Hotel employees and their roles | [`Staff`](../src/staff/entities/staff.entity.ts) |
-| 8 | `service_orders` | Guest requests for food, amenities and other services | [`ServiceOrder`](../src/service-orders/entities/service-order.entity.ts) |
+| 1 | `guests` | Registered hotel guest information and authentication details | [`Guest`](../backend/src/guests/entities/guest.entity.ts) |
+| 2 | `rooms` | Hotel room information, pricing and availability status | [`Room`](../backend/src/rooms/entities/room.entity.ts) |
+| 3 | `reservations` | Guest room reservations and check-in/check-out schedule | [`Reservation`](../backend/src/reservations/entities/reservation.entity.ts) |
+| 4 | `payments` | Payments associated with reservations | [`Payment`](../backend/src/payments/entities/payment.entity.ts) |
+| 5 | `digital_keys` | Digital room access credentials issued to checked-in guests | [`DigitalKey`](../backend/src/digital-keys/entities/digital-key.entity.ts) |
+| 6 | `housekeeping` | Room cleaning tasks and assigned housekeeping staff | [`Housekeeping`](../backend/src/housekeeping/entities/housekeeping.entity.ts) |
+| 7 | `staff` | Hotel employees and their roles | [`Staff`](../backend/src/staff/entities/staff.entity.ts) |
+| 8 | `service_orders` | Guest requests for food, amenities and other services | [`ServiceOrder`](../backend/src/service-orders/entities/service-order.entity.ts) |
 
 A ninth table, `migrations`, is created automatically by TypeORM to record which migrations have run.
 
@@ -796,13 +797,13 @@ Seed data (fictional): 1 manager, 1 front desk, 2 housekeeping staff, 2 guests, 
   * `maristay_postman_db`, recreated before each full Postman/Newman run.
 
   The tools never create, change or drop any other database. The e2e and Postman reset commands refuse to touch a database with a different name.
-* **SQL export:** `exports/maristay.sql` was produced by `mysqldump` from the migrated and seeded `maristay_db`. It contains the 8 tables, the `migrations` table, 7 foreign keys, 17 CHECK constraints, 23 indexes and the demonstration records. It begins with `CREATE DATABASE IF NOT EXISTS maristay_db; USE maristay_db;` and contains no `DROP TABLE` statements. It is meant for a server **without** an existing `maristay_db`. If one already exists with tables, the import stops at the first `CREATE TABLE` and changes nothing. Re-import was verified on 2026-11-26 into a scratch database: all objects were created without errors. On 2026-11-27 a copy without the `CREATE DATABASE`/`USE` lines was also imported into Oracle MySQL 8.4.11 LTS. Only deprecation warnings appeared, and the FK, CHECK and UNIQUE constraints were enforced. Foreign keys imported from this MariaDB dump show `ON DELETE NO ACTION`, which InnoDB treats exactly like `RESTRICT`.
+* **SQL export:** `database/maristay.sql` was produced by `mysqldump` from the migrated and seeded `maristay_db`. It contains the 8 tables, the `migrations` table, 7 foreign keys, 17 CHECK constraints, 23 indexes and the demonstration records. It begins with `CREATE DATABASE IF NOT EXISTS maristay_db; USE maristay_db;` and contains no `DROP TABLE` statements. It is meant for a server **without** an existing `maristay_db`. If one already exists with tables, the import stops at the first `CREATE TABLE` and changes nothing. Re-import was verified on 2026-11-26 into a scratch database: all objects were created without errors. On 2026-11-27 a copy without the `CREATE DATABASE`/`USE` lines was also imported into Oracle MySQL 8.4.11 LTS. Only deprecation warnings appeared, and the FK, CHECK and UNIQUE constraints were enforced. Foreign keys imported from this MariaDB dump show `ON DELETE NO ACTION`, which InnoDB treats exactly like `RESTRICT`.
 
 <div class="page-break"></div>
 
 # Chapter 5 — REST API Design
 
-Base URL (local): `http://localhost:3000/api/v1` · Postman: [`exports/MariStay.postman_collection.json`](../exports/MariStay.postman_collection.json)
+Base URL (local): `http://localhost:3000/api/v1` · Postman: [`postman/MariStay.postman_collection.json`](../postman/MariStay.postman_collection.json)
 
 ## 5.1 API conventions (Lab 05 Part B)
 
@@ -1133,12 +1134,12 @@ Differences from the Lab 06 diagram: the "Users table" is two tables (`guests`, 
 |---|---|
 | Library | `@nestjs/jwt` (signing) + `passport-jwt` via `@nestjs/passport` (verification) |
 | Algorithm | HS256 only (other algorithms, including `none`, are rejected) |
-| Secret | `JWT_SECRET` environment variable, min 32 chars; the app refuses to start without it or with the placeholder — there is **no fallback secret** ([`env.validation.ts`](../src/config/env.validation.ts)) |
+| Secret | `JWT_SECRET` environment variable, min 32 chars; the app refuses to start without it or with the placeholder — there is **no fallback secret** ([`env.validation.ts`](../backend/src/config/env.validation.ts)) |
 | Expiry | `JWT_EXPIRES_IN` (default `1h`); expired tokens → 401 "Access token has expired" |
 | Issuer | `maristay-api` (verified) |
 | Payload | `{ sub, accountType: GUEST|STAFF, role, email, iat, exp, iss }` — no password or personal data beyond email |
 | Transport | `Authorization: Bearer <token>` header |
-| Per-request check | [`JwtStrategy.validate()`](../src/auth/strategies/jwt.strategy.ts) reloads the account; INACTIVE or deleted → 401; the role is taken from the database, so role changes apply immediately |
+| Per-request check | [`JwtStrategy.validate()`](../backend/src/auth/strategies/jwt.strategy.ts) reloads the account; INACTIVE or deleted → 401; the role is taken from the database, so role changes apply immediately |
 
 ## 6.3 Password hashing
 
@@ -1154,11 +1155,11 @@ Differences from the Lab 06 diagram: the "Users table" is two tables (`guests`, 
 
 ## 6.5 Role-based access control (RBAC)
 
-Roles: `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER`. Controllers declare who may call each route with `@Roles(...)`; the global [`RolesGuard`](../src/common/guards/roles.guard.ts) returns **403** when an authenticated user's role is not listed. Public registration can only create `GUEST` accounts (unknown properties such as `role` are rejected with 400); staff accounts are created only by a manager.
+Roles: `GUEST`, `FRONT_DESK`, `HOUSEKEEPING`, `MANAGER`. Controllers declare who may call each route with `@Roles(...)`; the global [`RolesGuard`](../backend/src/common/guards/roles.guard.ts) returns **403** when an authenticated user's role is not listed. Public registration can only create `GUEST` accounts (unknown properties such as `role` are rejected with 400); staff accounts are created only by a manager.
 
 ## 6.6 Ownership verification
 
-Role checks are not enough — a guest must not see *another guest's* data. Services call [`assertGuestOwnerOrStaff()`](../src/common/utilities/ownership.util.ts) after loading a record:
+Role checks are not enough — a guest must not see *another guest's* data. Services call [`assertGuestOwnerOrStaff()`](../backend/src/common/utilities/ownership.util.ts) after loading a record:
 
 | Resource | Rule |
 |---|---|
@@ -1189,7 +1190,7 @@ Violations return **403 Forbidden**. Housekeeping staff cannot read payments, re
 | Measure | Where |
 |---|---|
 | No hardcoded secrets | DB credentials, JWT secret and demo password come only from `.env` (git-ignored); `.env.example` has placeholders |
-| Environment validation at startup | [`env.validation.ts`](../src/config/env.validation.ts) |
+| Environment validation at startup | [`env.validation.ts`](../backend/src/config/env.validation.ts) |
 | Password hashes never returned | `select: false` + `@Exclude()` |
 | Digital key credentials | 256-bit random `MSK-…` code; only its SHA-256 hash is stored (unique index); plaintext returned once at issue; never logged; notifications do not contain it |
 | SQL injection | All queries go through TypeORM with bound parameters (`:param`); no string-concatenated SQL with user input; ids validated as integers |
@@ -1257,8 +1258,10 @@ Run on the isolated database (Testing §8.9):
 | Security | `helmet` 8, `@nestjs/throttler` 6 |
 | Tests | Jest 29, Supertest 7, Postman / Newman |
 
+The repository root has five folders: `backend/` (the NestJS application below, with its `package.json`, tests and utility scripts), `database/` (`maristay.sql`), `postman/` (collection and environment), `frontend/` (optional React client) and `docs/`.
+
 ```text
-src/
+backend/src/
 ├── auth/            login, JWT strategy, JwtAuthGuard, IdentityService, rate-limit config
 ├── guests/          GuestsModule (controller, service, entity, DTOs)
 ├── rooms/           RoomsModule
@@ -1275,9 +1278,8 @@ src/
 ├── app.module.ts    root module (imports + global guards)
 ├── app.setup.ts     global HTTP pipeline (prefix, Helmet, CORS, validation, serializer, filter)
 └── main.ts          bootstrap
-test/                e2e tests (Supertest) + isolated test-database setup
-exports/             maristay.sql, Postman collection and environment
-docs/                documentation
+backend/test/        e2e tests (Supertest) + isolated test-database setup
+backend/scripts/     Postman instance, registration check, documentation and slide builders
 ```
 
 ## 7.2 NestJS modules
@@ -1298,7 +1300,7 @@ Each functional module follows the same pattern — **module** (wiring), **contr
 
 ## 7.3 Controller layer
 
-Controllers only translate HTTP into a service call. Example — the room endpoints used in the video demo ([`rooms.controller.ts`](../src/rooms/rooms.controller.ts)):
+Controllers only translate HTTP into a service call. Example — the room endpoints used in the video demo ([`rooms.controller.ts`](../backend/src/rooms/rooms.controller.ts)):
 
 ```typescript
 @Controller('rooms')
@@ -1328,7 +1330,7 @@ export class RoomsController {
 
 ## 7.4 Service layer
 
-Services hold the rules. Example ([`rooms.service.ts`](../src/rooms/rooms.service.ts)):
+Services hold the rules. Example ([`rooms.service.ts`](../backend/src/rooms/rooms.service.ts)):
 
 ```typescript
 async update(roomId: number, dto: UpdateRoomDto): Promise<Room> {
@@ -1373,7 +1375,7 @@ Inside workflows the service uses the transaction's `EntityManager` (`em`) so th
 
 ## 7.6 Entity implementation
 
-Entities map classes to tables. Example — `Reservation` with both sides of its relationships ([`reservation.entity.ts`](../src/reservations/entities/reservation.entity.ts)):
+Entities map classes to tables. Example — `Reservation` with both sides of its relationships ([`reservation.entity.ts`](../backend/src/reservations/entities/reservation.entity.ts)):
 
 ```typescript
 @Entity({ name: 'reservations' })
@@ -1416,7 +1418,7 @@ passwordHash!: string;
 
 ## 7.7 Database connection
 
-One function builds the connection options from environment variables and is shared by the app, the TypeORM CLI, the seed script and the tests ([`database.config.ts`](../src/database/database.config.ts)):
+One function builds the connection options from environment variables and is shared by the app, the TypeORM CLI, the seed script and the tests ([`database.config.ts`](../backend/src/database/database.config.ts)):
 
 ```typescript
 export function buildDataSourceOptions(env = process.env, databaseOverride?: string): DataSourceOptions {
@@ -1442,7 +1444,7 @@ export function buildDataSourceOptions(env = process.env, databaseOverride?: str
 
 ## 7.8 Important business logic
 
-### Preventing double bookings ([`reservations.service.ts`](../src/reservations/reservations.service.ts))
+### Preventing double bookings ([`reservations.service.ts`](../backend/src/reservations/reservations.service.ts))
 
 ```typescript
 const reservationId = await this.dataSource.transaction('READ COMMITTED', async (em) => {
@@ -1464,7 +1466,7 @@ const reservationId = await this.dataSource.transaction('READ COMMITTED', async 
 ```
 Why it works: both competing requests try to lock the same room row; the second waits until the first commits, then (because of `READ COMMITTED`) its overlap query sees the new reservation and returns 409. Verified with 6 simultaneous requests: one 201, five 409.
 
-### Digital check-in ([`stay.service.ts`](../src/reservations/stay.service.ts))
+### Digital check-in ([`stay.service.ts`](../backend/src/reservations/stay.service.ts))
 
 ```typescript
 const issued = await this.dataSource.transaction(BOOKING_ISOLATION, async (em) => {
@@ -1511,7 +1513,7 @@ DECIMAL values are converted to numbers by a column transformer, and all arithme
 | Errors | `AllExceptionsFilter` — consistent JSON, DB error translation |
 | Configuration | `ConfigModule` + `validateEnv()` |
 | Documentation | Endpoint reference in Chapter 5; each controller method has a one-line summary comment |
-| Migrations / seed | `src/database/migrations`, `src/database/seeds` (idempotent) |
+| Migrations / seed | `backend/src/database/migrations`, `backend/src/database/seeds` (idempotent) |
 
 <div class="page-break"></div>
 
@@ -1527,7 +1529,7 @@ All results in this report were produced by actually running the tests on the de
 |---|---|---|---|
 | Unit tests | Jest + ts-jest (`npm run test`) | none (mocks) | Pure logic: dates, money, id validation, ownership, RolesGuard, login rules, env validation |
 | End-to-end (integration) tests | Jest + Supertest (`npm run test:e2e`) | real MySQL, isolated `maristay_test_db` — dropped, migrated and seeded at the start of every run | The whole stack (guards → pipes → controllers → services → TypeORM → MySQL) and the integrated workflow |
-| Collection testing | Postman collection (`exports/MariStay.postman_collection.json`), run with Newman (`npm run postman:newman`) or the Postman Runner | isolated `maristay_postman_db` on port 3001, reset before every run | All 122 requests in order, with 177 assertions: the integrated workflow, security and negative cases |
+| Collection testing | Postman collection (`postman/MariStay.postman_collection.json`), run with Newman (`npm run postman:newman`) or the Postman Runner | isolated `maristay_postman_db` on port 3001, reset before every run | All 122 requests in order, with 177 assertions: the integrated workflow, security and negative cases |
 | Manual API testing / live demo | Individual Postman requests | local `maristay_db` on port 3000 | Live demonstration (Login and room CRUD only, not the full collection); request/response inspection |
 | Manual smoke scripts | Node `fetch` scripts during development | `maristay_test_db` | Every endpoint, positive and negative cases, while building each module |
 | Database checks | `mysql` CLI | both | CHECK / FK constraints reject bad data; SQL export re-imports cleanly |
@@ -1634,7 +1636,7 @@ Tests:       46 passed, 46 total
 | CHECK constraints (MariaDB) | ✔ negative price → `CONSTRAINT CHK_rooms_pricePerNight failed`; checkOut = checkIn → `CHK_reservations_dates failed` |
 | FK RESTRICT | ✔ deleting a room with history → error 1451 |
 | Seed idempotency | ✔ second run creates 0 records |
-| SQL export | ✔ `exports/maristay.sql` re-imported into a scratch database: 8 tables + migrations, 7 FKs, all rows |
+| SQL export | ✔ `database/maristay.sql` re-imported into a scratch database: 8 tables + migrations, 7 FKs, all rows |
 | Secret scan of every file to be committed | ✔ JWT secret and demo password found in 0 files; `.env` and `references/` ignored |
 
 ## 8.4 Error handling verification
@@ -1659,13 +1661,13 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
 
 ## 8.6 Postman collection
 
-* **Files:** `exports/MariStay.postman_collection.json` (Postman v2.1, the submitted collection) and `exports/MariStay.postman_environment.json` (no passwords or tokens; `demoPassword` is left empty).
+* **Files:** `postman/MariStay.postman_collection.json` (Postman v2.1, the submitted collection) and `postman/MariStay.postman_environment.json` (no passwords or tokens; `demoPassword` is left empty).
 * **Content:** 11 folders and **122 requests**. Each request has test assertions (status codes and business rules). Scripts save tokens and ids into environment variables. Every `{{variable}}` used is defined in the environment or set by an earlier request.
 * **Isolated run target:** the full collection creates guests, staff, rooms, reservations and payments, so it runs against a separate database, `maristay_postman_db`, served by a second instance on port 3001 (`baseUrl` = `http://localhost:3001/api/v1`). `maristay_db` is never touched.
   * `npm run postman:setup` creates and seeds the database.
   * `npm run postman:reset` rebuilds only that database.
   * `npm run postman:start` serves it.
-  * `npm run postman:env` writes a matching Postman environment to the git-ignored `exports/tmp/`.
+  * `npm run postman:env` writes a matching Postman environment to the git-ignored `postman/tmp/`.
 * **Preconditions:** a freshly seeded database (room ids 1, 2, 3 and 5 = rooms 101, 102, 103 and 201; room 302 is the only available Family room). A freshly started server, because the login limit of 10/min is kept in memory: the run makes 8 logins before the final rate-limit request sends 12.
 * **Collection fixes found by running it** (see 8.5 B6 and B7):
   * 32 numeric placeholders were unquoted.
@@ -1673,7 +1675,7 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
   * The deliberately invalid token in *Protected Route With Invalid Token → 401* is built at run time, so Postman's secret scanner no longer rewrites it. It still sends `Bearer invalid.token.value` and expects 401.
 
   No assertion, validation rule or security control was weakened.
-* **Newman command:** `npm install --no-save newman` once, then `npm run postman:newman` while the port-3001 server runs. It runs `exports/MariStay.postman_collection.json` and passes the demo password from `.env` in memory, so it never appears on a command line, in a file or in the report. It writes a token-free summary to `exports/tmp/newman-summary.json`.
+* **Newman command:** `npm install --no-save newman` once, then `npm run postman:newman` while the port-3001 server runs. It runs `postman/MariStay.postman_collection.json` and passes the demo password from `.env` in memory, so it never appears on a command line, in a file or in the report. It writes a token-free summary to `postman/tmp/newman-summary.json`.
 
 **Newman results.** Actual runs on 2026-11-26 with Newman 6.2.3 on port 3001. Before each run, `maristay_postman_db` was reset and the server restarted:
 
@@ -1681,7 +1683,7 @@ Database exceptions are mapped (duplicate → 409, FK → 400/409, CHECK → 400
 |---|---|---|---|---|---|---|
 | 1 | Collection (converted from the Postman YAML copy) | 122 / 137 | 177 / 177 | 0 | 0 | 16.9 s |
 | 2 | Same, repeated | 122 / 137 | 177 / 177 | 0 | 0 | 16.2 s |
-| 3 | `exports/MariStay.postman_collection.json`, after rotating the JWT secret | 122 / 137 | 177 / 177 | 0 | 0 | 14.8 s |
+| 3 | `postman/MariStay.postman_collection.json`, after rotating the JWT secret | 122 / 137 | 177 / 177 | 0 | 0 | 14.8 s |
 
 The 137 HTTP requests include 15 sent by `pm.sendRequest`: 4 concurrent bookings and 11 rate-limit logins. HTTP status mix in each run: 200 ×64, 201 ×24, 204 ×3, 400 ×7, 401 ×5, 403 ×10, 404 ×1, 409 ×13, 429 ×10. Every 4xx response is the expected result of a negative test. The Newman output contained no tokens or passwords.
 
@@ -1827,6 +1829,8 @@ The last request, *Login Rate Limit → 429*, displays its own response, a 401 c
 
 ## 8.8 How to reproduce
 
+Run these in `backend/`:
+
 ```bash
 npm run test            # unit tests (no database needed)
 npm run test:e2e        # real MySQL-compatible test database (TEST_DB_DATABASE, default maristay_test_db)
@@ -1879,7 +1883,7 @@ A temporary, portable MySQL Community Server 8.4.11 LTS ran on `127.0.0.1:3307`,
 | Schema vs MariaDB `maristay_db` (`information_schema`) | ✔ identical: 9 tables, 67 columns (64 application), 7 FKs, 17 CHECKs, 13 unique indexes |
 | `npm run test:e2e` → `maristay_mysql8_test` | ✔ **46/46**, 19.8 s |
 | Newman, API on port 3001 backed by MySQL → `maristay_mysql8_postman` | ✔ **177/177** assertions, 137 requests, 19.7 s, avg 47 ms |
-| `exports/maristay.sql` import (copy without `CREATE DATABASE`/`USE`) → `maristay_mysql8_import` | ✔ imported; deprecation warnings only |
+| `database/maristay.sql` import (copy without `CREATE DATABASE`/`USE`) → `maristay_mysql8_import` | ✔ imported; deprecation warnings only |
 | Constraints on imported data | ✔ FK 1451/1452, CHECK 3819, UNIQUE 1062 enforced |
 
 The only difference is cosmetic: foreign keys imported from the MariaDB dump show `ON DELETE NO ACTION` instead of `RESTRICT`, which InnoDB treats identically (Compliance Checklist §6).
@@ -1896,8 +1900,8 @@ The only difference is cosmetic: foreign keys imported from the MariaDB dump sho
 ### Reproduce the additional checks
 
 ```bash
-npm run verify:registration                         # isolated API on port 3001 (postman:start)
-cd frontend && node --env-file=../.env tests/ui-e2e.mjs
+cd backend && npm run verify:registration           # isolated API on port 3001 (postman:start)
+cd ../frontend && node --env-file=../backend/.env tests/ui-e2e.mjs
 ```
 
 ## 8.10 Frontend verification after the UI redesign (2026-11-27)
@@ -1943,6 +1947,27 @@ No endpoint, DTO rule, guard, role, business rule, database object or frontend f
 | Browser integration test (fresh database) | ✔ **37/37** |
 | `npm run verify:registration` | ✔ **49/49** |
 | Security and RBAC matrix | ✔ **126/126** (Helmet CSP, `nosniff`, no `X-Powered-By`, CORS) |
+
+
+## 8.12 Repository restructure and regression (2026-11-28)
+
+The repository was reorganized into `backend/` (NestJS source, tests, scripts and configuration), `database/` (`maristay.sql`), `postman/` (collection and environment), `frontend/` and `docs/`. Files were moved with `git mv`; every file in `backend/src/` and `backend/test/` is a pure rename with unchanged content, and the SQL export and Postman files are byte-identical. Only paths in scripts, documentation and the README changed. No endpoint, DTO rule, guard, role, business rule or frontend behaviour changed, and `maristay_db` was not written (table checksums identical before and after).
+
+| Check | Result |
+|---|---|
+| `npm run build` (in `backend/`) | ✔ 0 errors |
+| `npm run start:dev` | ✔ "Found 0 errors", **44 routes mapped**; `/api/docs` and `/api/docs-json` return 404 |
+| Unit tests | ✔ **33/33** |
+| End-to-end tests (`maristay_test_db`) | ✔ **46/46** |
+| Postman collection with Newman (fresh `maristay_postman_db`, port 3001) | ✔ **177/177** assertions, 137 requests, 0 failures; all 44 mapped routes are called |
+| Frontend production build | ✔ |
+| Browser integration test (fresh database) | ✔ **37/37** |
+| `npm run verify:registration` (fresh database) | ✔ **49/49** |
+| Security and RBAC matrix | ✔ **126/126** |
+| Fresh clone following the README (new `.env` from `.env.example`, new scratch database) | ✔ `npm ci`, `db:setup`, build, start-up with 44 routes, unit 33/33, e2e 46/46, frontend `npm ci` and build |
+| Git ignore and credentials | ✔ `backend/.env`, `postman/tmp/` and Postman workspace files ignored; no `.env` value, JWT or key code in the 240 tracked files |
+
+Total: **468/468** checks passed, the same as the previous baseline.
 
 <div class="page-break"></div>
 
@@ -2038,10 +2063,10 @@ Technical documentation of the tools used:
 
 1. **Get the code and install dependencies**
    ```bash
-   git clone <repository-url> maristay && cd maristay
+   git clone <repository-url> maristay && cd maristay/backend
    npm install
    ```
-2. **Configure the environment.** Copy the template, then edit the copy. Never commit `.env`.
+2. **Configure the environment** in `backend/`. Copy the template, then edit the copy. Never commit `.env`. All `npm run` commands below are run in `backend/`.
    ```bash
    cp .env.example .env        # PowerShell: Copy-Item .env.example .env
    node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"   # paste the output as JWT_SECRET
@@ -2049,18 +2074,18 @@ Technical documentation of the tools used:
    Set `DB_USERNAME` and `DB_PASSWORD`; XAMPP's `root` has an empty password by default. Choose a `SEED_DEMO_PASSWORD` of 8+ characters with letters and numbers. The API refuses to start if a required value is missing or the JWT secret is weak (Appendix C).
 3. **Create the database**, using either option:
    * **Option A (recommended):** `npm run db:setup` creates `maristay_db`, runs the migration and seeds the demo data.
-   * **Option B:** import `exports/maristay.sql` in phpMyAdmin (Import tab → choose the file → Go) or with `mysql -u root -p < exports/maristay.sql`. The script creates and uses `maristay_db`. Import it only on a server that does not already have `maristay_db`; otherwise it stops at the first table and changes nothing. With Option B, the demo accounts keep the password used when the export was made, so use Option A to choose your own.
+   * **Option B:** import `database/maristay.sql` in phpMyAdmin (Import tab → choose the file → Go) or with `mysql -u root -p < ../database/maristay.sql`. The script creates and uses `maristay_db`. Import it only on a server that does not already have `maristay_db`; otherwise it stops at the first table and changes nothing. With Option B, the demo accounts keep the password used when the export was made, so use Option A to choose your own.
 4. **Run the API:** `npm run start:dev`. The API is at `http://localhost:3000/api/v1`; test it with the Postman collection (step 6).
 5. **Run the automated tests:** `npm run test` (unit tests, no database needed) and `npm run test:e2e`. The e2e tests drop and recreate only `TEST_DB_DATABASE`, default `maristay_test_db`; the name must end in `_test`.
 6. **Postman:**
-   * **Demonstration:** import `exports/MariStay.postman_collection.json` and `exports/MariStay.postman_environment.json` (*MariStay Local*, port 3000, `maristay_db`). Set and **save** `demoPassword`. Use single requests from folders 1 and 3 for the live demonstration.
+   * **Demonstration:** import `postman/MariStay.postman_collection.json` and `postman/MariStay.postman_environment.json` from the repository (*MariStay Local*, port 3000, `maristay_db`). Set and **save** `demoPassword`. Use single requests from folders 1 and 3 for the live demonstration.
    * **Full collection (all 122 requests):** never run it against `maristay_db`, because it creates test records. Instead:
      1. `npm run postman:reset`, then `npm run postman:start`. This serves an isolated `maristay_postman_db` on port 3001.
-     2. `npm run postman:env`, then import `exports/tmp/MariStay Postman 3001.postman_environment.json`, set and save `demoPassword`.
+     2. `npm run postman:env`, then import `postman/tmp/MariStay Postman 3001.postman_environment.json`, set and save `demoPassword`.
      3. Run the whole collection in the Runner, in order and sequentially.
      4. Alternatively, run `npm install --no-save newman` and then `npm run postman:newman`.
      5. Reset and restart before every re-run.
-7. **Re-export the database (optional):** `mysqldump -u root -p --databases maristay_db --single-transaction --skip-add-drop-table > exports/maristay.sql`.
+7. **Re-export the database (optional):** `mysqldump -u root -p --databases maristay_db --single-transaction --skip-add-drop-table > ../database/maristay.sql` (from `backend/`).
 
 ## B. Demo accounts (fictional)
 
@@ -2141,7 +2166,7 @@ A React 19 + Vite + TypeScript web client in `frontend/` uses the same REST API:
 
 # Requirements Compliance Checklist
 
-Audit of every mandatory requirement in the ITEC 116 Final Project guidelines (§3 Requirements, §4 Deliverables, §7 Submission Checklist), checked against the implemented system on 2026-11-26. Final regression and Oracle MySQL 8.4 verification on 2026-11-27 (Testing §8.9).
+Audit of every mandatory requirement in the ITEC 116 Final Project guidelines (§3 Requirements, §4 Deliverables, §7 Submission Checklist), checked against the implemented system on 2026-11-26. Final regression and Oracle MySQL 8.4 verification on 2026-11-27 (Testing §8.9). Repository restructure regression on 2026-11-28 (Testing §8.12).
 
 Status key:
 - **Complete:** implemented and verified by the evidence listed.
@@ -2153,7 +2178,7 @@ Status key:
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
 | 1 | Complete NestJS project that builds and runs | NestJS 11 modular monolith, 9 feature modules | `npm run build`: 0 errors. `npm run start:dev`: "Found 0 errors", 44 routes mapped | Complete |
-| 2 | Authentication module: login, JWT, protected routes, password hashing, input validation | `src/auth/` (AuthService, JwtStrategy, global JwtAuthGuard, RolesGuard), bcrypt cost 10, global `ValidationPipe` (whitelist, forbid unknown fields) | e2e tests 1–12; Newman folders 1 and 11 | Complete |
+| 2 | Authentication module: login, JWT, protected routes, password hashing, input validation | `backend/src/auth/` (AuthService, JwtStrategy, global JwtAuthGuard, RolesGuard), bcrypt cost 10, global `ValidationPipe` (whitelist, forbid unknown fields) | e2e tests 1–12; Newman folders 1 and 11 | Complete |
 | 3 | At least 2 additional CRUD modules | **Rooms** (POST, GET, PATCH, PUT, DELETE) and **Staff** (POST, GET, PATCH, DELETE = deactivate). Guests and Reservations also cover all four operations | e2e 15–21 and 44; Newman folders 3 and 8 | Complete |
 | 4 | At least 20 REST endpoints | **44 endpoints** in 9 resources | Start-up log maps 44 routes (`npm run start:dev`, 2026-11-27); [API documentation](API_DOCUMENTATION.md) §5.3 | Complete |
 | 5 | GET, POST, PUT or PATCH, DELETE | GET 18 · POST 10 · PATCH 11 · PUT 1 · DELETE 4 | §5.3 endpoint table | Complete |
@@ -2165,10 +2190,10 @@ Status key:
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
 | 8 | MySQL database created and working | `maristay_db` on the XAMPP "MySQL" server, which is **MariaDB 10.4.32**; also verified on **Oracle MySQL 8.4.11 LTS** (see §6 below) | MariaDB: migration, seed, 46 e2e, Newman 177/177. Oracle MySQL 8.4.11: migration, seed, `schema:check` up to date, 46/46 e2e, Newman 177/177, SQL export imported (2026-11-27) | Complete |
-| 9 | TypeORM entities for every table | 8 entities: Guest, Room, Reservation, Payment, DigitalKey, Housekeeping, Staff, ServiceOrder | `src/*/entities/*.entity.ts` | Complete |
+| 9 | TypeORM entities for every table | 8 entities: Guest, Room, Reservation, Payment, DigitalKey, Housekeeping, Staff, ServiceOrder | `backend/src/*/entities/*.entity.ts` | Complete |
 | 10 | Entity relationships configured | `@ManyToOne` / `@OneToMany` for all 7 relationships | Database Design §4.5 | Complete |
 | 11 | Primary keys, foreign keys, normalization | 8 auto-increment PKs, 7 FKs (`ON DELETE RESTRICT`), 3NF, 17 CHECK constraints, unique indexes | §4.4–4.7; constraint tests (Testing §8.3) | Complete |
-| 12 | SQL export (`.sql`) | `exports/maristay.sql`, produced by `mysqldump` from the live database | Re-imported into a scratch database on 2026-11-26: 8 tables + `migrations`, 7 FKs, 17 CHECKs, 23 indexes. 2026-11-27: also imported into Oracle MySQL 8.4.11 (8 tables, 64 columns, 7 FKs, 17 CHECKs enforced) | Complete |
+| 12 | SQL export (`.sql`) | `database/maristay.sql`, produced by `mysqldump` from the live database | Re-imported into a scratch database on 2026-11-26: 8 tables + `migrations`, 7 FKs, 17 CHECKs, 23 indexes. 2026-11-27: also imported into Oracle MySQL 8.4.11 (8 tables, 64 columns, 7 FKs, 17 CHECKs enforced) | Complete |
 
 ## 3. Authentication and security
 
@@ -2185,7 +2210,7 @@ Status key:
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
 | 18 | All endpoints tested | Jest unit tests, Supertest e2e tests, Postman collection | 33/33 unit, 46/46 e2e (Figures 8.17–8.18); final regression 2026-11-27: 33/33 unit, 46/46 e2e on MariaDB and 46/46 on Oracle MySQL 8.4 (Testing §8.9) | Complete |
-| 19 | Postman collection exported (`.json`) | `exports/MariStay.postman_collection.json` (v2.1): 11 folders, 122 requests | 5 Newman runs, each 177/177 assertions: 3 on 2026-11-26, and on 2026-11-27 one on MariaDB and one on Oracle MySQL 8.4 | Complete |
+| 19 | Postman collection exported (`.json`) | `postman/MariStay.postman_collection.json` (v2.1): 11 folders, 122 requests | 5 Newman runs, each 177/177 assertions: 3 on 2026-11-26, and on 2026-11-27 one on MariaDB and one on Oracle MySQL 8.4 | Complete |
 | 20 | Postman testing in the Postman app | Same collection in the Postman desktop Collection Runner, environment *MariStay Postman 3001* (port 3001) | 2026-11-26: 177/177 assertions passed, 0 failed, 0 errors, 17.347 s, average response 13 ms (Testing §8.6, Figure 8.12) | Complete |
 | 21 | Representative API screenshots in the documentation | 19 screenshots in `docs/screenshots/` (tokens and key code redacted), with captions: Figure 7.1 and Figures 8.1–8.18 (the Swagger UI screenshot was removed with Swagger on 2026-11-27) | Login 200, room CRUD 201/200/200/204/404, 401, 403, overlap 409, digital check-in and smart lock, phpMyAdmin tables, test runs | Complete |
 
@@ -2194,8 +2219,8 @@ Status key:
 | # | Requirement | Implementation | Evidence | Status |
 |---|---|---|---|---|
 | 22 | Repository under the student's own GitHub account, public or private with the instructor as collaborator | https://github.com/reyesgeero001/Maristay (public, remote `origin`) | 2026-11-27: `main` pushed and opens publicly. All commits are by `Reyesgeero001`; the history was rewritten once, with the student's approval, to remove automatic co-author trailers | Complete |
-| 23 | README describing the project, tech stack and how to run it | `README.md` | All npm commands it mentions exist in `package.json` | Complete |
-| 24 | `.gitignore` excluding `node_modules` and `.env` | `.gitignore` also excludes `dist/`, backups, `exports/tmp/` and Postman workspace files | `git check-ignore` | Complete |
+| 23 | README describing the project, tech stack and how to run it | `README.md` | All npm commands it mentions exist in `backend/package.json`; a fresh clone was installed and started by following it (2026-11-28) | Complete |
+| 24 | `.gitignore` excluding `node_modules` and `.env` | `.gitignore` also excludes `dist/`, backups, `postman/tmp/` and Postman workspace files (only the two exported Postman JSON files in `postman/` are tracked) | `git check-ignore` | Complete |
 | 25 | At least 5 separate, meaningful commits | More than 20 incremental commits on `main` (25–27 Nov 2026) | `git log`; GitHub commit history | Complete |
 | 26 | Documentation PDF with all required chapters | `docs/MariStay_Final_Documentation.pdf`, built from the chapter files | Rebuilt 2026-11-27: cover, table of contents, Chapters 1–9, References, Appendix A–G (with the final frontend screenshots) and the compliance checklist; every page rendered and checked visually | Complete (video link and date pending) |
 | 27 | GitHub link and video link on the cover page | `docs/final/00-cover.md` | GitHub link added; video link and submission date still placeholders | Student action (video link, date) |
@@ -2219,7 +2244,7 @@ Status key:
   | Seed data | ✔ 4 staff, 2 guests, 9 rooms, 3 reservations, 2 payments, 2 housekeeping tasks, 1 service order |
   | Backend e2e suite (`npm run test:e2e`, `maristay_mysql8_test`) | ✔ **46/46** |
   | Postman collection with Newman (API on port 3001 backed by MySQL 8.4) | ✔ **177/177** assertions, 137 requests, 0 failures |
-  | `exports/maristay.sql` imported (copy without the `CREATE DATABASE`/`USE` lines) | ✔ imported; only deprecation warnings (`utf8` alias, integer display width) from the MariaDB dump header |
+  | `database/maristay.sql` imported (copy without the `CREATE DATABASE`/`USE` lines) | ✔ imported; only deprecation warnings (`utf8` alias, integer display width) from the MariaDB dump header |
   | Constraint enforcement on the imported data | ✔ FK (1451, 1452), CHECK (3819) and UNIQUE (1062) violations rejected |
 
 * **One cosmetic difference, no functional impact:** MariaDB's `mysqldump` omits `ON DELETE RESTRICT` because it is the default, so a MySQL import of the dump shows the foreign keys as `ON DELETE NO ACTION`. In InnoDB, `NO ACTION` and `RESTRICT` behave identically: the delete is rejected immediately (verified above). Databases created through the TypeORM migration, which is the documented setup, show `RESTRICT` on both servers.

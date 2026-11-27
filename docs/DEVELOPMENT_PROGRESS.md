@@ -179,7 +179,7 @@ Remote `origin` = https://github.com/reyesgeero001/Maristay (public). On 2026-11
 3. ~~Postman desktop run~~: done, 177/177 (§8.6).
 4. ~~Screenshots~~: done and integrated (§8.7).
 5. **Video:** record with your own narration using `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
-6. **Cover page:** the GitHub link is in. Add the video link and the submission date to `docs/final/00-cover.md`, then run `npm run docs:build`.
+6. **Cover page:** the GitHub link is in. Add the video link and the submission date to `docs/final/00-cover.md`, then run `npm run docs:build` in `backend/`.
 7. **Slides:** review and rehearse `docs/MariStay_Presentation.pptx` (about 13 minutes).
 8. ~~Decide about `MASTER_PROMPT.md`~~: done. It was removed from the tracked files and added to `.gitignore`, and the local copy is kept. It still exists in the first commits, because history was deliberately not rewritten; it contains no secrets.
 9. ~~Optional: verify on Oracle MySQL 8~~: done, MySQL 8.4.11 LTS (Compliance Checklist §6).
@@ -192,8 +192,13 @@ Remote `origin` = https://github.com/reyesgeero001/Maristay (public). On 2026-11
   - Documentation, PDF, slides, video script and presentation guide were updated. Figure 5.1 (Swagger screenshot) was removed; its image is kept in the git-ignored `exports/tmp/`. The video script now demonstrates the backend only (no frontend part).
   - Verified (Testing §8.11): build ✔; `npm run start:dev` maps 44 routes; unit 33/33; e2e 46/46; Newman 177/177; browser 37/37; registration 49/49; security 126/126.
 
+- **Phase 14 (2026-11-28), repository restructure** (approved by the student):
+  - Root reduced to `backend/`, `database/`, `docs/`, `frontend/`, `postman/`, `.gitattributes`, `.gitignore` and `README.md`. The backend (`src/`, `test/`, `scripts/`, `package.json`, configuration, `.env.example`) moved into `backend/`; `maristay.sql` into `database/`; the Postman collection and environment into `postman/`.
+  - Moved with `git mv`, so file history is kept; no history was rewritten. Paths were updated in the scripts, documentation and README. The local `.env` now belongs in `backend/.env`.
+  - Verified (Testing §8.12): 468/468 checks, plus a fresh-clone installation.
+
 ## Next recommended action
 1. ~~**GitHub:** push the Swagger UI removal~~: done on 2026-11-27.
 2. **Video:** record it with `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
-3. **Cover:** add the video link and the submission date to `docs/final/00-cover.md`, then run `npm run docs:build` once more and commit the updated PDF.
+3. **Cover:** add the video link and the submission date to `docs/final/00-cover.md`, then run `npm run docs:build` in `backend/` once more and commit the updated PDF.
 4. Rehearse the defense with `docs/PRESENTATION_GUIDE.md` and `docs/DEFENSE_QUESTIONS.md`.

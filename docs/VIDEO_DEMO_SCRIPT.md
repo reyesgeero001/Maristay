@@ -130,6 +130,6 @@ This part runs on the **separate test database** (port 3001), so the demo data s
 - [ ] Nothing secret was visible: no `.env` and no password values.
 - [ ] Upload to Google Drive (Share → *Anyone with the link — Viewer*) or YouTube (*Unlisted*).
 - [ ] Open the link in an **incognito window** to confirm it plays.
-- [ ] Paste the link in `docs/final/00-cover.md`, then run `npm run docs:build`.
+- [ ] Paste the link in `docs/final/00-cover.md`, then run `npm run docs:build` in `backend/`.
 - [ ] Stop the port-3001 server (Ctrl+C). Run `npm run postman:reset` before using that database again.
 - [ ] Check part A for a readable digital key code (the *Open Room Door* request body and the check-in response contain one). If one is readable for more than a moment, blur it. That key belongs to the isolated database and is revoked at check-out.
