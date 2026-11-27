@@ -1,5 +1,10 @@
 * text=auto eol=lf
+
+# Binary files
 *.pdf binary
 *.png binary
 *.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
 *.pptx binary
