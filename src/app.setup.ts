@@ -5,7 +5,6 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Reflector } from '@nestjs/core';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 
@@ -21,15 +20,8 @@ export function configureApp(app: INestApplication): void {
   app.setGlobalPrefix(API_PREFIX);
 
   // Security headers (CSP, X-Content-Type-Options, X-Frame-Options, HSTS, ...).
-  // The local demo runs on plain HTTP, so the CSP "upgrade-insecure-requests"
-  // directive is only sent in production (where HTTPS is required); otherwise
-  // browsers would try to load Swagger UI assets over HTTPS and fail.
-  const isProduction = config.get<string>('NODE_ENV') === 'production';
-  app.use(
-    helmet({
-      contentSecurityPolicy: isProduction ? true : { directives: { upgradeInsecureRequests: null } },
-    }),
-  );
+  // The API serves JSON only, so Helmet's defaults apply in every environment.
+  app.use(helmet());
 
   // Restricted CORS: only the configured front-end origin(s) may call the API from a browser.
   const origins = (config.get<string>('CORS_ORIGIN') ?? '')
@@ -54,23 +46,4 @@ export function configureApp(app: INestApplication): void {
   // Honors @Exclude() on entities (passwordHash, keyCodeHash never leave the server).
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalFilters(new AllExceptionsFilter());
-}
-
-export function setupSwagger(app: INestApplication): void {
-  const document = SwaggerModule.createDocument(
-    app,
-    new DocumentBuilder()
-      .setTitle('MariStay API')
-      .setDescription(
-        'MariStay: Hotel Management and Digital Guest Services System — REST API (ITEC 116 Final Project).\n\n' +
-          'Log in with `POST /api/v1/auth/login`, then click **Authorize** and paste the `accessToken`.\n\n' +
-          'Payment, SMS/e-mail notification and smart-lock integrations are **simulated**.',
-      )
-      .setVersion('1.0.0')
-      .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' })
-      .build(),
-  );
-  SwaggerModule.setup('api/docs', app, document, {
-    swaggerOptions: { persistAuthorization: true, tagsSorter: 'alpha' },
-  });
 }

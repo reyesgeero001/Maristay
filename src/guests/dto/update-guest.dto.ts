@@ -1,4 +1,4 @@
-import { OmitType, PartialType } from '@nestjs/swagger';
+import { OmitType, PartialType } from '@nestjs/mapped-types';
 import { IsEnum, IsOptional, IsString, Matches, MaxLength, ValidateIf } from 'class-validator';
 import { AccountStatus } from '../../common/enums';
 import { PASSWORD_MESSAGE, PASSWORD_REGEX } from '../../common/utilities/security.util';
