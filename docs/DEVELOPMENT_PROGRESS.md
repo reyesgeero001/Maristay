@@ -179,7 +179,7 @@ Remote `origin` = https://github.com/reyesgeero001/Maristay (public). On 2026-11
 3. ~~Postman desktop run~~: done, 177/177 (§8.6).
 4. ~~Screenshots~~: done and integrated (§8.7).
 5. **Video:** record with your own narration using `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
-6. **Cover page:** the GitHub link is in. Add the video link and the submission date to `docs/final/00-cover.md`, then run `npm run docs:build` in `backend/`.
+6. **Cover page:** the GitHub link is in. Add the video link and the submission date to the cover of `docs/MariStay_Final_Project_Documentation.docx`, then export it to PDF from Word (same file name).
 7. **Slides:** review and rehearse `docs/MariStay_Presentation.pptx` (about 13 minutes).
 8. ~~Decide about `MASTER_PROMPT.md`~~: done. It was removed from the tracked files and added to `.gitignore`, and the local copy is kept. It still exists in the first commits, because history was deliberately not rewritten; it contains no secrets.
 9. ~~Optional: verify on Oracle MySQL 8~~: done, MySQL 8.4.11 LTS (Compliance Checklist §6).
@@ -197,8 +197,13 @@ Remote `origin` = https://github.com/reyesgeero001/Maristay (public). On 2026-11
   - Moved with `git mv`, so file history is kept; no history was rewritten. Paths were updated in the scripts, documentation and README. The local `.env` now belongs in `backend/.env`.
   - Verified (Testing §8.12): 468/468 checks, plus a fresh-clone installation.
 
+- **Phase 15 (2026-11-28), official documentation** (requested by the student):
+  - The student's revised 25-page `docs/MariStay_Final_Project_Documentation.docx` is the official documentation; its PDF is exported from Word. Its paths, setup commands, testing instructions and repository structure were updated for the new layout, and its headings were set to Arial (they had been rendering in the theme font). The page layout and table-of-contents page numbers are unchanged.
+  - The detailed report built from the Markdown chapters is archived as `docs/reference/MariStay_Technical_Reference.pdf` (with `TECHNICAL_REFERENCE.md`); `npm run docs:build` now writes there.
+  - The 126-check security matrix is now `backend/scripts/security-check.js` (`npm run security:check`).
+
 ## Next recommended action
 1. ~~**GitHub:** push the Swagger UI removal~~: done on 2026-11-27.
 2. **Video:** record it with `docs/VIDEO_DEMO_SCRIPT.md`, upload it, and test the link in an incognito window.
-3. **Cover:** add the video link and the submission date to `docs/final/00-cover.md`, then run `npm run docs:build` in `backend/` once more and commit the updated PDF.
+3. **Cover:** add the video link and the submission date to the cover of `docs/MariStay_Final_Project_Documentation.docx`, export the PDF from Word, and commit both files.
 4. Rehearse the defense with `docs/PRESENTATION_GUIDE.md` and `docs/DEFENSE_QUESTIONS.md`.

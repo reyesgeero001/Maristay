@@ -321,6 +321,7 @@ npm run postman:reset   # rebuild maristay_postman_db only
 npm run postman:start   # terminal 1: API on http://localhost:3001/api/v1
 npm install --no-save newman
 npm run postman:newman  # terminal 2
+npm run security:check  # terminal 2: 126 security and role-access checks
 ```
 
 ## 8.9 Final regression and Oracle MySQL verification (2026-11-27)
@@ -444,7 +445,7 @@ The repository was reorganized into `backend/` (NestJS source, tests, scripts an
 | Frontend production build | ✔ |
 | Browser integration test (fresh database) | ✔ **37/37** |
 | `npm run verify:registration` (fresh database) | ✔ **49/49** |
-| Security and RBAC matrix | ✔ **126/126** |
+| Security and RBAC matrix (`npm run security:check`) | ✔ **126/126** |
 | Fresh clone following the README (new `.env` from `.env.example`, new scratch database) | ✔ `npm ci`, `db:setup`, build, start-up with 44 routes, unit 33/33, e2e 46/46, frontend `npm ci` and build |
 | Git ignore and credentials | ✔ `backend/.env`, `postman/tmp/` and Postman workspace files ignored; no `.env` value, JWT or key code in the 240 tracked files |
 
