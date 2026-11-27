@@ -33,17 +33,18 @@ references/
 # Private development brief (kept locally, not published)
 MASTER_PROMPT.md
 
-# Temporary exports that may contain credentials or live tokens
-exports/tmp/
-exports/*.local.json
-*.postman_environment.local.json
-
-# Postman desktop workspace files (local file-sync copies and the workspace id).
-# The submitted collection is exports/MariStay.postman_collection.json (v2.1).
+# Postman: only the exported collection and environment are tracked.
+# Desktop file-sync folders (collections/, environments/, globals/ ...), the
+# workspace id and generated files in postman/tmp/ may hold tokens and stay local.
+/postman/*
+!/postman/MariStay.postman_collection.json
+!/postman/MariStay.postman_environment.json
 .postman/
-postman/
-exports/MariStay API/
-exports/*.environment.yaml
+*.postman_environment.local.json
+*.environment.yaml
+
+# Former exports/ folder (local temporary files and backups only)
+/exports/
 
 # Database backups (contain password hashes)
 *.sql.bak
